@@ -10,7 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:id="@+id/linearLayout2">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -30,11 +31,14 @@
             android:gravity="center"
             android:text="Placeholder Faculty"
             android:id = "@+id/faculty_text"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id = "@+id/pager_button"
+            android:text="Launch Pager"/>
+
     </LinearLayout>
-
-
-
-
 
 
 </RelativeLayout>
