@@ -37,6 +37,21 @@
             android:gravity="center"
             android:id = "@+id/pager_button"
             android:text="Launch Pager"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="bottom|center"
+            android:layout_gravity="bottom|center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/mmls_load_status"/>
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/mmls_load_progressbar"/>
+        </LinearLayout>
 
     </LinearLayout>
 

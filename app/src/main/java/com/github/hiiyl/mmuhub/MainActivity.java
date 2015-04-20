@@ -1,7 +1,10 @@
 package com.github.hiiyl.mmuhub;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -9,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +25,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.hiiyl.mmuhub.data.MMUContract;
+import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -37,9 +44,16 @@ public class MainActivity extends ActionBarActivity {
     private TextView welcome_text;
     private TextView faculty_text;
     private TextView student_id_textview;
+    private TextView mmls_load_status;
     private Button pager_button;
+    private ProgressBar progressBar;
 
-    static List<String> announcement_list = new ArrayList<String>();
+    private Cursor mCursor;
+
+
+    static ArrayList<List<String>> annoucement_list_array = new ArrayList<List<String>>();
+    static ArrayList<String> subject_names = new ArrayList<String>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +72,8 @@ public class MainActivity extends ActionBarActivity {
         faculty_text = (TextView) findViewById(R.id.faculty_text);
         student_id_textview = (TextView) findViewById(R.id.student_id_textview);
         pager_button = (Button) findViewById(R.id.pager_button);
+        progressBar = (ProgressBar) findViewById(R.id.mmls_load_progressbar);
+        mmls_load_status = (TextView) findViewById(R.id.mmls_load_status);
 
 
         welcome_text.setText("Welcome, " + prefs.getString("name", ""));
@@ -105,6 +121,9 @@ public class MainActivity extends ActionBarActivity {
             editor.clear();
             editor.commit();
             finish();
+            MMUDbHelper mOpenHelper = new MMUDbHelper(MainActivity.this);
+            SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+            mOpenHelper.onLogout(db);
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             return true;
@@ -112,10 +131,14 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public List<String> getAnnouncementJSON() {
+    public ArrayList<List<String>> getAnnouncementJSON() {
+        MMUDbHelper mOpenHelper = new MMUDbHelper(this);
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://mmu-api.herokuapp.com/mmls_api";
 //        String url = "https://mmu-api.herokuapp.com/login_test.json";
+        Toast.makeText(MainActivity.this, "QUERYING DATA", Toast.LENGTH_SHORT).show();
+        mmls_load_status.setText("ATTEMPTING TO QUERY SERVER...");
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -123,25 +146,85 @@ public class MainActivity extends ActionBarActivity {
                 {
                     Toast.makeText(MainActivity.this, "TRYING TO SUBMIT", Toast.LENGTH_SHORT);
                     JSONArray jarray = new JSONArray(response);
+                    Vector<ContentValues> cVVector = new Vector<ContentValues>(jarray.length());
                     for(int i = 0; i < jarray.length(); i++)
                     {
                         JSONObject jobj = jarray.getJSONObject(i);
+                        String subject_name = jobj.getString("name");
+
+                        mCursor = db.query(MMUContract.SubjectEntry.TABLE_NAME,
+                            new String[] {MMUContract.SubjectEntry.COLUMN_NAME, MMUContract.SubjectEntry._ID},
+                            MMUContract.SubjectEntry.COLUMN_NAME + " = ? ",
+                            new String[] {subject_name},
+                            null,
+                            null,
+                            null
+                            );
+                        long subject_id;
+                        if(!mCursor.moveToFirst()) {
+                            ContentValues subjectValues = new ContentValues();
+                            subjectValues.put(MMUContract.SubjectEntry.COLUMN_NAME, subject_name);
+                            subject_id = db.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
+                        }
+                        else {
+                            subject_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.SubjectEntry._ID));
+                        }
+                        //TODO REMOVE USELESS WEEK MODEL
+                        List<String> announcement_list = new ArrayList<String>();
                         JSONArray weeks = jobj.getJSONArray("weeks");
-                        if(weeks != null) {
+                        if(weeks != null && subject_id != -1) {
                             for(int j = 0; j < weeks.length(); j++) {
                                 JSONObject week_obj = weeks.getJSONObject(j);
+                                String week_title = week_obj.getString("title");
+                                mCursor = db.query(MMUContract.WeekEntry.TABLE_NAME,
+                                        new String[] {MMUContract.WeekEntry.COLUMN_TITLE, MMUContract.WeekEntry._ID},
+                                        MMUContract.WeekEntry.COLUMN_TITLE + " = ? ",
+                                        new String[] {subject_name},
+                                        null,
+                                        null,
+                                        null
+                                );
+                                long week_id;
+                                if(!mCursor.moveToFirst()) {
+                                    ContentValues weekValues = new ContentValues();
+                                    weekValues.put(MMUContract.WeekEntry.COLUMN_TITLE, week_title);
+                                    weekValues.put(MMUContract.WeekEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                    week_id = db.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
+                                }
+                                else {
+                                    week_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.WeekEntry._ID));
+                                }
+
                                 JSONArray announcements = week_obj.getJSONArray("announcements");
-                                if (announcements != null) {
+                                if (announcements != null && week_id != -1) {
                                     for (int k = 0; k < announcements.length(); k++) {
                                         JSONObject announcement = announcements.getJSONObject(k);
+                                        String announcement_title = announcement.getString("title");
                                         String announcement_contents = announcement.getString("contents");
+                                        String announcement_author = announcement.getString("author");
+                                        String announcement_posted_date = announcement.getString("posted_date");
+                                        ContentValues announcementValues = new ContentValues();
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_TITLE, announcement_title);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_CONTENTS, announcement_contents);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_WEEK_KEY, week_id);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                        long _id = db.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+
                                         announcement_list.add(announcement_contents);
                                     }
                                 }
                             }
                         }
+                        annoucement_list_array.add(announcement_list);
                     }
-                    Toast.makeText(MainActivity.this, "POST DATA DONE", Toast.LENGTH_SHORT);
+
+                    Toast.makeText(MainActivity.this, "POST DATA DONE", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.INVISIBLE);
+                    mmls_load_status.setText("DATA FETCH COMPLETE");
+
+
 
                 }
                 catch (JSONException e) {
@@ -159,16 +242,21 @@ public class MainActivity extends ActionBarActivity {
                             json = new String(networkResponse.data);
                             json = Utility.trimMessage(json, "message");
                             if(json != null)
-                                Toast.makeText(MainActivity.this, json, Toast.LENGTH_SHORT);
+                                Toast.makeText(MainActivity.this, json, Toast.LENGTH_SHORT).show();
+                                mmls_load_status.setText(json);
                             break;
                         default:
-                            Toast.makeText(MainActivity.this, "NO INTERNET CONNECTION", Toast.LENGTH_SHORT);
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(MainActivity.this, "NO INTERNET CONNECTION", Toast.LENGTH_SHORT).show();
+                            mmls_load_status.setText("NO INTERNET CONNECTION");
                     }
                     //Additional cases
                 }
                 else
                 {
-                    Toast.makeText(MainActivity.this, "NO INTERNET CONNECTION", Toast.LENGTH_SHORT);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(MainActivity.this, "NO INTERNET CONNECTION", Toast.LENGTH_SHORT).show();
+                    mmls_load_status.setText("NO INTERNET CONNECTION");
                 }
             }
         }){
@@ -194,6 +282,158 @@ public class MainActivity extends ActionBarActivity {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(sr);
-        return announcement_list;
+        return annoucement_list_array;
+    };
+    public void getBulletinData() {
+        MMUDbHelper mOpenHelper = new MMUDbHelper(this);
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "https://mmu-api.herokuapp.com/bulletin_api";
+//        String url = "https://mmu-api.herokuapp.com/login_test.json";
+        Toast.makeText(MainActivity.this, "QUERYING DATA", Toast.LENGTH_SHORT).show();
+        mmls_load_status.setText("ATTEMPTING TO QUERY SERVER...");
+        StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try
+                {
+                    Toast.makeText(MainActivity.this, "TRYING TO FETCH BULLETIN", Toast.LENGTH_SHORT);
+                    JSONArray jarray = new JSONArray(response);
+                    Vector<ContentValues> cVVector = new Vector<ContentValues>(jarray.length());
+                    for(int i = 0; i < jarray.length(); i++)
+                    {
+                        JSONObject jobj = jarray.getJSONObject(i);
+                        String subject_name = jobj.getString("name");
+
+                        mCursor = db.query(MMUContract.SubjectEntry.TABLE_NAME,
+                                new String[] {MMUContract.SubjectEntry.COLUMN_NAME, MMUContract.SubjectEntry._ID},
+                                MMUContract.SubjectEntry.COLUMN_NAME + " = ? ",
+                                new String[] {subject_name},
+                                null,
+                                null,
+                                null
+                        );
+                        long subject_id;
+                        if(!mCursor.moveToFirst()) {
+                            ContentValues subjectValues = new ContentValues();
+                            subjectValues.put(MMUContract.SubjectEntry.COLUMN_NAME, subject_name);
+                            subject_id = db.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
+                        }
+                        else {
+                            subject_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.SubjectEntry._ID));
+                        }
+                        //TODO REMOVE USELESS WEEK MODEL
+                        List<String> announcement_list = new ArrayList<String>();
+                        JSONArray weeks = jobj.getJSONArray("weeks");
+                        if(weeks != null && subject_id != -1) {
+                            for(int j = 0; j < weeks.length(); j++) {
+                                JSONObject week_obj = weeks.getJSONObject(j);
+                                String week_title = week_obj.getString("title");
+                                mCursor = db.query(MMUContract.WeekEntry.TABLE_NAME,
+                                        new String[] {MMUContract.WeekEntry.COLUMN_TITLE, MMUContract.WeekEntry._ID},
+                                        MMUContract.WeekEntry.COLUMN_TITLE + " = ? ",
+                                        new String[] {subject_name},
+                                        null,
+                                        null,
+                                        null
+                                );
+                                long week_id;
+                                if(!mCursor.moveToFirst()) {
+                                    ContentValues weekValues = new ContentValues();
+                                    weekValues.put(MMUContract.WeekEntry.COLUMN_TITLE, week_title);
+                                    weekValues.put(MMUContract.WeekEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                    week_id = db.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
+                                }
+                                else {
+                                    week_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.WeekEntry._ID));
+                                }
+
+                                JSONArray announcements = week_obj.getJSONArray("announcements");
+                                if (announcements != null && week_id != -1) {
+                                    for (int k = 0; k < announcements.length(); k++) {
+                                        JSONObject announcement = announcements.getJSONObject(k);
+                                        String announcement_title = announcement.getString("title");
+                                        String announcement_contents = announcement.getString("contents");
+                                        String announcement_author = announcement.getString("author");
+                                        String announcement_posted_date = announcement.getString("posted_date");
+                                        ContentValues announcementValues = new ContentValues();
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_TITLE, announcement_title);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_CONTENTS, announcement_contents);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_WEEK_KEY, week_id);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
+                                        announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                        long _id = db.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+
+                                        announcement_list.add(announcement_contents);
+                                    }
+                                }
+                            }
+                        }
+                        annoucement_list_array.add(announcement_list);
+                    }
+
+                    Toast.makeText(MainActivity.this, "POST DATA DONE", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.INVISIBLE);
+                    mmls_load_status.setText("DATA FETCH COMPLETE");
+
+
+
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            String json = null;
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                NetworkResponse networkResponse = error.networkResponse;
+                if(networkResponse != null && networkResponse.data != null){
+                    switch(networkResponse.statusCode){
+                        case 400:
+                            json = new String(networkResponse.data);
+                            json = Utility.trimMessage(json, "message");
+                            if(json != null)
+                                Toast.makeText(MainActivity.this, json, Toast.LENGTH_SHORT).show();
+                            mmls_load_status.setText(json);
+                            break;
+                        default:
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(MainActivity.this, "NO INTERNET CONNECTION", Toast.LENGTH_SHORT).show();
+                            mmls_load_status.setText("NO INTERNET CONNECTION");
+                    }
+                    //Additional cases
+                }
+                else
+                {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(MainActivity.this, "NO INTERNET CONNECTION", Toast.LENGTH_SHORT).show();
+                    mmls_load_status.setText("NO INTERNET CONNECTION");
+                }
+            }
+        }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String, String> params = new HashMap<String, String>();
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                params.put("student_id", prefs.getString("student_id", ""));
+                params.put("password", prefs.getString("icems_password", ""));
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> headers = new HashMap<String, String>();
+                headers.put("Content-Type","application/x-www-form-urlencoded");
+                headers.put("abc", "value");
+                return headers;
+            }
+        };
+        sr.setRetryPolicy(new DefaultRetryPolicy(
+                30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        queue.add(sr);
     };
 }

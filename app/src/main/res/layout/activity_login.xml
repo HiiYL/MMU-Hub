@@ -24,6 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id = "@+id/student_id_field"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
             android:hint="Student ID"/>
         <!--<TextView-->
         <!--android:layout_width="wrap_content"-->
@@ -35,17 +37,24 @@
             android:layout_height="wrap_content"
             android:id = "@+id/camsys_pass_field"
             android:hint="Camsys Password"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
             android:password="true"/>
-        <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:gravity="center_horizontal"-->
-        <!--android:text="MMLS Password"/>-->
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id = "@+id/icems_pass_field"
+            android:hint="ICEMS Password"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:password="true"/>
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id = "@+id/mmls_pass_field"
             android:hint="MMLS Password"
+            android:singleLine="true"
+            android:imeOptions="actionDone"
             android:password="true"/>
         <Button
             android:layout_width="wrap_content"

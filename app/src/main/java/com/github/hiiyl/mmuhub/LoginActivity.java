@@ -34,6 +34,7 @@ public class LoginActivity extends ActionBarActivity {
     private EditText student_id;
     private EditText camsys_password;
     private EditText mmls_password;
+    private EditText icems_password;
     private TextView login_status;
     private Button login_btn;
     private Context mContext;
@@ -68,8 +69,10 @@ public class LoginActivity extends ActionBarActivity {
         student_id = (EditText) findViewById(R.id.student_id_field);
         camsys_password = (EditText) findViewById(R.id.camsys_pass_field);
         mmls_password = (EditText) findViewById(R.id.mmls_pass_field);
+        icems_password = (EditText) findViewById(R.id.icems_pass_field);
         login_btn = (Button) findViewById(R.id.loginBtn);
         login_status = (TextView) findViewById(R.id.login_status);
+
     }
     public void requestAuthentication() {
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -88,6 +91,7 @@ public class LoginActivity extends ActionBarActivity {
                 editor.putString("student_id", student_id.getText().toString());
                 editor.putString("camsys_password", camsys_password.getText().toString());
                 editor.putString("mmls_password", mmls_password.getText().toString());
+                editor.putString("icems_password", icems_password.getText().toString());
                 editor.putString("name", name);
                 editor.putString("faculty", faculty);
                 editor.commit();

@@ -36,6 +36,14 @@
             android:name=".MMLSActivity"
             android:label="@string/title_activity_mmls" >
         </activity>
+        <activity
+            android:name=".AnnouncementDetailActivity"
+            android:label="@string/title_activity_announcement_detail" >
+        </activity>
+        <activity
+            android:name=".BulletinActivity"
+            android:label="@string/title_activity_bulletin" >
+        </activity>
     </application>
 
 </manifest>
