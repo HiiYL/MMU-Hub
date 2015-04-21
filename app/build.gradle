@@ -18,11 +18,14 @@ android {
         }
     }
 }
-
+repositories {
+    jcenter()
+}
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.google.android.gms:play-services-gcm:7.0.0'
+    compile 'com.github.navasmdc:MaterialDesign:1.+@aar'
     //    // Support Libraries
     //    compile 'com.android.support:appcompat-v7:21.0.3'
     //    compile 'com.android.support:cardview-v7:21.0.3'

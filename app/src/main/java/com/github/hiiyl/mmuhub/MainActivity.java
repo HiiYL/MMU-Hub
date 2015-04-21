@@ -98,7 +98,7 @@ public class MainActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
-        getAnnouncementJSON();
+        //getAnnouncementJSON();
     }
 
 
@@ -341,6 +341,7 @@ public class MainActivity extends ActionBarActivity {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(sr);
+        Utility.refreshToken(MainActivity.this);
         return annoucement_list_array;
     };
     public void getBulletinData() {
