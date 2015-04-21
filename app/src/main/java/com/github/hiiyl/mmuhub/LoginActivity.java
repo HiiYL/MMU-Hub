@@ -85,10 +85,14 @@ public class LoginActivity extends ActionBarActivity {
                 String profile = Utility.trimMessage(response, "profile");
                 String name = Utility.trimMessage(profile, "name");
                 String faculty = Utility.trimMessage(profile, "faculty");
+                String cookie = Utility.trimMessage(response, "cookie");
+                String token = Utility.trimMessage(response, "token");
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putBoolean("logged_in", true);
                 editor.putString("student_id", student_id.getText().toString());
+                editor.putString("cookie", "laravel_session=" + cookie);
+                editor.putString("token", token);
 //                editor.putString("camsys_password", camsys_password.getText().toString());
                 editor.putString("mmls_password", mmls_password.getText().toString());
 //                editor.putString("icems_password", icems_password.getText().toString());

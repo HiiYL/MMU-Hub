@@ -13,7 +13,7 @@ import com.github.hiiyl.mmuhub.data.MMUContract.FilesEntry;
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -48,11 +48,14 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                 FilesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 FilesEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 FilesEntry.COLUMN_TOKEN + " TEXT NOT NULL, " +
-                FilesEntry.COLUMN_FILE_PATH + " TEXT NOT NULL, " +
+                FilesEntry.COLUMN_REMOTE_FILE_PATH + " TEXT NOT NULL, " +
+                FilesEntry.COLUMN_LOCAL_FILE_PATH + " TEXT, " +
+                FilesEntry.COLUMN_CONTENT_ID + " TEXT NOT NULL, " +
                 FilesEntry.COLUMN_CONTENT_TYPE + " TEXT NOT NULL, " +
                 FilesEntry.COLUMN_SUBJECT_KEY + " INTEGER NOT NULL, " +
+                FilesEntry.COLUMN_DOWNLOADED + " BOOLEAN, " +
                 "FOREIGN KEY (" + FilesEntry.COLUMN_SUBJECT_KEY + ") REFERENCES " +
-                SubjectEntry.TABLE_NAME + " (" + SubjectEntry._ID + " );";
+                SubjectEntry.TABLE_NAME + " (" + SubjectEntry._ID + " ));";
         sqLiteDatabase.execSQL(SQL_CREATE_SUBJECT_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_WEEK_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_ANNOUNCEMENT_TABLE);
@@ -70,12 +73,14 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeekEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AnnouncementEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FilesEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeekEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AnnouncementEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FilesEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
@@ -41,11 +42,13 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
 
     private static MMUDbHelper mOpenHelper;
     private static SQLiteDatabase db;
+    private static Button mDownloadButton;
+    private static int mPosition = 1;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    static ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -221,6 +224,15 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                         startActivity(intent);
                     }
                     return true;
+                }
+            });
+            mDownloadButton = (Button)rootView.findViewById(R.id.lecture_notes_download);
+            mDownloadButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), DownloadActivity.class);
+                    intent.putExtra("SUBJECT_ID", MMLSActivity.mViewPager.getCurrentItem()+ 1);
+                    startActivity(intent);
                 }
             });
 

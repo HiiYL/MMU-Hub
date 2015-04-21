@@ -54,7 +54,10 @@ public class MMUContract {
         public static final String COLUMN_NAME = "file_name";
         public static final String COLUMN_TOKEN = "file_token";
         public static final String COLUMN_CONTENT_TYPE = "content_type";
-        public static final String COLUMN_FILE_PATH = "file_path";
+        public static final String COLUMN_CONTENT_ID = "content_id";
+        public static final String COLUMN_REMOTE_FILE_PATH = "remote_file_path";
+        public static final String COLUMN_LOCAL_FILE_PATH = "local_file_path";
         public static final String COLUMN_SUBJECT_KEY = "subject_id";
+        public static final String COLUMN_DOWNLOADED = "downloaded";
     }
 }

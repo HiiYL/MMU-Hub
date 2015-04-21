@@ -12,4 +12,5 @@
     <string name="title_section3">Section 3</string>
     <string name="title_activity_announcement_detail">AnnouncementDetailActivity</string>
     <string name="title_activity_bulletin">BulletinActivity</string>
+    <string name="title_activity_download">DownloadActivity</string>
 </resources>
