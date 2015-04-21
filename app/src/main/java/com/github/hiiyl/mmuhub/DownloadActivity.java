@@ -1,5 +1,6 @@
 package com.github.hiiyl.mmuhub;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -81,18 +83,19 @@ public class DownloadActivity extends ActionBarActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment {
         private ListView download_list;
         private MMUDbHelper mOpenHelper;
         private SQLiteDatabase db;
 
         public PlaceholderFragment() {
+
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                                  Bundle savedInstanceState) {
-            mProgressDialog = new ProgressDialog(DownloadActivity.this);
+            mProgressDialog = new ProgressDialog(getActivity());
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setCancelable(true);
@@ -114,8 +117,9 @@ public class DownloadActivity extends ActionBarActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                     Cursor new_cursor = adapter.getCursor();
-                    final DownloadTask downloadTask = new DownloadTask(getActivity());
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(DownloadActivity.this);
+                    FragmentActivity activity = (FragmentActivity)view.getContext();
+                    final DownloadTask downloadTask = new DownloadTask(getActivity(),activity);
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
                     downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
                     downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
@@ -132,7 +136,7 @@ public class DownloadActivity extends ActionBarActivity {
         }
 
     }
-    private class DownloadTask extends AsyncTask<String, Integer, String> {
+    private static class DownloadTask extends AsyncTask<String, Integer, String> {
 
         private Context context;
         private PowerManager.WakeLock mWakeLock;
@@ -141,9 +145,11 @@ public class DownloadActivity extends ActionBarActivity {
         private String file_name;
         private String content_type;
         private String token;
+        private Activity mActivity;
 
-        public DownloadTask(Context context) {
+        public DownloadTask(Context context, Activity activity) {
             this.context = context;
+            mActivity = activity;
         }
 
         @Override
@@ -253,7 +259,7 @@ public class DownloadActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+
             // take CPU lock to prevent CPU from going off if the user
             // presses the power button during download
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -262,6 +268,7 @@ public class DownloadActivity extends ActionBarActivity {
                     getClass().getName());
             mWakeLock.acquire();
             mProgressDialog.show();
+            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);;
         }
 
         @Override
@@ -276,7 +283,7 @@ public class DownloadActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
             mWakeLock.release();
             mProgressDialog.dismiss();
             Log.d("FD","DOWNLOAD COMPLETE");

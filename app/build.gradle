@@ -11,6 +11,14 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    signingConfigs {
+        release {
+            storeFile file("my-release-key.keystore")
+            storePassword System.getenv("KSTOREPWD")
+            keyAlias "MyReleaseKey"
+            keyPassword System.getenv("KEYPWD")
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
