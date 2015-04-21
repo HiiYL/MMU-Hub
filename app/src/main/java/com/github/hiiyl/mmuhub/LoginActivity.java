@@ -100,7 +100,6 @@ public class LoginActivity extends ActionBarActivity {
                 editor.putString("faculty", faculty);
                 editor.commit();
                 finish();
-
                 Intent intent = new Intent(mContext, MainActivity.class);
                 startActivity(intent);
                 Log.d(TAG, response.toString());

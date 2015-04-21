@@ -13,15 +13,22 @@
         android:dividerHeight="2.0sp"
         >
         </ExpandableListView>
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <Button
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:materialdesign="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <!-- ... XML CODE -->
+        <com.gc.materialdesign.views.ButtonFloat
+            android:id="@+id/lecture_notes_download"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Download Stuff"
-            android:id="@+id/lecture_notes_download"
-            android:layout_alignParentBottom="true"/>
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="24dp"
+            android:background="#1E88E5"
+            materialdesign:animate="true"
+            materialdesign:iconDrawable="@drawable/ic_file_download_white_48dp" />
     </RelativeLayout>
 
 </RelativeLayout>

@@ -12,15 +12,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ExpandableListView;
 
+import com.gc.materialdesign.views.ButtonFloat;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 
@@ -42,7 +41,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
 
     private static MMUDbHelper mOpenHelper;
     private static SQLiteDatabase db;
-    private static Button mDownloadButton;
+    private static ButtonFloat mDownloadButton;
     private static int mPosition = 1;
 
     /**
@@ -141,13 +140,11 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
             if(cursor.moveToFirst()) {
                 String subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
                 cursor.close();
-                Log.d("MYAPP", "CURSOR IS VALID AND POSITION IS " + Integer.toString(position));
                 return subject_name;
 
             }
             else {
                 cursor.close();
-                Log.d("MYAPP", "CURSOR IS INVALID AND POSITION IS " + Integer.toString(position));
                 Locale l = Locale.getDefault();
                 switch (position) {
                     case 0:
@@ -159,7 +156,8 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                     case 2:
                         //return MainActivity.subject_names.get(2);
                         return getString(R.string.title_section3).toUpperCase(l);
-                }
+
+                      }
             }
            return null;
         }
@@ -226,7 +224,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                     return true;
                 }
             });
-            mDownloadButton = (Button)rootView.findViewById(R.id.lecture_notes_download);
+            mDownloadButton = (ButtonFloat)rootView.findViewById(R.id.lecture_notes_download);
             mDownloadButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

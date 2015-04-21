@@ -132,6 +132,7 @@ public class DownloadActivity extends ActionBarActivity {
 
                 }
             });
+            cursor.close();
             return rootView;
         }
 
@@ -146,6 +147,7 @@ public class DownloadActivity extends ActionBarActivity {
         private String content_type;
         private String token;
         private Activity mActivity;
+        private HttpURLConnection connection = null;
 
         public DownloadTask(Context context, Activity activity) {
             this.context = context;
@@ -156,7 +158,7 @@ public class DownloadActivity extends ActionBarActivity {
         protected String doInBackground(String... sUrl) {
             InputStream input = null;
             OutputStream output = null;
-            HttpURLConnection connection = null;
+
             try {
                 URL url = new URL(sUrl[0]);
                 Log.d("Download Cookie", cookie);
@@ -211,6 +213,8 @@ public class DownloadActivity extends ActionBarActivity {
                 // expect HTTP 200 OK, so we don't mistakenly save error report
                 // instead of the file
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    if(connection.getResponseCode() == 302)
+
                     Log.d("DownloadTask","CONNECTION ERROR" + "Server returned HTTP " + connection.getResponseCode()
                             + " " + connection.getResponseMessage());
                     return "Server returned HTTP " + connection.getResponseCode()
@@ -287,8 +291,9 @@ public class DownloadActivity extends ActionBarActivity {
             mWakeLock.release();
             mProgressDialog.dismiss();
             Log.d("FD","DOWNLOAD COMPLETE");
-            if (result != null)
+            if (result != null) {
                 Toast.makeText(context, "Download error: " + result, Toast.LENGTH_LONG).show();
+            }
             else
                 Toast.makeText(context,"File downloaded", Toast.LENGTH_SHORT).show();
         }

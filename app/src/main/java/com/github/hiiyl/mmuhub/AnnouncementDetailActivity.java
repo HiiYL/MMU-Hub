@@ -102,6 +102,7 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
             contents_textview.setText(cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_CONTENTS)));
             author_textview.setText(cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_AUTHOR)));
             posted_date_textview.setText(cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE)));
+            cursor.close();
             return rootView;
         }
     }
