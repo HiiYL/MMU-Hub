@@ -32,22 +32,22 @@
         <!--android:layout_height="wrap_content"-->
         <!--android:gravity="center_horizontal"-->
         <!--android:text="Camsys Password"/>-->
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id = "@+id/camsys_pass_field"
-            android:hint="Camsys Password"
-            android:imeOptions="actionNext"
-            android:singleLine="true"
-            android:password="true"/>
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id = "@+id/icems_pass_field"
-            android:hint="ICEMS Password"
-            android:imeOptions="actionNext"
-            android:singleLine="true"
-            android:password="true"/>
+        <!--<EditText-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id = "@+id/camsys_pass_field"-->
+            <!--android:hint="Camsys Password"-->
+            <!--android:imeOptions="actionNext"-->
+            <!--android:singleLine="true"-->
+            <!--android:password="true"/>-->
+        <!--<EditText-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id = "@+id/icems_pass_field"-->
+            <!--android:hint="ICEMS Password"-->
+            <!--android:imeOptions="actionNext"-->
+            <!--android:singleLine="true"-->
+            <!--android:password="true"/>-->
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

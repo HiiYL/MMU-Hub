@@ -2,30 +2,86 @@ package com.github.hiiyl.mmuhub;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
+import android.widget.CursorTreeAdapter;
 import android.widget.TextView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
+import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 
 /**
  * Created by Hii on 4/19/15.
  */
-public class MMLSAdapter extends CursorAdapter {
-    public MMLSAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
+public class MMLSAdapter extends CursorTreeAdapter {
+    Context mContext;
+    Cursor mCursor;
+    SQLiteDatabase mDatabase;
+    MMUDbHelper mHelper;
+    public MMLSAdapter(Cursor cursor, Context context){
+        super(cursor, context);
+        mContext = context;
+    }
+
+
+
+    @Override
+    protected Cursor getChildrenCursor(Cursor groupCursor) {
+        mHelper = new MMUDbHelper(mContext);
+        mDatabase = mHelper.getWritableDatabase();
+        String week_id = groupCursor.getString(groupCursor.getColumnIndex(MMUContract.WeekEntry._ID));
+        mCursor = mDatabase.query(MMUContract.AnnouncementEntry.TABLE_NAME, null,
+                "week_id = ?", new String[] {week_id}, null, null, null);
+        mCursor.moveToFirst();
+        return mCursor;
+    }
+//    public MMLSAdapter(Context context, Cursor c, int flags) {
+//        super(context, c, flags);
+//    }
+
+//    @Override
+//    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+//        return LayoutInflater.from(context).inflate(R.layout.listitem_announcement_mmls,parent,false);
+//    }
+
+
+//    @Override
+//    public void bindView(View view, Context context, Cursor cursor) {
+//        TextView tvTitle = (TextView) view.findViewById(R.id.listitem_mmls_title);
+//        TextView tvPostedAt = (TextView) view.findViewById(R.id.list_item_mmls_posted_at);
+//        TextView tvAuthor = (TextView) view.findViewById(R.id.list_item_mmls_author);
+//
+//        String title = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_TITLE));
+//        String posted_at = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE));
+//        String author = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_AUTHOR));
+//
+//        tvTitle.setText(title);
+//        tvPostedAt.setText(posted_at);
+//        tvAuthor.setText(author);
+//    }
+
+
+    @Override
+    protected View newGroupView(Context context, Cursor cursor, boolean isExpanded, ViewGroup parent) {
+        return LayoutInflater.from(context).inflate(R.layout.listgroup_announcement_mmls,parent,false);
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
+        TextView tvWeek = (TextView) view.findViewById(R.id.listgroup_week_textview);
+        tvWeek.setText(cursor.getString(cursor.getColumnIndex(MMUContract.WeekEntry.COLUMN_TITLE)));
+
+    }
+
+    @Override
+    protected View newChildView(Context context, Cursor cursor, boolean isLastChild, ViewGroup parent) {
         return LayoutInflater.from(context).inflate(R.layout.listitem_announcement_mmls,parent,false);
     }
 
-
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
         TextView tvTitle = (TextView) view.findViewById(R.id.listitem_mmls_title);
         TextView tvPostedAt = (TextView) view.findViewById(R.id.list_item_mmls_posted_at);
         TextView tvAuthor = (TextView) view.findViewById(R.id.list_item_mmls_author);
@@ -37,5 +93,6 @@ public class MMLSAdapter extends CursorAdapter {
         tvTitle.setText(title);
         tvPostedAt.setText(posted_at);
         tvAuthor.setText(author);
+
     }
 }

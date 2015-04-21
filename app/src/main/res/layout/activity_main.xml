@@ -37,6 +37,11 @@
             android:gravity="center"
             android:id = "@+id/pager_button"
             android:text="Launch Pager"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/download_button"
+            android:text="Download Lecture Note"/>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

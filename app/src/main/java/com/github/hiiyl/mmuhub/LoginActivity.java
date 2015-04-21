@@ -32,9 +32,9 @@ import java.util.Map;
 
 public class LoginActivity extends ActionBarActivity {
     private EditText student_id;
-    private EditText camsys_password;
+//    private EditText camsys_password;
     private EditText mmls_password;
-    private EditText icems_password;
+//    private EditText icems_password;
     private TextView login_status;
     private Button login_btn;
     private Context mContext;
@@ -67,16 +67,16 @@ public class LoginActivity extends ActionBarActivity {
 
     private void setupVariables() {
         student_id = (EditText) findViewById(R.id.student_id_field);
-        camsys_password = (EditText) findViewById(R.id.camsys_pass_field);
+//        camsys_password = (EditText) findViewById(R.id.camsys_pass_field);
         mmls_password = (EditText) findViewById(R.id.mmls_pass_field);
-        icems_password = (EditText) findViewById(R.id.icems_pass_field);
+//        icems_password = (EditText) findViewById(R.id.icems_pass_field);
         login_btn = (Button) findViewById(R.id.loginBtn);
         login_status = (TextView) findViewById(R.id.login_status);
 
     }
     public void requestAuthentication() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://mmu-api.herokuapp.com/login_test";
+        String url = "https://mmu-api.herokuapp.com/login_mmls";
 //        String url = "https://mmu-api.herokuapp.com/login_test.json";
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
@@ -89,9 +89,9 @@ public class LoginActivity extends ActionBarActivity {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putBoolean("logged_in", true);
                 editor.putString("student_id", student_id.getText().toString());
-                editor.putString("camsys_password", camsys_password.getText().toString());
+//                editor.putString("camsys_password", camsys_password.getText().toString());
                 editor.putString("mmls_password", mmls_password.getText().toString());
-                editor.putString("icems_password", icems_password.getText().toString());
+//                editor.putString("icems_password", icems_password.getText().toString());
                 editor.putString("name", name);
                 editor.putString("faculty", faculty);
                 editor.commit();
@@ -133,7 +133,7 @@ public class LoginActivity extends ActionBarActivity {
             protected Map<String,String> getParams(){
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("student_id", student_id.getText().toString());
-                params.put("camsys_password", camsys_password.getText().toString());
+//                params.put("camsys_password", camsys_password.getText().toString());
                 params.put("mmls_password", mmls_password.getText().toString());
 
                 return params;
@@ -155,7 +155,7 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     public void authenticatePassword() {
-        if(isEmpty(student_id) || isEmpty(camsys_password) || isEmpty(mmls_password))
+        if(isEmpty(student_id) || isEmpty(mmls_password))
         {
             Toast.makeText(getApplicationContext(), "All fields must be filled",
                     Toast.LENGTH_SHORT).show();

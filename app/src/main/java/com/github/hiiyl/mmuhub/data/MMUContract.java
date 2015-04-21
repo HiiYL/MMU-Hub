@@ -49,4 +49,12 @@ public class MMUContract {
         public static final String COLUMN_DETAILS = "author";
         public static final String COLUMN_POSTED_DATE = "posted_date";
     }
+    public static class FilesEntry implements BaseColumns {
+        public static final String TABLE_NAME = "subject_files";
+        public static final String COLUMN_NAME = "file_name";
+        public static final String COLUMN_TOKEN = "file_token";
+        public static final String COLUMN_CONTENT_TYPE = "content_type";
+        public static final String COLUMN_FILE_PATH = "file_path";
+        public static final String COLUMN_SUBJECT_KEY = "subject_id";
+    }
 }

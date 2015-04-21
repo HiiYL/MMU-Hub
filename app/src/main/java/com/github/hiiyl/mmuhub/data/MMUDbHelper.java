@@ -4,15 +4,16 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.github.hiiyl.mmuhub.data.MMUContract.AnnouncementEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.SubjectEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.WeekEntry;
-import com.github.hiiyl.mmuhub.data.MMUContract.AnnouncementEntry;
+import com.github.hiiyl.mmuhub.data.MMUContract.FilesEntry;
 /**
  * Created by Hii on 4/19/15.
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -43,9 +44,19 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                 SubjectEntry.TABLE_NAME + " (" + SubjectEntry._ID + "), " +
                 "FOREIGN KEY (" +AnnouncementEntry.COLUMN_WEEK_KEY + ") REFERENCES " +
                 WeekEntry.TABLE_NAME + " (" + WeekEntry._ID + "));";
+        final String SQL_CREATE_FILES_TABLE = "CREATE TABLE " + FilesEntry.TABLE_NAME + " (" +
+                FilesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                FilesEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                FilesEntry.COLUMN_TOKEN + " TEXT NOT NULL, " +
+                FilesEntry.COLUMN_FILE_PATH + " TEXT NOT NULL, " +
+                FilesEntry.COLUMN_CONTENT_TYPE + " TEXT NOT NULL, " +
+                FilesEntry.COLUMN_SUBJECT_KEY + " INTEGER NOT NULL, " +
+                "FOREIGN KEY (" + FilesEntry.COLUMN_SUBJECT_KEY + ") REFERENCES " +
+                SubjectEntry.TABLE_NAME + " (" + SubjectEntry._ID + " );";
         sqLiteDatabase.execSQL(SQL_CREATE_SUBJECT_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_WEEK_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_ANNOUNCEMENT_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_FILES_TABLE);
     }
 
     @Override

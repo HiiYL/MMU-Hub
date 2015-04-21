@@ -18,8 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
@@ -167,7 +166,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
-        private ListView mListView;
+        private ExpandableListView mExListView;
         MMLSAdapter mmls_adapter;
         /**
          * The fragment argument representing the section number for this
@@ -201,35 +200,29 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
             db = mOpenHelper.getReadableDatabase();
             int slide = getArguments().getInt(ARG_SECTION_NUMBER, 0);
             String slide_str = Integer.toString(slide);
-            mListView = (ListView) rootView.findViewById(R.id.listview_mmls);
-            final Cursor cursor = db.query(MMUContract.AnnouncementEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
-            mmls_adapter = new MMLSAdapter(getActivity(), cursor, 0);
-            mListView.setAdapter(mmls_adapter);
+            mExListView = (ExpandableListView) rootView.findViewById(R.id.listview_expandable_mmls);
+            final Cursor cursor = db.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+            final MMLSAdapter adapter = new MMLSAdapter(cursor, getActivity());
+            mExListView.setAdapter(adapter);
+            mExListView.expandGroup(0);
 
-            mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            mExListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
                 @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                     // CursorAdapter returns a cursor at the correct position for getItem(), or null
                     // if it cannot seek to that position.
-                    Cursor new_cursor = (Cursor) adapterView.getItemAtPosition(position);
+                    Cursor new_cursor = (Cursor)adapter.getChild(
+                            groupPosition, childPosition);
                     if (new_cursor != null) {
-                        String id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
+                        String announcement_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
                         Intent intent = new Intent(getActivity(), AnnouncementDetailActivity.class);
-                        intent.putExtra("ANNOUNCEMENT_ID", id);
+                        intent.putExtra("ANNOUNCEMENT_ID", announcement_id);
                         startActivity(intent);
                     }
+                    return true;
                 }
             });
-
-
-//            if(MainActivity.annoucement_list_array.size() > (getArguments().getInt(ARG_SECTION_NUMBER, 0) - 1)) {
-//                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-//                        getActivity(),
-//                        android.R.layout.simple_list_item_1,
-//                        MainActivity.annoucement_list_array.get(getArguments().getInt(ARG_SECTION_NUMBER, 0) - 1));
-//                lv.setAdapter(arrayAdapter);
-//            }
 
             return rootView;
         }
