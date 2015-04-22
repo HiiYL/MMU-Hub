@@ -21,6 +21,8 @@ public class MMUContract {
 
         public static final String COLUMN_NAME = "name";
 
+        public static final String COLUMN_URL = "url";
+
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_SUBJECT;
         public static final String CONTENT_ITEM_TYPE =

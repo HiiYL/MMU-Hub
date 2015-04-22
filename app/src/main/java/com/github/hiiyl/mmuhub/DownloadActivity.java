@@ -124,7 +124,7 @@ public class DownloadActivity extends ActionBarActivity {
                     downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
                     downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
                     downloadTask.token = prefs.getString("token","");
-                    downloadTask.cookie = prefs.getString("cookie", "");
+                    downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
 
                     Log.d("APP", "Now downloading " + downloadTask.file_name);
 
@@ -132,7 +132,6 @@ public class DownloadActivity extends ActionBarActivity {
 
                 }
             });
-            cursor.close();
             return rootView;
         }
 

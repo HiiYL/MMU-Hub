@@ -1,8 +1,10 @@
 package com.github.hiiyl.mmuhub;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -25,6 +27,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.hiiyl.mmuhub.data.MMUContract;
+import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -87,11 +95,28 @@ public class LoginActivity extends ActionBarActivity {
                 String faculty = Utility.trimMessage(profile, "faculty");
                 String cookie = Utility.trimMessage(response, "cookie");
                 String token = Utility.trimMessage(response, "token");
+                try {
+                    MMUDbHelper helper = new MMUDbHelper(LoginActivity.this);
+                    SQLiteDatabase db = helper.getWritableDatabase();
+                    JSONArray subjectArray = new JSONArray(Utility.trimMessage(response, "subjects"));
+                    for (int i = 0; i < subjectArray.length(); i++) {
+                        JSONObject subject = subjectArray.getJSONObject(i);
+                        String subject_uri = subject.getString("uri");
+                        String subject_name = subject.getString("name");
+                        ContentValues subjectValues = new ContentValues();
+                        subjectValues.put(MMUContract.SubjectEntry.COLUMN_NAME, subject_name);
+                        subjectValues.put(MMUContract.SubjectEntry.COLUMN_URL, subject_uri);
+                        db.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
+                        Log.d("LoginActivity", "Inserted " + subject_name + " AND " + subject_uri);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putBoolean("logged_in", true);
                 editor.putString("student_id", student_id.getText().toString());
-                editor.putString("cookie", "laravel_session=" + cookie);
+                editor.putString("cookie", cookie);
                 editor.putString("token", token);
 //                editor.putString("camsys_password", camsys_password.getText().toString());
                 editor.putString("mmls_password", mmls_password.getText().toString());

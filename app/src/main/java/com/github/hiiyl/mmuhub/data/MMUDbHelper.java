@@ -13,7 +13,7 @@ import com.github.hiiyl.mmuhub.data.MMUContract.FilesEntry;
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -24,7 +24,8 @@ public class MMUDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String SQL_CREATE_SUBJECT_TABLE = "CREATE TABLE " + SubjectEntry.TABLE_NAME + " (" +
                 SubjectEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                SubjectEntry.COLUMN_NAME + " TEXT UNIQUE NOT NULL " +
+                SubjectEntry.COLUMN_NAME + " TEXT UNIQUE NOT NULL, " +
+                SubjectEntry.COLUMN_URL + " TEXT NOT NULL" +
                 " );";
         final String SQL_CREATE_WEEK_TABLE = "CREATE TABLE " + WeekEntry.TABLE_NAME + " (" +
                 WeekEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +

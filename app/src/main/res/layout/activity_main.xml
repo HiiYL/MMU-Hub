@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:id = "@+id/pager_button"
-            android:text="Launch Pager"/>
+            android:text="View MMLS"/>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -90,7 +90,6 @@ public class MainActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
-        getAnnouncementJSON(this);
     }
 
 
@@ -277,7 +276,7 @@ public class MainActivity extends ActionBarActivity {
 
                     }
                     mCursor.close();
-                    mProgressDialog.hide();
+                    mProgressDialog.dismiss();
                     Utility.refreshToken(mContext);
 
                 }
@@ -290,7 +289,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 mProgressDialog.setTitle("An Error has occurred");
-                mProgressDialog.hide();
+                mProgressDialog.dismiss();
                 NetworkResponse networkResponse = error.networkResponse;
                 if(networkResponse != null && networkResponse.data != null){
                     switch(networkResponse.statusCode){
