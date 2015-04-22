@@ -91,6 +91,15 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
+        mDownloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MMLSActivity.this, DownloadActivity.class);
+                intent.putExtra("SUBJECT_ID", MMLSActivity.mViewPager.getCurrentItem()+ 1);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -265,15 +274,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                     return true;
                 }
             });
-            mDownloadButton = (ButtonFloat)rootView.findViewById(R.id.lecture_notes_download);
-            mDownloadButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(getActivity(), DownloadActivity.class);
-                    intent.putExtra("SUBJECT_ID", MMLSActivity.mViewPager.getCurrentItem()+ 1);
-                    startActivity(intent);
-                }
-            });
+
 
             return rootView;
         }
