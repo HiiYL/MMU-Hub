@@ -3,12 +3,14 @@ package com.github.hiiyl.mmuhub.sync;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
@@ -17,6 +19,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -28,6 +32,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.hiiyl.mmuhub.AnnouncementDetailActivity;
 import com.github.hiiyl.mmuhub.MainActivity;
 import com.github.hiiyl.mmuhub.R;
 import com.github.hiiyl.mmuhub.Utility;
@@ -47,8 +52,10 @@ import java.util.Map;
  * Created by Hii on 4/22/15.
  */
 public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
+    public static final String SYNC_FINISHED = "sync_finishedd";
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+    private static final int ANNOUNCEMENT_NOTIFICATION_ID = 3004;
     SQLiteDatabase database;
     MMUDbHelper helper;
     private RequestQueue sync_queue;
@@ -62,6 +69,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(LOG_TAG, "onPerformSync Called.");
         helper = new MMUDbHelper(getContext());
         database = helper.getWritableDatabase();
+        String s = "1";
         Cursor cursor= database.query(MMUContract.SubjectEntry.TABLE_NAME, null, null, null,null,null,null);
         if(cursor.moveToFirst()) {
             for (int i = 1; i < cursor.getCount() + 1; i++)
@@ -216,6 +224,24 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
                                             long _id = MainActivity.database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+
+                                            Intent resultIntent = new Intent(getContext(), AnnouncementDetailActivity.class);
+                                            resultIntent.putExtra("ANNOUNCEMENT_ID",Long.toString(_id));
+                                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
+                                            stackBuilder.addNextIntent(resultIntent);
+                                            PendingIntent resultPendingIntent =
+                                                    stackBuilder.getPendingIntent(
+                                                            0,
+                                                            PendingIntent.FLAG_UPDATE_CURRENT
+                                                    );
+                                            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
+                                                    .setSmallIcon(R.drawable.ic_file_download_white_48dp)
+                                                    .setContentTitle(announcement_title)
+                                                    .setContentText(announcement_author);
+                                            notificationBuilder.setContentIntent(resultPendingIntent);
+                                            NotificationManager manager =
+                                                    (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                            manager.notify(ANNOUNCEMENT_NOTIFICATION_ID, notificationBuilder.build());
                                         }
                                     }
                                 }
@@ -250,6 +276,9 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
                                     long _id = MainActivity.database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
+
+
+
                                 }
 
                             }
@@ -258,6 +287,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    Intent i = new Intent(SYNC_FINISHED);
+                    getContext().sendBroadcast(i);
                 }
             }, new Response.ErrorListener() {
                 String json = null;
@@ -271,8 +302,9 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                     if (networkResponse != null && networkResponse.data != null) {
                         switch (networkResponse.statusCode) {
                             case 400:
-                                sync_queue.stop();
-                                refreshTokenAndRetry(context,subject_id);
+                                Log.d("HELLO THERE~", "HTTTP 400");
+                                sync_queue.cancelAll(SYNC_TAG);
+                                refreshTokenAndRetry(context, subject_id);
                                 break;
                             default:
                         }
@@ -306,9 +338,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
     }
     public void refreshTokenAndRetry(final Context context, final String subject_id) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        final ProgressDialog progressDialog = new ProgressDialog(context);
         String url = "https://mmu-api.herokuapp.com/refresh_token";
-//        String url = "https://mmu-api.herokuapp.com/login_test.json";
+        Log.d("HELLO THERE~", "PREPARING TO REFRESH TOKEN");
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -326,7 +357,6 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             String json = null;
             @Override
             public void onErrorResponse(VolleyError error) {
-                progressDialog.dismiss();
                 Log.d("Token", "Refresh unsuccessful");
             }
         }){

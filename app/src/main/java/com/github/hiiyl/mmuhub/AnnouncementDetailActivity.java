@@ -34,6 +34,9 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
             ANNOUNCEMENT_ID = extras.getString("ANNOUNCEMENT_ID");
+            Log.d("RECEIVED", "NOT NULL ANNOUNCEMENT_ID = " + ANNOUNCEMENT_ID);
+        } else {
+            Log.d("RECEIVED", "NULL ANNOUNCEMENT_ID = " + ANNOUNCEMENT_ID);
         }
 
     }

@@ -11,12 +11,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +55,9 @@ public class MainActivity extends ActionBarActivity {
     private Button pager_button;
     private MMUDbHelper mmuDbHelper;
     public static SQLiteDatabase database;
+    private String[] mPlanetTitles;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +69,6 @@ public class MainActivity extends ActionBarActivity {
         SharedPreferences.Editor editor = prefs.edit();
         mmuDbHelper = new MMUDbHelper(this);
 
-        MMUSyncAdapter.initializeSyncAdapter(this);
 
         database = mmuDbHelper.getWritableDatabase();
 
@@ -75,6 +79,8 @@ public class MainActivity extends ActionBarActivity {
             finish();
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+        }else {
+            MMUSyncAdapter.initializeSyncAdapter(this);
         }
         setContentView(R.layout.activity_main);
         welcome_text = (TextView) findViewById(R.id.welcome_text);

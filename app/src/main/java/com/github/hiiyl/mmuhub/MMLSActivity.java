@@ -2,10 +2,12 @@ package com.github.hiiyl.mmuhub;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -36,6 +38,7 @@ import com.android.volley.toolbox.Volley;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,11 +68,12 @@ public class MMLSActivity extends ActionBarActivity{
     private static int mPosition = 1;
     private static RequestQueue queue;
     private static String DOWNLOAD_TAG = "download_notes";
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     static ViewPager mViewPager;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +140,7 @@ public class MMLSActivity extends ActionBarActivity{
         return hasFiles;
 
     }
+
 
 
     @Override
@@ -250,6 +255,27 @@ public class MMLSActivity extends ActionBarActivity{
         }
 
 
+        private BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d("RECEIVING STUFF", "FRAGMENT RECEIVES NOTIFICATION");
+                Cursor new_cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+                mAdapter.changeCursor(new_cursor);
+                mAdapter.notifyDataSetChanged();
+            }
+        };
+
+        @Override
+        public void onResume() {
+            // TODO Auto-generated method stub
+            super.onStart();
+            getActivity().registerReceiver(syncFinishedReceiver, new IntentFilter(MMUSyncAdapter.SYNC_FINISHED));
+        }
+        @Override
+        public void onPause() {
+            getActivity().unregisterReceiver(syncFinishedReceiver);
+            super.onStop();
+        }
 
 
 
@@ -298,6 +324,7 @@ public class MMLSActivity extends ActionBarActivity{
 
             return rootView;
         }
+
         private void refreshContent(Context context, String subject_id) {
             updateSubject(context, subject_id);
         }
@@ -534,7 +561,6 @@ public class MMLSActivity extends ActionBarActivity{
             progressDialog.setMessage("Please Wait");
             progressDialog.show();
             String url = "https://mmu-api.herokuapp.com/refresh_token";
-//        String url = "https://mmu-api.herokuapp.com/login_test.json";
             StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
