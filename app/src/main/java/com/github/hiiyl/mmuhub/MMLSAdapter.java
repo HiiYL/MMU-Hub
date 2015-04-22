@@ -2,7 +2,6 @@ package com.github.hiiyl.mmuhub;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,6 @@ import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 public class MMLSAdapter extends CursorTreeAdapter {
     Context mContext;
     Cursor mCursor;
-    SQLiteDatabase mDatabase;
     MMUDbHelper mHelper;
     public MMLSAdapter(Cursor cursor, Context context){
         super(cursor, context);
@@ -30,9 +28,8 @@ public class MMLSAdapter extends CursorTreeAdapter {
     @Override
     protected Cursor getChildrenCursor(Cursor groupCursor) {
         mHelper = new MMUDbHelper(mContext);
-        mDatabase = mHelper.getWritableDatabase();
         String week_id = groupCursor.getString(groupCursor.getColumnIndex(MMUContract.WeekEntry._ID));
-        mCursor = mDatabase.query(MMUContract.AnnouncementEntry.TABLE_NAME, null,
+        mCursor = MainActivity.database.query(MMUContract.AnnouncementEntry.TABLE_NAME, null,
                 "week_id = ?", new String[] {week_id}, null, null, null);
         mCursor.moveToFirst();
         return mCursor;

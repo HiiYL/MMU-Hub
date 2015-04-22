@@ -1,7 +1,6 @@
 package com.github.hiiyl.mmuhub;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -19,8 +18,6 @@ import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 
 public class AnnouncementDetailActivity extends ActionBarActivity {
     private static String ANNOUNCEMENT_ID;
-    private static MMUDbHelper mOpenHelper;
-    private static SQLiteDatabase db;
 
     private static String TAG = AnnouncementDetailActivity.class.getSimpleName();
 
@@ -85,9 +82,9 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
             TextView contents_textview = (TextView) rootView.findViewById(R.id.announcement_detail_contents);
             TextView author_textview = (TextView) rootView.findViewById(R.id.announcement_detail_author);
             TextView posted_date_textview = (TextView) rootView.findViewById(R.id.announcement_detail_posted_date);
-            mOpenHelper = new MMUDbHelper(getActivity());
-            db = mOpenHelper.getReadableDatabase();
-            Cursor cursor = db.query(MMUContract.AnnouncementEntry.TABLE_NAME, null, MMUContract.AnnouncementEntry._ID + "=?",new String[] {announcement_id},null,null,null);
+            MMUDbHelper mOpenHelper = new MMUDbHelper(getActivity());
+            MainActivity.database = mOpenHelper.getReadableDatabase();
+            Cursor cursor = MainActivity.database.query(MMUContract.AnnouncementEntry.TABLE_NAME, null, MMUContract.AnnouncementEntry._ID + "=?",new String[] {announcement_id},null,null,null);
             if(cursor.moveToFirst()) {
                 Log.d(TAG, "Successful Query");
             }

@@ -25,7 +25,6 @@ import java.util.Map;
  * Created by Hii on 4/13/15.
  */
 public class Utility {
-    private static Context mContext;
     private static SharedPreferences prefs;
     public static String trimMessage(String json, String key){
         String trimmedString = null;
@@ -41,7 +40,7 @@ public class Utility {
         return trimmedString;
     }
     public static void refreshToken(Context context) {
-        mContext = context;
+        Context mContext = context;
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -57,17 +56,17 @@ public class Utility {
                 SharedPreferences.Editor editor = prefs.edit();
                 String cookie = Utility.trimMessage(response, "cookie");
                 String token = Utility.trimMessage(response, "token");
-                editor.putString("cookie","laravel_session=" + cookie);
+                editor.putString("cookie", cookie);
                 editor.putString("token", token);
                 editor.commit();
                 Log.d("Token", "Successful");
-                progressDialog.hide();
+                progressDialog.dismiss();
             }
         }, new Response.ErrorListener() {
             String json = null;
             @Override
             public void onErrorResponse(VolleyError error) {
-                progressDialog.hide();
+                progressDialog.dismiss();
                 Log.d("Token", "Refresh unsuccessful");
             }
         }){

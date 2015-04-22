@@ -21,15 +21,15 @@
         android:paddingTop="4dp"
         android:paddingBottom="4dp" />
     </android.support.v4.view.ViewPager>
-        <!-- ... XML CODE -->
-        <com.gc.materialdesign.views.ButtonFloat
-            android:id="@+id/lecture_notes_download"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginRight="24dp"
-            android:background="#1E88E5"
-            materialdesign:animate="true"
-            materialdesign:iconDrawable="@drawable/ic_file_download_white_48dp" />
+    <!-- ... XML CODE -->
+    <com.gc.materialdesign.views.ButtonFloat
+        android:id="@+id/lecture_notes_download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="24dp"
+        android:background="#1E88E5"
+        materialdesign:animate="true"
+        materialdesign:iconDrawable="@drawable/ic_file_download_white_48dp" />
 </RelativeLayout>

@@ -31,6 +31,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,12 +51,8 @@ public class MainActivity extends ActionBarActivity {
     private TextView student_id_textview;
     private TextView mmls_load_status;
     private Button pager_button;
-
-    private Cursor mCursor;
-
-    static ArrayList<List<String>> annoucement_list_array = new ArrayList<List<String>>();
-    static ArrayList<String> subject_names = new ArrayList<String>();
-
+    private MMUDbHelper mmuDbHelper;
+    public static SQLiteDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +61,15 @@ public class MainActivity extends ActionBarActivity {
 
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = prefs.edit();
+        mmuDbHelper = new MMUDbHelper(this);
+
+        MMUSyncAdapter.initializeSyncAdapter(this);
+
+        database = mmuDbHelper.getWritableDatabase();
 
         boolean logged_in = prefs.getBoolean(LOGGED_IN_PREF_TAG, false);
+
 
         if (!logged_in) {
             finish();
@@ -126,8 +130,7 @@ public class MainActivity extends ActionBarActivity {
             editor.commit();
             finish();
             MMUDbHelper mOpenHelper = new MMUDbHelper(MainActivity.this);
-            SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-            mOpenHelper.onLogout(db);
+            mOpenHelper.onLogout(database);
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             return true;
@@ -138,7 +141,6 @@ public class MainActivity extends ActionBarActivity {
     public static void getAnnouncementJSON(Context context) {
         final Context mContext = context;
         MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String url = "https://mmu-api.herokuapp.com/mmls_api";
 //        String url = "https://mmu-api.herokuapp.com/login_test.json";
@@ -162,7 +164,7 @@ public class MainActivity extends ActionBarActivity {
                         JSONObject jobj = jarray.getJSONObject(i);
                         String subject_name = jobj.getString("name");
 
-                        mCursor = db.query(MMUContract.SubjectEntry.TABLE_NAME,
+                        mCursor = database.query(MMUContract.SubjectEntry.TABLE_NAME,
                             new String[] {MMUContract.SubjectEntry.COLUMN_NAME, MMUContract.SubjectEntry._ID},
                             MMUContract.SubjectEntry.COLUMN_NAME + " = ? ",
                             new String[] {subject_name},
@@ -174,7 +176,7 @@ public class MainActivity extends ActionBarActivity {
                         if(!mCursor.moveToFirst()) {
                             ContentValues subjectValues = new ContentValues();
                             subjectValues.put(MMUContract.SubjectEntry.COLUMN_NAME, subject_name);
-                            subject_id = db.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
+                            subject_id = database.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
                         }
                         else {
                             subject_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.SubjectEntry._ID));
@@ -196,13 +198,13 @@ public class MainActivity extends ActionBarActivity {
                                         MMUContract.WeekEntry.COLUMN_TITLE + " = ? " + " AND " +
                                         MMUContract.SubjectEntry.TABLE_NAME + "." +
                                         MMUContract.SubjectEntry._ID + " = ? ;";
-                                mCursor = db.rawQuery(sql, new String[] {week_title, Long.toString(subject_id)});
+                                mCursor = database.rawQuery(sql, new String[] {week_title, Long.toString(subject_id)});
                                 long week_id;
                                 if(!mCursor.moveToFirst()) {
                                     ContentValues weekValues = new ContentValues();
                                     weekValues.put(MMUContract.WeekEntry.COLUMN_TITLE, week_title);
                                     weekValues.put(MMUContract.WeekEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                    week_id = db.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
+                                    week_id = database.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
                                 }
                                 else {
                                     week_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.WeekEntry._ID));
@@ -217,7 +219,7 @@ public class MainActivity extends ActionBarActivity {
                                         String announcement_contents = announcement.getString("contents");
                                         String announcement_author = announcement.getString("author");
                                         String announcement_posted_date = announcement.getString("posted_date");
-                                        mCursor = db.query(MMUContract.AnnouncementEntry.TABLE_NAME,
+                                        mCursor = database.query(MMUContract.AnnouncementEntry.TABLE_NAME,
                                                 new String[] {MMUContract.AnnouncementEntry._ID},
                                                 MMUContract.AnnouncementEntry.COLUMN_TITLE + " = ? AND " +
                                                         MMUContract.AnnouncementEntry.COLUMN_CONTENTS + " = ?",
@@ -234,7 +236,7 @@ public class MainActivity extends ActionBarActivity {
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                            long _id = db.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+                                            long _id = database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
                                         }
                                     }
                                 }
@@ -259,7 +261,7 @@ public class MainActivity extends ActionBarActivity {
                                         MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
                                         MMUContract.SubjectEntry.TABLE_NAME + "." +
                                         MMUContract.SubjectEntry._ID + " = ? ;";
-                                mCursor = db.rawQuery(sql, new String[] {file_name, Long.toString(subject_id)});
+                                mCursor = database.rawQuery(sql, new String[] {file_name, Long.toString(subject_id)});
                                 if(!mCursor.moveToFirst()) {
                                     ContentValues fileValues = new ContentValues();
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
@@ -268,7 +270,7 @@ public class MainActivity extends ActionBarActivity {
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE, content_type);
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                    long _id = db.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
+                                    long _id = database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
                                 }
 
                             }

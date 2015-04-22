@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -86,7 +85,6 @@ public class DownloadActivity extends ActionBarActivity {
     public static class PlaceholderFragment extends Fragment {
         private ListView download_list;
         private MMUDbHelper mOpenHelper;
-        private SQLiteDatabase db;
 
         public PlaceholderFragment() {
 
@@ -101,13 +99,13 @@ public class DownloadActivity extends ActionBarActivity {
             mProgressDialog.setCancelable(true);
 
             mOpenHelper = new MMUDbHelper(getActivity());
-            db = mOpenHelper.getReadableDatabase();
+            MainActivity.database = mOpenHelper.getReadableDatabase();
             View rootView = inflater.inflate(R.layout.fragment_download, container, false);
             download_list = (ListView) rootView.findViewById(R.id.mmls_download_listview);
 
             String subject_id = Integer.toString(DownloadActivity.mSubjectID);
             Log.d("Subject ID is ", subject_id);
-            final Cursor cursor = db.query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+            final Cursor cursor = MainActivity.database.query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
                     new String[] {subject_id}, null, null,null );
             final MMLSDownloadAdapter adapter = new MMLSDownloadAdapter(getActivity(), cursor);
             download_list.setAdapter(adapter);
@@ -127,6 +125,8 @@ public class DownloadActivity extends ActionBarActivity {
                     downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
 
                     Log.d("APP", "Now downloading " + downloadTask.file_name);
+
+                    new_cursor.close();
 
                     downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
 

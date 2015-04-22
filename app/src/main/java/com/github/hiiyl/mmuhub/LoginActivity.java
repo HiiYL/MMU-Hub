@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -97,7 +96,6 @@ public class LoginActivity extends ActionBarActivity {
                 String token = Utility.trimMessage(response, "token");
                 try {
                     MMUDbHelper helper = new MMUDbHelper(LoginActivity.this);
-                    SQLiteDatabase db = helper.getWritableDatabase();
                     JSONArray subjectArray = new JSONArray(Utility.trimMessage(response, "subjects"));
                     for (int i = 0; i < subjectArray.length(); i++) {
                         JSONObject subject = subjectArray.getJSONObject(i);
@@ -106,7 +104,7 @@ public class LoginActivity extends ActionBarActivity {
                         ContentValues subjectValues = new ContentValues();
                         subjectValues.put(MMUContract.SubjectEntry.COLUMN_NAME, subject_name);
                         subjectValues.put(MMUContract.SubjectEntry.COLUMN_URL, subject_uri);
-                        db.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
+                        MainActivity.database.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
                         Log.d("LoginActivity", "Inserted " + subject_name + " AND " + subject_uri);
                     }
                 } catch (JSONException e) {

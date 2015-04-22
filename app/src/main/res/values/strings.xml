@@ -6,6 +6,9 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_mmls">MMLSActivity</string>
 
+    <string name="content_authority">com.github.hiiyl.mmuhub</string>
+    <string name="sync_account_type">MMU Hub</string>
+
 
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>

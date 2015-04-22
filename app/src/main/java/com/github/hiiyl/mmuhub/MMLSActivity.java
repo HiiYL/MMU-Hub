@@ -1,17 +1,13 @@
 package com.github.hiiyl.mmuhub;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -27,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -41,7 +36,6 @@ import com.android.volley.toolbox.Volley;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
-import com.github.hiiyl.mmuhub.helper.DownloadHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,7 +48,7 @@ import java.util.Locale;
 import java.util.Map;
 
 
-public class MMLSActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MMLSActivity extends ActionBarActivity{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -67,9 +61,10 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
     SectionsPagerAdapter mSectionsPagerAdapter;
 
     private static MMUDbHelper mOpenHelper;
-    private static SQLiteDatabase db;
     private static ButtonFloat mDownloadButton;
     private static int mPosition = 1;
+    private static RequestQueue queue;
+    private static String DOWNLOAD_TAG = "download_notes";
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -79,9 +74,13 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        final ActionBar actionBar = getActionBar();
+//        final ActionBar actionBar = getActionBar();
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_mmls);
+
+        queue = Volley.newRequestQueue(MMLSActivity.this);
+        mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
 
 
         // Create the adapter that will return a fragment for each of the three
@@ -91,7 +90,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
+
         mDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,6 +99,41 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                 startActivity(intent);
             }
         });
+
+
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(subjectHasFiles(position))
+                    mDownloadButton.show();
+                else
+                    mDownloadButton.hide();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }
+    private static boolean subjectHasFiles(int position) {
+        String pos = Integer.toString(position + 1);
+        boolean hasFiles;
+        Cursor cursor = MainActivity.database.query(MMUContract.FilesEntry.TABLE_NAME, null,
+                MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                new String[] {pos}, null, null, null);
+        if(cursor.moveToFirst()) {
+            hasFiles = true;
+        }else {
+            hasFiles = false;
+        }
+        cursor.close();
+        return hasFiles;
 
     }
 
@@ -125,27 +159,6 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
 
         return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
 
@@ -169,9 +182,8 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
         @Override
         public CharSequence getPageTitle(int position) {
             mOpenHelper = new MMUDbHelper(MMLSActivity.this);
-            db = mOpenHelper.getReadableDatabase();
             String subject_id = Integer.toString(position + 1);
-            Cursor cursor = db.query(MMUContract.SubjectEntry.TABLE_NAME, new String[] {MMUContract.SubjectEntry.COLUMN_NAME}, MMUContract.AnnouncementEntry._ID + "=?",new String[] {subject_id}, null ,null, null);
+            Cursor cursor = MainActivity.database.query(MMUContract.SubjectEntry.TABLE_NAME, new String[] {MMUContract.SubjectEntry.COLUMN_NAME}, MMUContract.AnnouncementEntry._ID + "=?",new String[] {subject_id}, null ,null, null);
             ArrayList<String> names = new ArrayList<String>();
             if(cursor.moveToFirst()) {
                 String subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
@@ -202,7 +214,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment{
         private ExpandableListView mExListView;
         private SwipeRefreshLayout mSwipeRefreshLayout;
         private MMLSAdapter mAdapter;
@@ -227,6 +239,14 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
         }
 
         public PlaceholderFragment() {
+//            if(subjectHasFiles(MMLSActivity.mViewPager.getCurrentItem())) {
+//                mDownloadButton.show();
+//                Log.d("Button", "Subject Has Files");
+//            }
+//            else {
+//                mDownloadButton.hide();
+//                Log.d("Button", "Subject Has No Files");
+//            }
         }
 
 
@@ -238,12 +258,12 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                                  Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(R.layout.fragment_mml, container, false);
+
             mOpenHelper = new MMUDbHelper(getActivity());
-            db = mOpenHelper.getReadableDatabase();
             int slide = getArguments().getInt(ARG_SECTION_NUMBER, 0);
             slide_str = Integer.toString(slide);
             mExListView = (ExpandableListView) rootView.findViewById(R.id.listview_expandable_mmls);
-            cursor = db.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+            cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
             mAdapter = new MMLSAdapter(cursor, getActivity());
             mExListView.setAdapter(mAdapter);
             mExListView.expandGroup(0);
@@ -287,13 +307,12 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
             final String subject_url, subject_name;
             final Context mContext = context;
             final MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
-            final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-            Cursor cursor = db.query(MMUContract.SubjectEntry.TABLE_NAME,
+            Cursor cursor = MainActivity.database.query(MMUContract.SubjectEntry.TABLE_NAME,
                     null,
                     MMUContract.SubjectEntry._ID + " = ? ",
                     new String[]{subject_id}, null, null, null);
             if (cursor.moveToFirst()) {
-                RequestQueue queue = Volley.newRequestQueue(mContext);
+
                 String url = "https://mmu-api.herokuapp.com/refresh_subject";
                 subject_url = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_URL));
                 subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
@@ -311,24 +330,6 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                             Cursor mCursor = null;
                             mProgressDialog.setMessage("Saving ...");
                             JSONObject jobj = new JSONObject(response);
-//                            String subject_name = jobj.getString("name");
-//
-//                            mCursor = db.query(MMUContract.SubjectEntry.TABLE_NAME,
-//                                    new String[]{MMUContract.SubjectEntry.COLUMN_NAME, MMUContract.SubjectEntry._ID},
-//                                    MMUContract.SubjectEntry.COLUMN_NAME + " = ? ",
-//                                    new String[]{subject_name},
-//                                    null,
-//                                    null,
-//                                    null
-//                            );
-//                            long subject_id;
-//                            if (!mCursor.moveToFirst()) {
-//                                ContentValues subjectValues = new ContentValues();
-//                                subjectValues.put(MMUContract.SubjectEntry.COLUMN_NAME, subject_name);
-//                                subject_id = db.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
-//                            } else {
-//                                subject_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.SubjectEntry._ID));
-//                            }
                             List<String> announcement_list = new ArrayList<String>();
                             JSONArray weeks = jobj.getJSONArray("weeks");
                             if (weeks != null) {
@@ -346,13 +347,13 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                                             MMUContract.WeekEntry.COLUMN_TITLE + " = ? " + " AND " +
                                             MMUContract.SubjectEntry.TABLE_NAME + "." +
                                             MMUContract.SubjectEntry._ID + " = ? ;";
-                                    mCursor = db.rawQuery(sql, new String[]{week_title, subject_id});
+                                    mCursor = MainActivity.database.rawQuery(sql, new String[]{week_title, subject_id});
                                     long week_id;
                                     if (!mCursor.moveToFirst()) {
                                         ContentValues weekValues = new ContentValues();
                                         weekValues.put(MMUContract.WeekEntry.COLUMN_TITLE, week_title);
                                         weekValues.put(MMUContract.WeekEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                        week_id = db.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
+                                        week_id = MainActivity.database.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
                                     } else {
                                         week_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.WeekEntry._ID));
                                     }
@@ -366,7 +367,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                                             String announcement_contents = announcement.getString("contents");
                                             String announcement_author = announcement.getString("author");
                                             String announcement_posted_date = announcement.getString("posted_date");
-                                            mCursor = db.query(MMUContract.AnnouncementEntry.TABLE_NAME,
+                                            mCursor = MainActivity.database.query(MMUContract.AnnouncementEntry.TABLE_NAME,
                                                     new String[]{MMUContract.AnnouncementEntry._ID},
                                                     MMUContract.AnnouncementEntry.COLUMN_TITLE + " = ? AND " +
                                                             MMUContract.AnnouncementEntry.COLUMN_CONTENTS + " = ?",
@@ -383,7 +384,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                                                 announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
                                                 announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
                                                 announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                                long _id = db.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+                                                long _id = MainActivity.database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
                                             }
                                         }
                                     }
@@ -408,7 +409,7 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                                             MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
                                             MMUContract.SubjectEntry.TABLE_NAME + "." +
                                             MMUContract.SubjectEntry._ID + " = ? ;";
-                                    mCursor = db.rawQuery(sql, new String[]{file_name,subject_id});
+                                    mCursor = MainActivity.database.rawQuery(sql, new String[]{file_name,subject_id});
                                     if (!mCursor.moveToFirst()) {
                                         ContentValues fileValues = new ContentValues();
                                         fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
@@ -417,12 +418,12 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                                         fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE, content_type);
                                         fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
                                         fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                        long _id = db.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
+                                        long _id = MainActivity.database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
                                     }
 
                                 }
                             }
-                            Cursor new_cursor = db.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+                            Cursor new_cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
                             mAdapter.changeCursor(new_cursor);
                             mAdapter.notifyDataSetChanged();
                             mProgressDialog.dismiss();
@@ -441,45 +442,64 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                         mProgressDialog.dismiss();
                         mSwipeRefreshLayout.setRefreshing(false);
                         NetworkResponse networkResponse = error.networkResponse;
+                        AlertDialog.Builder alertDialogBuilder;
+                        AlertDialog alertDialog;
                         if (networkResponse != null && networkResponse.data != null) {
                             switch (networkResponse.statusCode) {
                                 case 400:
-                                    json = new String(networkResponse.data);
-                                    json = Utility.trimMessage(json, "message");
-                                    if (json != null)
-                                        Toast.makeText(mContext, json, Toast.LENGTH_SHORT).show();
-                                    mProgressDialog.setMessage(json);
-//                                mmls_load_status.setText(json);
+                                    queue.cancelAll(DOWNLOAD_TAG);
+                                    alertDialogBuilder =
+                                            new AlertDialog.Builder(mContext)
+                                                    .setTitle("Connection Error")
+                                                    .setMessage("Cookie has Expired")
+                                                    .setPositiveButton("Refresh Cookie and Retry", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            refreshTokenAndRetry(context,subject_id);
+                                                        }
+                                                    })
+                                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            dialog.cancel();
+                                                        }
+                                                    });
+                                    alertDialog = alertDialogBuilder.show();
                                     break;
                                 default:
-//                            progressBar.setVisibility(View.INVISIBLE);
-                                    mProgressDialog.setMessage("NO INTERNET CONNECTION");
-                                    Toast.makeText(mContext, "NO INTERNET CONNECTION", Toast.LENGTH_SHORT).show();
-//                            mmls_load_status.setText("NO INTERNET CONNECTION");
+                                    alertDialogBuilder =
+                                            new AlertDialog.Builder(mContext)
+                                                    .setTitle("Connection Error")
+                                                    .setMessage("Internal Server Error")
+                                                    .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            updateSubject(context, subject_id);
+                                                        }
+                                                    })
+                                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            dialog.cancel();
+                                                        }
+                                                    });
+                                    alertDialog = alertDialogBuilder.show();
                             }
                             //Additional cases
                         }
-//                else
-//                {
-//                    progressBar.setVisibility(View.INVISIBLE);
-
-//                    mmls_load_status.setText("NO INTERNET CONNECTION");
-//                }
-                        AlertDialog.Builder alertDialogBuilder =
-                                new AlertDialog.Builder(mContext)
-                                        .setTitle("Connection Error")
-                                        .setMessage("An error has occurred with the MMLS query.")
-                                        .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                DownloadHelper.updateSubject(context, subject_id);
-                                            }
-                                        })
-                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.cancel();
-                                            }
-                                        });
-                        AlertDialog alertDialog = alertDialogBuilder.show();
+                        else {
+                            alertDialogBuilder =
+                                    new AlertDialog.Builder(mContext)
+                                            .setTitle("Connection Error")
+                                            .setMessage("Internet Connection Error")
+                                            .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    updateSubject(context, subject_id);
+                                                }
+                                            })
+                                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.cancel();
+                                                }
+                                            });
+                            alertDialog = alertDialogBuilder.show();
+                        }
                     }
                 }) {
                     @Override
@@ -500,11 +520,64 @@ public class MMLSActivity extends ActionBarActivity implements LoaderManager.Loa
                 };
                 sr.setRetryPolicy(new DefaultRetryPolicy(
                         30000,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        0,
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                sr.setTag(DOWNLOAD_TAG);
                 queue.add(sr);
             }
-            ;
+        }
+        public void refreshTokenAndRetry(final Context context, final String subject_id) {
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+            final ProgressDialog progressDialog = new ProgressDialog(context);
+            progressDialog.setTitle("Refreshing Token & Cookie...");
+            progressDialog.setMessage("Please Wait");
+            progressDialog.show();
+            String url = "https://mmu-api.herokuapp.com/refresh_token";
+//        String url = "https://mmu-api.herokuapp.com/login_test.json";
+            StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    String cookie = Utility.trimMessage(response, "cookie");
+                    String token = Utility.trimMessage(response, "token");
+                    editor.putString("cookie", cookie);
+                    editor.putString("token", token);
+                    editor.apply();
+                    Log.d("Token", "Successful");
+                    progressDialog.dismiss();
+                    updateSubject(context, subject_id);
+
+                }
+            }, new Response.ErrorListener() {
+                String json = null;
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    progressDialog.dismiss();
+                    Log.d("Token", "Refresh unsuccessful");
+                }
+            }){
+                @Override
+                protected Map<String,String> getParams(){
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("student_id", prefs.getString("student_id", ""));
+                    params.put("password", prefs.getString("mmls_password",""));
+                    return params;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String,String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type","application/x-www-form-urlencoded");
+                    headers.put("abc", "value");
+                    return headers;
+                }
+            };
+            sr.setRetryPolicy(new DefaultRetryPolicy(
+                    30000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            queue.add(sr);
         }
     }
 
