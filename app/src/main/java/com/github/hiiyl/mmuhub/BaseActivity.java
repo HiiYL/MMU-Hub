@@ -118,9 +118,9 @@ public class BaseActivity extends ActionBarActivity
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(BaseActivity.this);
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.clear();
-                editor.commit();
+                editor.apply();
                 MMUDbHelper mOpenHelper = new MMUDbHelper(BaseActivity.this);
-                mOpenHelper.onLogout(MainActivity.database);
+                mOpenHelper.onLogout(MySingleton.getInstance(this).getDatabase());
                 intent = new Intent(this, LoginActivity.class);
                 break;
             default:

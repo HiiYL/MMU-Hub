@@ -24,8 +24,8 @@
         android:layout_gravity="top"
         android:background="#33b5e5"
         android:textColor="#fff"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp" />
+        android:paddingTop="17dp"
+        android:paddingBottom="17dp" />
     </android.support.v4.view.ViewPager>
     <!-- ... XML CODE -->
     <com.gc.materialdesign.views.ButtonFloat
@@ -46,6 +46,7 @@
 
     <!-- The navigation drawer -->
     <ListView
+        android:paddingTop="25dp"
         android:id="@+id/navList"
         android:layout_width="200dp"
         android:layout_height="match_parent"

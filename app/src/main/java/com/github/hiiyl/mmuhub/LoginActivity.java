@@ -29,6 +29,7 @@ import com.gc.materialdesign.views.ButtonRectangle;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -112,7 +113,7 @@ public class LoginActivity extends ActionBarActivity {
                         ContentValues subjectValues = new ContentValues();
                         subjectValues.put(MMUContract.SubjectEntry.COLUMN_NAME, subject_name);
                         subjectValues.put(MMUContract.SubjectEntry.COLUMN_URL, subject_uri);
-                        MainActivity.database.insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
+                        MySingleton.getInstance(LoginActivity.this).getDatabase().insert(MMUContract.SubjectEntry.TABLE_NAME, null, subjectValues);
                         Log.d("LoginActivity", "Inserted " + subject_name + " AND " + subject_uri);
                     }
                 } catch (JSONException e) {
@@ -130,7 +131,8 @@ public class LoginActivity extends ActionBarActivity {
                 editor.putString("name", name);
                 editor.putString("faculty", faculty);
                 editor.apply();
-                Intent intent = new Intent(mContext, MainActivity.class);
+                MMUSyncAdapter.syncImmediately(LoginActivity.this);
+                Intent intent = new Intent(mContext, MMLSActivity.class);
                 startActivity(intent);
                 finish();
             }

@@ -17,11 +17,11 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
         <activity
             android:name=".LoginActivity"
@@ -32,14 +32,21 @@
         </activity>
         <activity
             android:name=".MMLSActivity"
-
+            android:theme="@style/MMLSTheme"
             android:label="@string/title_activity_mmls" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".AnnouncementDetailActivity"
-            android:label="@string/title_activity_announcement_detail" >
+            android:label="@string/title_activity_announcement_detail"
+            android:theme="@style/AnnouncementDetailTheme">
+            android:parentActivityName="com.github.hiiyl.mmuhub.MMLSActivity" >
             <meta-data
-                android:name="android.support.MMLS_ACTIVITY"
+                android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.github.hiiyl.mmuhub.MMLSActivity" />
         </activity>
         <activity

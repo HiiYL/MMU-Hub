@@ -22,6 +22,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
@@ -29,6 +30,7 @@ import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
+import com.squareup.otto.Bus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +51,8 @@ public class MMLSFragment extends Fragment {
     private MMLSAdapter mAdapter;
     private Cursor cursor;
     private MMUDbHelper mOpenHelper;
+    private RequestQueue requestQueue;
+    private Bus bus;
     String slide_str;
     /**
      * The fragment argument representing the section number for this
@@ -76,9 +80,19 @@ public class MMLSFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("RECEIVING STUFF", "FRAGMENT RECEIVES NOTIFICATION");
-            Cursor new_cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+            Cursor new_cursor = MySingleton.getInstance(context).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
             mAdapter.changeCursor(new_cursor);
             mAdapter.notifyDataSetChanged();
+            SnackBar sync_notify = new SnackBar(getActivity(), "Sync Complete");
+            sync_notify.show();
+        }
+    };
+    BroadcastReceiver syncStartingReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
+            sync_notify.show();
+
         }
     };
 
@@ -87,10 +101,12 @@ public class MMLSFragment extends Fragment {
         // TODO Auto-generated method stub
         super.onStart();
         getActivity().registerReceiver(syncFinishedReceiver, new IntentFilter(MMUSyncAdapter.SYNC_FINISHED));
+        getActivity().registerReceiver(syncStartingReceiver, new IntentFilter(MMUSyncAdapter.SYNC_STARTING));
     }
     @Override
     public void onPause() {
         getActivity().unregisterReceiver(syncFinishedReceiver);
+        getActivity().unregisterReceiver(syncStartingReceiver);
         super.onStop();
     }
 
@@ -100,13 +116,17 @@ public class MMLSFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        bus = MySingleton.getInstance(getActivity()).getBus();
+
+        requestQueue = MySingleton.getInstance(getActivity()).getRequestQueue();
+
         View rootView = inflater.inflate(R.layout.fragment_mml, container, false);
 
         mOpenHelper = new MMUDbHelper(getActivity());
         int slide = getArguments().getInt(ARG_SECTION_NUMBER, 0);
         slide_str = Integer.toString(slide);
         mExListView = (ExpandableListView) rootView.findViewById(R.id.listview_expandable_mmls);
-        cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+        cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
         mAdapter = new MMLSAdapter(cursor, getActivity());
         mExListView.setAdapter(mAdapter);
         mExListView.expandGroup(0);
@@ -151,7 +171,7 @@ public class MMLSFragment extends Fragment {
         final String subject_url, subject_name;
         final Context mContext = context;
         final MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
-        Cursor cursor = MainActivity.database.query(MMUContract.SubjectEntry.TABLE_NAME,
+        Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.SubjectEntry.TABLE_NAME,
                 null,
                 MMUContract.SubjectEntry._ID + " = ? ",
                 new String[]{subject_id}, null, null, null);
@@ -186,13 +206,13 @@ public class MMLSFragment extends Fragment {
                                         MMUContract.WeekEntry.COLUMN_TITLE + " = ? " + " AND " +
                                         MMUContract.SubjectEntry.TABLE_NAME + "." +
                                         MMUContract.SubjectEntry._ID + " = ? ;";
-                                mCursor = MainActivity.database.rawQuery(sql, new String[]{week_title, subject_id});
+                                mCursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(sql, new String[]{week_title, subject_id});
                                 long week_id;
                                 if (!mCursor.moveToFirst()) {
                                     ContentValues weekValues = new ContentValues();
                                     weekValues.put(MMUContract.WeekEntry.COLUMN_TITLE, week_title);
                                     weekValues.put(MMUContract.WeekEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                    week_id = MainActivity.database.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
+                                    week_id = MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
                                 } else {
                                     week_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.WeekEntry._ID));
                                 }
@@ -206,7 +226,7 @@ public class MMLSFragment extends Fragment {
                                         String announcement_contents = announcement.getString("contents");
                                         String announcement_author = announcement.getString("author");
                                         String announcement_posted_date = announcement.getString("posted_date");
-                                        mCursor = MainActivity.database.query(MMUContract.AnnouncementEntry.TABLE_NAME,
+                                        mCursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.AnnouncementEntry.TABLE_NAME,
                                                 new String[]{MMUContract.AnnouncementEntry._ID},
                                                 MMUContract.AnnouncementEntry.COLUMN_TITLE + " = ? AND " +
                                                         MMUContract.AnnouncementEntry.COLUMN_CONTENTS + " = ?",
@@ -223,7 +243,7 @@ public class MMLSFragment extends Fragment {
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                            long _id = MainActivity.database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+                                            long _id = MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
                                         }
                                     }
                                 }
@@ -248,7 +268,7 @@ public class MMLSFragment extends Fragment {
                                         MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
                                         MMUContract.SubjectEntry.TABLE_NAME + "." +
                                         MMUContract.SubjectEntry._ID + " = ? ;";
-                                mCursor = MainActivity.database.rawQuery(sql, new String[]{file_name,subject_id});
+                                mCursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(sql, new String[]{file_name, subject_id});
                                 if (!mCursor.moveToFirst()) {
                                     ContentValues fileValues = new ContentValues();
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
@@ -257,12 +277,12 @@ public class MMLSFragment extends Fragment {
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE, content_type);
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                    long _id = MainActivity.database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
+                                    long _id = MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
                                 }
 
                             }
                         }
-                        Cursor new_cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+                        Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
                         mAdapter.changeCursor(new_cursor);
                         mAdapter.notifyDataSetChanged();
                         mSwipeRefreshLayout.setRefreshing(false);
@@ -281,7 +301,7 @@ public class MMLSFragment extends Fragment {
                     if (networkResponse != null && networkResponse.data != null) {
                         switch (networkResponse.statusCode) {
                             case 400:
-                                MainActivity.request_queue.cancelAll(DOWNLOAD_TAG);
+                                requestQueue.cancelAll(DOWNLOAD_TAG);
                                 SnackBar snackbar = new SnackBar(getActivity(), "Your session cookie has expired.",
                                         "Refresh and Retry", new View.OnClickListener() {
                                     @Override
@@ -336,7 +356,7 @@ public class MMLSFragment extends Fragment {
                     0,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             sr.setTag(DOWNLOAD_TAG);
-            MainActivity.request_queue.add(sr);
+            requestQueue.add(sr);
         }
     }
     public void refreshTokenAndRetry(final Context context, final String subject_id) {
@@ -389,7 +409,7 @@ public class MMLSFragment extends Fragment {
                 30000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        MainActivity.request_queue.add(sr);
+        requestQueue.add(sr);
     }
 
 //    @Override

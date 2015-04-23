@@ -244,6 +244,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                             notificationBuilder.setContentIntent(resultPendingIntent);
                                             NotificationManager manager =
                                                     (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                            notificationBuilder.setAutoCancel(true);
                                             manager.notify(ANNOUNCEMENT_NOTIFICATION_ID, notificationBuilder.build());
                                         }
                                     }

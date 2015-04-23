@@ -99,13 +99,12 @@ public class DownloadActivity extends ActionBarActivity {
             mProgressDialog.setCancelable(true);
 
             mOpenHelper = new MMUDbHelper(getActivity());
-            MainActivity.database = mOpenHelper.getReadableDatabase();
             View rootView = inflater.inflate(R.layout.fragment_download, container, false);
             download_list = (ListView) rootView.findViewById(R.id.mmls_download_listview);
 
             String subject_id = Integer.toString(DownloadActivity.mSubjectID);
             Log.d("Subject ID is ", subject_id);
-            final Cursor cursor = MainActivity.database.query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+            final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
                     new String[] {subject_id}, null, null,null );
             final MMLSDownloadAdapter adapter = new MMLSDownloadAdapter(getActivity(), cursor);
             download_list.setAdapter(adapter);

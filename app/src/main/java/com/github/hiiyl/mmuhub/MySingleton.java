@@ -1,6 +1,7 @@
 package com.github.hiiyl.mmuhub;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 
@@ -8,6 +9,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.squareup.otto.Bus;
 
 /**
  * Created by Hii on 4/23/15.
@@ -17,10 +20,18 @@ public class MySingleton {
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
     private static Context mCtx;
+    private SQLiteDatabase database;
+    private Bus bus;
+    private MMUDbHelper mMMUDbHelper;
 
     private MySingleton(Context context) {
         mCtx = context;
         mRequestQueue = getRequestQueue();
+        bus = getBus();
+        mMMUDbHelper = getMMUDbHelper();
+        database = getDatabase();
+
+
 
         mImageLoader = new ImageLoader(mRequestQueue,
                 new ImageLoader.ImageCache() {
@@ -44,6 +55,26 @@ public class MySingleton {
             mInstance = new MySingleton(context);
         }
         return mInstance;
+    }
+
+    public MMUDbHelper getMMUDbHelper() {
+        if(mMMUDbHelper == null) {
+            mMMUDbHelper = new MMUDbHelper(mCtx.getApplicationContext());
+        }
+        return mMMUDbHelper;
+    }
+    public SQLiteDatabase getDatabase() {
+        if(database == null) {
+            database = getMMUDbHelper().getWritableDatabase();
+        }
+        return database;
+    }
+
+    public Bus getBus() {
+        if(bus == null) {
+            bus = new Bus();
+        }
+        return bus;
     }
 
     public RequestQueue getRequestQueue() {

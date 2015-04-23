@@ -1,8 +1,10 @@
 package com.github.hiiyl.mmuhub;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,6 +15,7 @@ import android.view.View;
 
 import com.gc.materialdesign.views.ButtonFloat;
 import com.github.hiiyl.mmuhub.data.MMUContract;
+import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -29,6 +32,7 @@ public class MMLSActivity extends BaseActivity{
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
+    public static final String LOGGED_IN_PREF_TAG = "logged_in";
     private static ButtonFloat mDownloadButton;
     private static int mPosition = 1;
     private static String DOWNLOAD_TAG = "download_notes";
@@ -67,6 +71,17 @@ public class MMLSActivity extends BaseActivity{
                 startActivity(intent);
             }
         });
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        boolean logged_in = prefs.getBoolean(LOGGED_IN_PREF_TAG, false);
+        if (!logged_in) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }else {
+            MMUSyncAdapter.initializeSyncAdapter(this);
+        }
 
 //
 //        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -110,7 +125,7 @@ public class MMLSActivity extends BaseActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_mml, menu);
+//        getMenuInflater().inflate(R.menu.menu_mml, menu);
         return true;
     }
 
@@ -145,7 +160,7 @@ public class MMLSActivity extends BaseActivity{
         @Override
         public int getCount() {
             // Show 3 total pages.
-            Cursor cursor = MainActivity.database.query(MMUContract.SubjectEntry.TABLE_NAME, null,null,null,null,null,null);
+            Cursor cursor =MySingleton.getInstance(MMLSActivity.this).getDatabase().query(MMUContract.SubjectEntry.TABLE_NAME, null, null, null, null, null, null);
             int count = cursor.getCount();
             cursor.close();
             return count;
@@ -154,7 +169,7 @@ public class MMLSActivity extends BaseActivity{
         @Override
         public CharSequence getPageTitle(int position) {
             String subject_id = Integer.toString(position + 1);
-            Cursor cursor = MainActivity.database.query(MMUContract.SubjectEntry.TABLE_NAME, new String[] {MMUContract.SubjectEntry.COLUMN_NAME}, MMUContract.AnnouncementEntry._ID + "=?",new String[] {subject_id}, null ,null, null);
+            Cursor cursor = MySingleton.getInstance(MMLSActivity.this).getDatabase().query(MMUContract.SubjectEntry.TABLE_NAME, new String[]{MMUContract.SubjectEntry.COLUMN_NAME}, MMUContract.AnnouncementEntry._ID + "=?", new String[]{subject_id}, null, null, null);
             ArrayList<String> names = new ArrayList<String>();
             if(cursor.moveToFirst()) {
                 String subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));

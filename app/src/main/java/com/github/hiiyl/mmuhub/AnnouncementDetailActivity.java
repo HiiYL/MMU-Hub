@@ -86,8 +86,7 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
             TextView author_textview = (TextView) rootView.findViewById(R.id.announcement_detail_author);
             TextView posted_date_textview = (TextView) rootView.findViewById(R.id.announcement_detail_posted_date);
             MMUDbHelper mOpenHelper = new MMUDbHelper(getActivity());
-            MainActivity.database = mOpenHelper.getReadableDatabase();
-            Cursor cursor = MainActivity.database.query(MMUContract.AnnouncementEntry.TABLE_NAME, null, MMUContract.AnnouncementEntry._ID + "=?",new String[] {announcement_id},null,null,null);
+            Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.AnnouncementEntry.TABLE_NAME, null, MMUContract.AnnouncementEntry._ID + "=?",new String[] {announcement_id},null,null,null);
             if(cursor.moveToFirst()) {
                 Log.d(TAG, "Successful Query");
             }
