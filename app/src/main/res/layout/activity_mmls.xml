@@ -39,4 +39,24 @@
         materialdesign:animate="true"
         materialdesign:iconDrawable="@drawable/ic_file_download_white_48dp" />
 </RelativeLayout>
-    </android.support.v4.widget.DrawerLayout>
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- The navigation drawer -->
+    <ListView
+        android:id="@+id/navList"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left|start"
+        android:background="#ffeeeeee"/>
+    <!--<ListView android:id="@+id/left_drawer"-->
+    <!--android:layout_width="240dp"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="start"-->
+    <!--android:choiceMode="singleChoice"-->
+    <!--android:divider="@android:color/transparent"-->
+    <!--android:dividerHeight="0dp"-->
+    <!--android:background="#111"/>-->
+</android.support.v4.widget.DrawerLayout>

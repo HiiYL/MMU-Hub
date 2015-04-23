@@ -1,42 +1,34 @@
-package com.github.hiiyl.mmuhub.sync;
+package com.github.hiiyl.mmuhub;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.AlertDialog;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.AbstractThreadedSyncAdapter;
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SyncRequest;
-import android.content.SyncResult;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.github.hiiyl.mmuhub.AnnouncementDetailActivity;
-import com.github.hiiyl.mmuhub.MySingleton;
-import com.github.hiiyl.mmuhub.R;
-import com.github.hiiyl.mmuhub.Utility;
+import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,106 +40,110 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Hii on 4/22/15.
+ * Created by Hii on 4/23/15.
  */
-public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
-    public static final String SYNC_FINISHED = "sync_finished";
-    public static final String SYNC_STARTING = "sync_starting";
-    public static final int SYNC_INTERVAL = 60 * 180;
-    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
-    private static final int ANNOUNCEMENT_NOTIFICATION_ID = 3004;
+public class MMLSFragment extends Fragment {
+    private static final String DOWNLOAD_TAG = "download";
+    private ExpandableListView mExListView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private MMLSAdapter mAdapter;
+    private Cursor cursor;
+    private MMUDbHelper mOpenHelper;
+    String slide_str;
+    /**
+     * The fragment argument representing the section number for this
+     * fragment.
+     */
+    private static final String ARG_SECTION_NUMBER = "section_number";
 
-    private SQLiteDatabase database;
-    private RequestQueue sync_queue;
-    MMUDbHelper helper;
-    String SYNC_TAG = "Sync Downloads";
-    final String LOG_TAG = MMUSyncAdapter.class.getSimpleName();
-    public MMUSyncAdapter(Context context, boolean autoInitialize) {
-        super(context, autoInitialize);
+    /**
+     * Returns a new instance of this fragment for the given section
+     * number.
+     */
+    public static MMLSFragment newInstance(int sectionNumber) {
+        MMLSFragment fragment = new MMLSFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+        fragment.setArguments(args);
+        return fragment;
     }
-    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        sync_queue = MySingleton.getInstance(getContext()).
-                getRequestQueue();
-        Intent intent = new Intent(SYNC_STARTING);
-        getContext().sendBroadcast(intent);
-        Log.d(LOG_TAG, "onPerformSync Called.");
-        helper = new MMUDbHelper(getContext());
-        database = helper.getWritableDatabase();
-        String s = "1";
-        Cursor cursor= database.query(MMUContract.SubjectEntry.TABLE_NAME, null, null, null,null,null,null);
-        if(cursor.moveToFirst()) {
-            for (int i = 1; i < cursor.getCount() + 1; i++)
-                updateSubject(getContext(), Integer.toString(i));
+
+    public MMLSFragment() {
+    }
+
+
+    private BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("RECEIVING STUFF", "FRAGMENT RECEIVES NOTIFICATION");
+            Cursor new_cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+            mAdapter.changeCursor(new_cursor);
+            mAdapter.notifyDataSetChanged();
         }
+    };
+
+    @Override
+    public void onResume() {
+        // TODO Auto-generated method stub
+        super.onStart();
+        getActivity().registerReceiver(syncFinishedReceiver, new IntentFilter(MMUSyncAdapter.SYNC_FINISHED));
     }
-    private static void onAccountCreated(Account newAccount, Context context) {
-        /*
-         * Since we've created an account
-         */
-        MMUSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
-
-        /*
-         * Without calling setSyncAutomatically, our periodic sync will not be enabled.
-         */
-        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
-
-        /*
-         * Finally, let's do a sync to get things started
-         */
-        syncImmediately(context);
+    @Override
+    public void onPause() {
+        getActivity().unregisterReceiver(syncFinishedReceiver);
+        super.onStop();
     }
-    public static void syncImmediately(Context context) {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(getSyncAccount(context),
-                context.getString(R.string.content_authority), bundle);
-    }
-    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
-        Account account = getSyncAccount(context);
-        String authority = context.getString(R.string.content_authority);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // we can enable inexact timers in our periodic sync
-            SyncRequest request = new SyncRequest.Builder().
-                    syncPeriodic(syncInterval, flexTime).
-                    setSyncAdapter(account, authority).
-                    setExtras(new Bundle()).build();
-            ContentResolver.requestSync(request);
-        } else {
-            ContentResolver.addPeriodicSync(account,
-                    authority, new Bundle(), syncInterval);
-        }
-    }
-    public static Account getSyncAccount(Context context) {
-        // Get an instance of the Android account manager
-        AccountManager accountManager =
-                (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
 
-        // Create the account type and default account
-        Account newAccount = new Account(
-                context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
 
-        // If the password doesn't exist, the account doesn't exist
-        if ( null == accountManager.getPassword(newAccount) ) {
 
-        /*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
-         */
-            if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
-                return null;
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.fragment_mml, container, false);
+
+        mOpenHelper = new MMUDbHelper(getActivity());
+        int slide = getArguments().getInt(ARG_SECTION_NUMBER, 0);
+        slide_str = Integer.toString(slide);
+        mExListView = (ExpandableListView) rootView.findViewById(R.id.listview_expandable_mmls);
+        cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+        mAdapter = new MMLSAdapter(cursor, getActivity());
+        mExListView.setAdapter(mAdapter);
+        mExListView.expandGroup(0);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.MMLS_activity_swipe_refresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshContent(getActivity(), Integer.toString(MMLSActivity.mViewPager.getCurrentItem() + 1));
             }
-            /*
-             * If you don't set android:syncable="true" in
-             * in your <provider> element in the manifest,
-             * then call ContentResolver.setIsSyncable(account, AUTHORITY, 1)
-             * here.
-             */
+        });
 
-            onAccountCreated(newAccount, context);
 
-        }
-        return newAccount;
+        mExListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                // CursorAdapter returns a cursor at the correct position for getItem(), or null
+                // if it cannot seek to that position.
+                Cursor new_cursor = mAdapter.getChild(
+                        groupPosition, childPosition);
+                if (new_cursor != null) {
+                    String announcement_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
+                    Intent intent = new Intent(getActivity(), AnnouncementDetailActivity.class);
+                    intent.putExtra("ANNOUNCEMENT_ID", announcement_id);
+                    startActivity(intent);
+                }
+                return true;
+            }
+        });
+
+
+        return rootView;
+    }
+
+    private void refreshContent(Context context, String subject_id) {
+        updateSubject(context, subject_id);
     }
     public void updateSubject(final Context context, final String subject_id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -155,16 +151,17 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         final String subject_url, subject_name;
         final Context mContext = context;
         final MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
-        Cursor cursor = database.query(MMUContract.SubjectEntry.TABLE_NAME,
+        Cursor cursor = MainActivity.database.query(MMUContract.SubjectEntry.TABLE_NAME,
                 null,
                 MMUContract.SubjectEntry._ID + " = ? ",
                 new String[]{subject_id}, null, null, null);
         if (cursor.moveToFirst()) {
+
             String url = "https://mmu-api.herokuapp.com/refresh_subject";
             subject_url = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_URL));
             subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
-            Log.d("SENT DATA COOKIE", prefs.getString("cookie", ""));
-            Log.d("SENT DATA URI", subject_url);
+
+            mSwipeRefreshLayout.setRefreshing(true);
 
             StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
@@ -189,13 +186,13 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                         MMUContract.WeekEntry.COLUMN_TITLE + " = ? " + " AND " +
                                         MMUContract.SubjectEntry.TABLE_NAME + "." +
                                         MMUContract.SubjectEntry._ID + " = ? ;";
-                                mCursor = database.rawQuery(sql, new String[]{week_title, subject_id});
+                                mCursor = MainActivity.database.rawQuery(sql, new String[]{week_title, subject_id});
                                 long week_id;
                                 if (!mCursor.moveToFirst()) {
                                     ContentValues weekValues = new ContentValues();
                                     weekValues.put(MMUContract.WeekEntry.COLUMN_TITLE, week_title);
                                     weekValues.put(MMUContract.WeekEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                    week_id = database.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
+                                    week_id = MainActivity.database.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
                                 } else {
                                     week_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.WeekEntry._ID));
                                 }
@@ -209,7 +206,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                         String announcement_contents = announcement.getString("contents");
                                         String announcement_author = announcement.getString("author");
                                         String announcement_posted_date = announcement.getString("posted_date");
-                                        mCursor = database.query(MMUContract.AnnouncementEntry.TABLE_NAME,
+                                        mCursor = MainActivity.database.query(MMUContract.AnnouncementEntry.TABLE_NAME,
                                                 new String[]{MMUContract.AnnouncementEntry._ID},
                                                 MMUContract.AnnouncementEntry.COLUMN_TITLE + " = ? AND " +
                                                         MMUContract.AnnouncementEntry.COLUMN_CONTENTS + " = ?",
@@ -226,25 +223,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                            long _id = database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
-
-                                            Intent resultIntent = new Intent(getContext(), AnnouncementDetailActivity.class);
-                                            resultIntent.putExtra("ANNOUNCEMENT_ID",Long.toString(_id));
-                                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-                                            stackBuilder.addNextIntent(resultIntent);
-                                            PendingIntent resultPendingIntent =
-                                                    stackBuilder.getPendingIntent(
-                                                            0,
-                                                            PendingIntent.FLAG_UPDATE_CURRENT
-                                                    );
-                                            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
-                                                    .setSmallIcon(R.drawable.ic_file_download_white_48dp)
-                                                    .setContentTitle(announcement_title)
-                                                    .setContentText(announcement_author);
-                                            notificationBuilder.setContentIntent(resultPendingIntent);
-                                            NotificationManager manager =
-                                                    (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                            manager.notify(ANNOUNCEMENT_NOTIFICATION_ID, notificationBuilder.build());
+                                            long _id = MainActivity.database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
                                         }
                                     }
                                 }
@@ -269,7 +248,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                         MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
                                         MMUContract.SubjectEntry.TABLE_NAME + "." +
                                         MMUContract.SubjectEntry._ID + " = ? ;";
-                                mCursor = database.rawQuery(sql, new String[]{file_name,subject_id});
+                                mCursor = MainActivity.database.rawQuery(sql, new String[]{file_name,subject_id});
                                 if (!mCursor.moveToFirst()) {
                                     ContentValues fileValues = new ContentValues();
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
@@ -278,40 +257,61 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE, content_type);
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
                                     fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                    long _id = database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
-
-
-
+                                    long _id = MainActivity.database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
                                 }
 
                             }
                         }
+                        Cursor new_cursor = MainActivity.database.query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",new String[] {slide_str},null,null,null);
+                        mAdapter.changeCursor(new_cursor);
+                        mAdapter.notifyDataSetChanged();
+                        mSwipeRefreshLayout.setRefreshing(false);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    Intent i = new Intent(SYNC_FINISHED);
-                    getContext().sendBroadcast(i);
                 }
             }, new Response.ErrorListener() {
                 String json = null;
 
                 @Override
                 public void onErrorResponse(VolleyError error) {
-//                    mSwipeRefreshLayout.setRefreshing(false);
+                    mSwipeRefreshLayout.setRefreshing(false);
                     NetworkResponse networkResponse = error.networkResponse;
-                    AlertDialog.Builder alertDialogBuilder;
-                    AlertDialog alertDialog;
                     if (networkResponse != null && networkResponse.data != null) {
                         switch (networkResponse.statusCode) {
                             case 400:
-                                Log.d("HELLO THERE~", "HTTTP 400");
-                                sync_queue.cancelAll(SYNC_TAG);
-                                refreshTokenAndRetry(context, subject_id);
+                                MainActivity.request_queue.cancelAll(DOWNLOAD_TAG);
+                                SnackBar snackbar = new SnackBar(getActivity(), "Your session cookie has expired.",
+                                        "Refresh and Retry", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        refreshTokenAndRetry(getActivity(), subject_id);
+                                    }
+                                });
+                                snackbar.show();
                                 break;
                             default:
+                                SnackBar new_snackbar = new SnackBar(getActivity(), "Internal Server Error",
+                                        "Retry", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        updateSubject(getActivity(), subject_id);
+                                    }
+                                });
+                                new_snackbar.show();
                         }
                         //Additional cases
+                    }
+                    else {
+                        SnackBar new_snackbar = new SnackBar(getActivity(), "No Internet Connection",
+                                "Retry", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                updateSubject(getActivity(), subject_id);
+                            }
+                        });
+                        new_snackbar.show();
                     }
                 }
             }) {
@@ -333,16 +333,20 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             };
             sr.setRetryPolicy(new DefaultRetryPolicy(
                     30000,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    0,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            sr.setTag(SYNC_TAG);
-            sync_queue.add(sr);
+            sr.setTag(DOWNLOAD_TAG);
+            MainActivity.request_queue.add(sr);
         }
     }
     public void refreshTokenAndRetry(final Context context, final String subject_id) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        final ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle("Refreshing Token & Cookie...");
+        progressDialog.setMessage("Please Wait");
+        progressDialog.show();
         String url = "https://mmu-api.herokuapp.com/refresh_token";
-        Log.d("HELLO THERE~", "PREPARING TO REFRESH TOKEN");
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -353,13 +357,15 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                 editor.putString("token", token);
                 editor.apply();
                 Log.d("Token", "Successful");
-                MMUSyncAdapter.syncImmediately(getContext());
+                progressDialog.dismiss();
+                updateSubject(context, subject_id);
 
             }
         }, new Response.ErrorListener() {
             String json = null;
             @Override
             public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
                 Log.d("Token", "Refresh unsuccessful");
             }
         }){
@@ -383,9 +389,28 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                 30000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        sync_queue.add(sr);
+        MainActivity.request_queue.add(sr);
     }
-    public static void initializeSyncAdapter(Context context) {
-        getSyncAccount(context);
-    }
+
+//    @Override
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//
+//        Uri announcementsForSubject = MMUContract.AnnouncementEntry.buildAnnouncementWithSubjectUri(slide_str);
+//        return new CursorLoader(getActivity(),
+//                announcementsForSubject,
+//                null,
+//                null,
+//                null,
+//                null);
+//    }
+//
+//    @Override
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+//
+//    }
+//
+//    @Override
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//
+//    }
 }

@@ -16,4 +16,12 @@
     <string name="title_activity_announcement_detail">AnnouncementDetailActivity</string>
     <string name="title_activity_bulletin">BulletinActivity</string>
     <string name="title_activity_download">DownloadActivity</string>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="title_activity_base">BaseActivity</string>
+    <string name="menu">Menu</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

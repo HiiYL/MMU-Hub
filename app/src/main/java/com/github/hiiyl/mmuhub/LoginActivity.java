@@ -1,5 +1,7 @@
 package com.github.hiiyl.mmuhub;
 
+
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -11,9 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -25,7 +25,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.gc.materialdesign.views.ButtonRectangle;
+import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 
@@ -42,8 +43,7 @@ public class LoginActivity extends ActionBarActivity {
 //    private EditText camsys_password;
     private EditText mmls_password;
 //    private EditText icems_password;
-    private TextView login_status;
-    private Button login_btn;
+    private ButtonRectangle login_btn;
     private Context mContext;
     private String TAG = LoginActivity.class.getSimpleName();
 
@@ -77,18 +77,26 @@ public class LoginActivity extends ActionBarActivity {
 //        camsys_password = (EditText) findViewById(R.id.camsys_pass_field);
         mmls_password = (EditText) findViewById(R.id.mmls_pass_field);
 //        icems_password = (EditText) findViewById(R.id.icems_pass_field);
-        login_btn = (Button) findViewById(R.id.loginBtn);
-        login_status = (TextView) findViewById(R.id.login_status);
+        login_btn = (ButtonRectangle) findViewById(R.id.loginBtn);
 
     }
     public void requestAuthentication() {
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = MySingleton.getInstance(this).
+                getRequestQueue();
         String url = "https://mmu-api.herokuapp.com/login_mmls";
-//        String url = "https://mmu-api.herokuapp.com/login_test.json";
+        final ProgressDialog mProgressDialog = new ProgressDialog(this);
+
+        mProgressDialog.setTitle("Signing you in...");
+        mProgressDialog.setMessage("Please wait");
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.show();
+
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                login_status.setText("COMPLETETO DES");
+                mProgressDialog.dismiss();
+
                 String profile = Utility.trimMessage(response, "profile");
                 String name = Utility.trimMessage(profile, "name");
                 String faculty = Utility.trimMessage(profile, "faculty");
@@ -121,33 +129,49 @@ public class LoginActivity extends ActionBarActivity {
 //                editor.putString("icems_password", icems_password.getText().toString());
                 editor.putString("name", name);
                 editor.putString("faculty", faculty);
-                editor.commit();
-                finish();
+                editor.apply();
                 Intent intent = new Intent(mContext, MainActivity.class);
                 startActivity(intent);
-                Log.d(TAG, response.toString());
+                finish();
             }
         }, new Response.ErrorListener() {
+
             String json = null;
             @Override
             public void onErrorResponse(VolleyError error) {
+                mProgressDialog.dismiss();
                 NetworkResponse networkResponse = error.networkResponse;
                 if(networkResponse != null && networkResponse.data != null){
                     switch(networkResponse.statusCode){
                         case 400:
-                            json = new String(networkResponse.data);
-                            json = Utility.trimMessage(json, "message");
-                            if(json != null)
-                                login_status.setText(json);
+                            SnackBar snackbar = new SnackBar(LoginActivity.this, "Wrong Username or Password");
+                            snackbar.show();
+
                             break;
                         default:
-                            login_status.setText("No Internet Connection");
+                            SnackBar new_snackbar = new SnackBar(LoginActivity.this, "Internal Server Error",
+                                    "Retry", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    requestAuthentication();
+                                    finish();
+                                }
+                            });
+                            new_snackbar.show();
                     }
                     //Additional cases
                 }
                 else
                 {
-                    login_status.setText("No Internet Connection");
+                    SnackBar snackbar = new SnackBar(LoginActivity.this, "No Internet Connection",
+                            "Retry", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            requestAuthentication();
+                            finish();
+                        }
+                    });
+                    snackbar.show();
                 }
                 login_btn.setText("Submit");
                 login_btn.setEnabled(true);

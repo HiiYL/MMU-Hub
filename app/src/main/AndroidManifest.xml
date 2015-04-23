@@ -13,7 +13,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" >
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
@@ -25,20 +25,14 @@
         </activity>
         <activity
             android:name=".LoginActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
             android:excludeFromRecents="true"
             android:label="@string/title_activity_login"
             android:noHistory="true" >
         </activity>
         <activity
-            android:name=".MMLS"
-            android:label="@string/title_activity_mmls"
-            android:parentActivityName=".MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.github.hiiyl.mmuhub.MainActivity" />
-        </activity>
-        <activity
             android:name=".MMLSActivity"
+
             android:label="@string/title_activity_mmls" >
         </activity>
         <activity
@@ -60,31 +54,40 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.github.hiiyl.mmuhub.MMLSActivity" />
         </activity>
+
         <provider
-            android:authorities="com.github.hiiyl.mmuhub"
             android:name=".data.MMUProvider"
+            android:authorities="com.github.hiiyl.mmuhub"
             android:enabled="true"
             android:exported="false"
-            android:syncable="true"
-            android:permission="com.myapp.LICENSE_TO_KILL"/>
+            android:permission="com.myapp.LICENSE_TO_KILL"
+            android:syncable="true" />
+
         <service
             android:name=".sync.MMUSyncService"
-            android:exported="true"
-            >
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
+
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
-        <service android:name=".sync.MMUAuthenticatorService">
+        <service android:name=".sync.MMUAuthenticatorService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
-            <meta-data android:name="android.accounts.AccountAuthenticator"
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
+
+        <activity
+            android:name=".BaseActivity"
+            android:label="@string/title_activity_base" >
+        </activity>
     </application>
 
 </manifest>

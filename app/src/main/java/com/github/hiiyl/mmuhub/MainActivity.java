@@ -2,23 +2,22 @@ package com.github.hiiyl.mmuhub;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,28 +45,70 @@ import java.util.Map;
 import java.util.Vector;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends BaseActivity {
     public static final String LOGGED_IN_PREF_TAG = "logged_in";
+
     private TextView welcome_text;
     private TextView faculty_text;
     private TextView student_id_textview;
-    private TextView mmls_load_status;
     private Button pager_button;
     private MMUDbHelper mmuDbHelper;
     public static SQLiteDatabase database;
-    private String[] mPlanetTitles;
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
+    private ProgressDialog mProgressDialog;
+    public static RequestQueue request_queue;
+
+
+
+    private BroadcastReceiver syncStartingReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mProgressDialog = new ProgressDialog(context);
+            mProgressDialog.setTitle("Syncing ...");
+            mProgressDialog.setMessage("Please Wait...");
+
+            mProgressDialog.show();
+        }
+    };
+
+
+    private BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mProgressDialog.dismiss();
+        }
+    };
+
+
+    @Override
+    public void onResume() {
+        // TODO Auto-generated method stub
+        super.onStart();
+        registerReceiver(syncFinishedReceiver, new IntentFilter(MMUSyncAdapter.SYNC_FINISHED));
+        registerReceiver(syncStartingReceiver, new IntentFilter(MMUSyncAdapter.SYNC_STARTING));
+    }
+    @Override
+    public void onPause() {
+        unregisterReceiver(syncFinishedReceiver);
+        unregisterReceiver(syncStartingReceiver);
+        super.onStop();
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        super.onCreateDrawer();
         // declare the dialog as a member field of your activity
 
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
         mmuDbHelper = new MMUDbHelper(this);
+
+        request_queue = MySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
 
 
         database = mmuDbHelper.getWritableDatabase();
@@ -76,18 +117,17 @@ public class MainActivity extends ActionBarActivity {
 
 
         if (!logged_in) {
-            finish();
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+            finish();
         }else {
             MMUSyncAdapter.initializeSyncAdapter(this);
         }
-        setContentView(R.layout.activity_main);
+
         welcome_text = (TextView) findViewById(R.id.welcome_text);
         faculty_text = (TextView) findViewById(R.id.faculty_text);
         student_id_textview = (TextView) findViewById(R.id.student_id_textview);
         pager_button = (Button) findViewById(R.id.pager_button);
-        mmls_load_status = (TextView) findViewById(R.id.mmls_load_status);
 
 
         welcome_text.setText("Welcome, " + prefs.getString("name", ""));
@@ -134,11 +174,12 @@ public class MainActivity extends ActionBarActivity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.clear();
             editor.commit();
-            finish();
+
             MMUDbHelper mOpenHelper = new MMUDbHelper(MainActivity.this);
             mOpenHelper.onLogout(database);
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+            finish();
             return true;
         }
 
@@ -155,7 +196,6 @@ public class MainActivity extends ActionBarActivity {
         mProgressDialog.setTitle("Fetching data from MMLS");
         mProgressDialog.setMessage("Establishing connection...");
         mProgressDialog.show();
-//        mmls_load_status.setText("ATTEMPTING TO QUERY SERVER...");
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
