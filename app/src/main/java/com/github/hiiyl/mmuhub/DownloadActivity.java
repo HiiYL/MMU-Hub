@@ -1,13 +1,16 @@
 package com.github.hiiyl.mmuhub;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -21,11 +24,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.helper.DownloadCompleteEvent;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,10 +42,13 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.net.ssl.HttpsURLConnection;
+
 
 public class DownloadActivity extends ActionBarActivity {
     private static int mSubjectID;
     private static ProgressDialog mProgressDialog;
+    private DownloadManager downloadManager;
 
 
     @Override
@@ -54,6 +64,7 @@ public class DownloadActivity extends ActionBarActivity {
         if(extras != null) {
             mSubjectID = extras.getInt("SUBJECT_ID");
         }
+
     }
 
 
@@ -85,49 +96,92 @@ public class DownloadActivity extends ActionBarActivity {
     public static class PlaceholderFragment extends Fragment {
         private ListView download_list;
         private MMUDbHelper mOpenHelper;
+        private MMLSDownloadAdapter adapter;
+        private String mSubjectID;
+        private Bus bus;
 
         public PlaceholderFragment() {
 
         }
 
         @Override
+        public void onResume() {
+            super.onResume();
+            MySingleton.getInstance(getActivity()).getBus().register(this);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            MySingleton.getInstance(getActivity()).getBus().unregister(this);
+
+        }
+
+        @Subscribe
+        public void answerAvailable(DownloadCompleteEvent event) {
+            final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                    new String[] {mSubjectID}, null, null,null );
+            adapter.notifyDataSetChanged();
+            adapter.changeCursor(cursor);
+        }
+
+        @Override
         public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                                  Bundle savedInstanceState) {
-            mProgressDialog = new ProgressDialog(getActivity());
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            mProgressDialog.setCancelable(true);
+
+            bus = MySingleton.getInstance(getActivity()).getBus();
+
 
             mOpenHelper = new MMUDbHelper(getActivity());
             View rootView = inflater.inflate(R.layout.fragment_download, container, false);
             download_list = (ListView) rootView.findViewById(R.id.mmls_download_listview);
 
-            String subject_id = Integer.toString(DownloadActivity.mSubjectID);
+            final String subject_id = Integer.toString(DownloadActivity.mSubjectID);
             Log.d("Subject ID is ", subject_id);
+            mSubjectID = subject_id;
             final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
                     new String[] {subject_id}, null, null,null );
-            final MMLSDownloadAdapter adapter = new MMLSDownloadAdapter(getActivity(), cursor);
+            adapter = new MMLSDownloadAdapter(getActivity(), cursor);
             download_list.setAdapter(adapter);
 
             download_list.setOnItemClickListener(new ListView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                    Cursor new_cursor = adapter.getCursor();
-                    FragmentActivity activity = (FragmentActivity)view.getContext();
-                    final DownloadTask downloadTask = new DownloadTask(getActivity(),activity);
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
-                    downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
-                    downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
-                    downloadTask.token = prefs.getString("token","");
-                    downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
 
-                    Log.d("APP", "Now downloading " + downloadTask.file_name);
+                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                            new String[]{subject_id}, null, null, null);
+                    new_cursor.moveToPosition(position);
 
-                    new_cursor.close();
+                    String file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+                    String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + file_name;
+                    Log.d("FILE NAME", file_name);
+                    Log.d("FILE PATH", file_path);
+                    File file = new File(file_path);
+                    if(file.exists()) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.fromFile(file), "application/pdf"); //TODO FIGURE OUT WHAT HAPPENS WHEN IS DOCX
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        startActivity(intent);
+                    }
+                    else {
+                        FragmentActivity activity = (FragmentActivity) view.getContext();
+                        final DownloadTask downloadTask = new DownloadTask(getActivity(), activity);
+                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                        downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+                        downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
+                        downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
+                        downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
+                        downloadTask.token = prefs.getString("token", "");
+                        downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
 
-                    downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+
+                        Log.d("APP", "Now downloading " + downloadTask.file_name);
+
+                        new_cursor.close();
+
+                        downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+                    }
 
                 }
             });
@@ -144,13 +198,16 @@ public class DownloadActivity extends ActionBarActivity {
         private String file_name;
         private String content_type;
         private String token;
+        private String remote_file_path;
         private Activity mActivity;
-        private HttpURLConnection connection = null;
+        private HttpsURLConnection connection = null;
 
         public DownloadTask(Context context, Activity activity) {
             this.context = context;
             mActivity = activity;
         }
+
+
 
         @Override
         protected String doInBackground(String... sUrl) {
@@ -164,18 +221,19 @@ public class DownloadActivity extends ActionBarActivity {
                 Log.d("Download ContentType", content_type);
                 Log.d("Download ContentID", content_id);
                 Log.d("Download Token", token);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-                connection.setRequestProperty("Accept-Encoding","gzip, deflate");
-                connection.setRequestProperty("Cache-Control","max-age=0");
-                connection.setRequestProperty("Connection","keep-alive");
-                connection.setRequestProperty("Content-Length","693");
+                connection = (HttpsURLConnection) url.openConnection();
+//                connection.setRequestProperty("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+//                connection.setRequestProperty("Accept-Encoding","gzip, deflate");
+//                connection.setRequestProperty("Cache-Control","max-age=0");
+//                connection.setRequestProperty("Connection","keep-alive");
+//                connection.setRequestProperty("Content-Length","693");
                 connection.setRequestProperty("Content-Type","multipart/form-data; boundary=----WebKitFormBoundary6IMihbtBLkOsS4fR");
                 connection.setRequestProperty("Cookie", cookie);
-                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36");
+//                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36");
                 connection.setRequestMethod("POST");
                 connection.setInstanceFollowRedirects(false);
-                connection.connect();
+                connection.setConnectTimeout(1000);
+//                connection.connect();
                 String payload = "------WebKitFormBoundary6IMihbtBLkOsS4fR\n" +
                         "Content-Disposition: form-data; name=\"_token\"\n" +
                         "\n" +
@@ -187,7 +245,7 @@ public class DownloadActivity extends ActionBarActivity {
                         "------WebKitFormBoundary6IMihbtBLkOsS4fR\n" +
                         "Content-Disposition: form-data; name=\"file_path\"\n" +
                         "\n" +
-                        "CYBER/TPT1201/notes\n" +
+                        remote_file_path + "\n" +
                         "------WebKitFormBoundary6IMihbtBLkOsS4fR\n" +
                         "Content-Disposition: form-data; name=\"file_name\"\n" +
                         "\n" +
@@ -225,7 +283,11 @@ public class DownloadActivity extends ActionBarActivity {
 
                 // download the file
                 input = connection.getInputStream();
-                output = new FileOutputStream("/sdcard/" + file_name);
+
+                String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + file_name;
+                Log.d("FILE PATH", file_path);
+
+                output = new FileOutputStream(file_path);
 
                 byte data[] = new byte[4096];
                 long total = 0;
@@ -265,12 +327,15 @@ public class DownloadActivity extends ActionBarActivity {
             // take CPU lock to prevent CPU from going off if the user
             // presses the power button during download
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            mProgressDialog = new ProgressDialog(context);
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mProgressDialog.setCancelable(true);
             mProgressDialog.setMessage("Please wait... Authenticating");
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     getClass().getName());
             mWakeLock.acquire();
             mProgressDialog.show();
-            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);;
         }
 
         @Override
@@ -285,15 +350,25 @@ public class DownloadActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
             mWakeLock.release();
             mProgressDialog.dismiss();
-            Log.d("FD","DOWNLOAD COMPLETE");
             if (result != null) {
-                Toast.makeText(context, "Download error: " + result, Toast.LENGTH_LONG).show();
+                SnackBar new_snackbar = new SnackBar((Activity) context, "Download Failed",
+                        "Retry", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        execute();
+                    }
+                });
+                new_snackbar.show();
             }
-            else
-                Toast.makeText(context,"File downloaded", Toast.LENGTH_SHORT).show();
+            else {
+                SnackBar new_snackbar = new SnackBar((Activity) context, "Download Successful");
+                new_snackbar.show();
+                Bus bus = MySingleton.getInstance(context).getBus();
+                bus.post(new DownloadCompleteEvent());
+
+            }
         }
     };
 }
