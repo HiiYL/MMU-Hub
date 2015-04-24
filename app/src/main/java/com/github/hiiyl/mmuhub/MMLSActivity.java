@@ -83,42 +83,6 @@ public class MMLSActivity extends BaseActivity{
         }else {
             MMUSyncAdapter.initializeSyncAdapter(this);
         }
-
-
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if(subjectHasFiles(position))
-                    mDownloadButton.show();
-                else
-                    mDownloadButton.hide();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-    }
-    private boolean subjectHasFiles(int position) {
-        String pos = Integer.toString(position + 1);
-        boolean hasFiles;
-        Cursor cursor = MySingleton.getInstance(MMLSActivity.this).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null,
-                MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
-                new String[] {pos}, null, null, null);
-        if(cursor.moveToFirst()) {
-            hasFiles = true;
-        }else {
-            hasFiles = false;
-        }
-        cursor.close();
-        return hasFiles;
-
     }
 
 
