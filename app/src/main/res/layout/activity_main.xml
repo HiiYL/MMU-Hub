@@ -67,6 +67,7 @@
     <!-- The navigation drawer -->
     <ListView
         android:id="@+id/navList"
+        android:paddingTop="50dp"
         android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_gravity="left|start"

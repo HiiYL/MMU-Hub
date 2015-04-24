@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -29,7 +30,9 @@ import com.gc.materialdesign.views.ButtonRectangle;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.helper.LogOutEvent;
 import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
+import com.squareup.otto.Bus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,8 +55,19 @@ public class LoginActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String LOGGED_IN_PREF_TAG = "logged_in";
-        mContext = this;
+        SQLiteDatabase database = MySingleton.getInstance(LoginActivity.this).getDatabase();
         boolean logged_in = prefs.getBoolean(LOGGED_IN_PREF_TAG, false);
+        if(database != null && !logged_in) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.clear();
+            editor.apply();
+            Bus bus = MySingleton.getInstance(LoginActivity.this).getBus();
+            bus.post(new LogOutEvent());
+            MMUDbHelper mOpenHelper = new MMUDbHelper(LoginActivity.this);
+            mOpenHelper.onLogout(MySingleton.getInstance(this).getDatabase());
+        }
+        mContext = this;
+
         if(logged_in) {
             finish();
             Intent intent = new Intent(this, MainActivity.class);
