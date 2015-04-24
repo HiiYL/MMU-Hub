@@ -37,6 +37,10 @@ import com.github.hiiyl.mmuhub.R;
 import com.github.hiiyl.mmuhub.Utility;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.helper.MainThreadBus;
+import com.github.hiiyl.mmuhub.helper.SyncCompleteEvent;
+import com.github.hiiyl.mmuhub.helper.SyncStartEvent;
+import com.squareup.otto.Bus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,10 +70,10 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         super(context, autoInitialize);
     }
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+        MainThreadBus mainThreadBus = MySingleton.getInstance(getContext()).getBus();
+        mainThreadBus.post(new SyncStartEvent());
         sync_queue = MySingleton.getInstance(getContext()).
                 getRequestQueue();
-        Intent intent = new Intent(SYNC_STARTING);
-        getContext().sendBroadcast(intent);
         Log.d(LOG_TAG, "onPerformSync Called.");
         helper = new MMUDbHelper(getContext());
         database = helper.getWritableDatabase();
@@ -79,6 +83,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             for (int i = 1; i < cursor.getCount() + 1; i++)
                 updateSubject(getContext(), Integer.toString(i));
         }
+        Log.d("HELLO THERE", "SYNC FINISHED?");
     }
     private static void onAccountCreated(Account newAccount, Context context) {
         /*
@@ -291,8 +296,13 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    Intent i = new Intent(SYNC_FINISHED);
-                    getContext().sendBroadcast(i);
+                    if(sync_queue == null) {
+                        Log.d("SYNC", "QUEUE IS EMPTY");
+                    }else {
+                        Log.d("SYNC", "QUEUE IS NOT EMPTY");
+                    }
+                    Bus bus = MySingleton.getInstance(context).getBus();
+                    bus.post(new SyncCompleteEvent());
                 }
             }, new Response.ErrorListener() {
                 String json = null;
@@ -382,8 +392,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         };
         sr.setRetryPolicy(new DefaultRetryPolicy(
                 30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                0,
+                0));
         sync_queue.add(sr);
     }
     public static void initializeSyncAdapter(Context context) {

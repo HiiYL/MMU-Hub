@@ -1,11 +1,9 @@
 package com.github.hiiyl.mmuhub;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -29,8 +27,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
-import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
-import com.squareup.otto.Bus;
+import com.github.hiiyl.mmuhub.helper.SyncCompleteEvent;
+import com.github.hiiyl.mmuhub.helper.SyncStartEvent;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,7 +51,7 @@ public class MMLSFragment extends Fragment {
     private Cursor cursor;
     private MMUDbHelper mOpenHelper;
     private RequestQueue requestQueue;
-    private Bus bus;
+    private int mSyncCompleteNotificationCount = 0;
     String slide_str;
     /**
      * The fragment argument representing the section number for this
@@ -75,49 +74,45 @@ public class MMLSFragment extends Fragment {
     public MMLSFragment() {
     }
 
-
-    private BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("RECEIVING STUFF", "FRAGMENT RECEIVES NOTIFICATION");
-            Cursor new_cursor = MySingleton.getInstance(context).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
-            mAdapter.changeCursor(new_cursor);
-            mAdapter.notifyDataSetChanged();
-            SnackBar sync_notify = new SnackBar(getActivity(), "Sync Complete");
-            sync_notify.show();
-        }
-    };
-    BroadcastReceiver syncStartingReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
-            sync_notify.show();
-
-        }
-    };
-
     @Override
     public void onResume() {
-        // TODO Auto-generated method stub
-        super.onStart();
-        getActivity().registerReceiver(syncFinishedReceiver, new IntentFilter(MMUSyncAdapter.SYNC_FINISHED));
-        getActivity().registerReceiver(syncStartingReceiver, new IntentFilter(MMUSyncAdapter.SYNC_STARTING));
+        super.onResume();
+        MySingleton.getInstance(getActivity()).getBus().register(this);
     }
     @Override
     public void onPause() {
-        getActivity().unregisterReceiver(syncFinishedReceiver);
-        getActivity().unregisterReceiver(syncStartingReceiver);
-        super.onStop();
+        MySingleton.getInstance(getActivity()).getBus().unregister(this);
+        super.onPause();
+
     }
+    @Subscribe
+    public void syncComplete(SyncCompleteEvent event) {
+        Log.d("DOWNLOAD COMPLETE", "NOTIFICATINO RECEIVED");
+        mSyncCompleteNotificationCount++;
+        if(mSyncCompleteNotificationCount == 3) {
+            SnackBar sync_notify = new SnackBar(getActivity(), "Sync Complete");
+            sync_notify.show();
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSyncCompleteNotificationCount = 0;
+        }
+        cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
+        mAdapter.changeCursor(cursor);
+
+    }
+    @Subscribe
+    public void syncStart(SyncStartEvent event) {
+        Log.d("DOWNLOAD STARTING", "NOTIFICATINO RECEIVED");
+        SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
+        sync_notify.show();
+        mSwipeRefreshLayout.setRefreshing(true);
+    }
+
 
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        bus = MySingleton.getInstance(getActivity()).getBus();
-
         requestQueue = MySingleton.getInstance(getActivity()).getRequestQueue();
 
         View rootView = inflater.inflate(R.layout.fragment_mml, container, false);
@@ -284,7 +279,6 @@ public class MMLSFragment extends Fragment {
                         }
                         Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
                         mAdapter.changeCursor(new_cursor);
-                        mAdapter.notifyDataSetChanged();
                         mSwipeRefreshLayout.setRefreshing(false);
 
                     } catch (JSONException e) {

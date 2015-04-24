@@ -62,6 +62,7 @@ public class MMLSActivity extends BaseActivity{
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(4);
 
         mDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,42 +84,42 @@ public class MMLSActivity extends BaseActivity{
             MMUSyncAdapter.initializeSyncAdapter(this);
         }
 
-//
-//        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//                if(subjectHasFiles(position))
-//                    mDownloadButton.show();
-//                else
-//                    mDownloadButton.hide();
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) {
-//
-//            }
-//        });
+
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(subjectHasFiles(position))
+                    mDownloadButton.show();
+                else
+                    mDownloadButton.hide();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
-//    private static boolean subjectHasFiles(int position) {
-//        String pos = Integer.toString(position + 1);
-//        boolean hasFiles;
-//        Cursor cursor = MainActivity.database.query(MMUContract.FilesEntry.TABLE_NAME, null,
-//                MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
-//                new String[] {pos}, null, null, null);
-//        if(cursor.moveToFirst()) {
-//            hasFiles = true;
-//        }else {
-//            hasFiles = false;
-//        }
-//        cursor.close();
-//        return hasFiles;
-//
-//    }
+    private boolean subjectHasFiles(int position) {
+        String pos = Integer.toString(position + 1);
+        boolean hasFiles;
+        Cursor cursor = MySingleton.getInstance(MMLSActivity.this).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null,
+                MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                new String[] {pos}, null, null, null);
+        if(cursor.moveToFirst()) {
+            hasFiles = true;
+        }else {
+            hasFiles = false;
+        }
+        cursor.close();
+        return hasFiles;
+
+    }
 
 
 

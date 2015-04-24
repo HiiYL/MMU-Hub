@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,6 +27,7 @@ import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.DownloadCompleteEvent;
+import com.github.hiiyl.mmuhub.helper.FileOpen;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -119,10 +118,10 @@ public class DownloadActivity extends ActionBarActivity {
 
         @Subscribe
         public void answerAvailable(DownloadCompleteEvent event) {
-            final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
-                    new String[] {mSubjectID}, null, null,null );
+//            final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+//                    new String[] {mSubjectID}, null, null,null );
             adapter.notifyDataSetChanged();
-            adapter.changeCursor(cursor);
+//            adapter.changeCursor(cursor);
         }
 
         @Override
@@ -159,10 +158,11 @@ public class DownloadActivity extends ActionBarActivity {
                     Log.d("FILE PATH", file_path);
                     File file = new File(file_path);
                     if(file.exists()) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.fromFile(file), "application/pdf"); //TODO FIGURE OUT WHAT HAPPENS WHEN IS DOCX
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                        startActivity(intent);
+                        try {
+                            FileOpen.openFile(getActivity(), file);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     else {
                         FragmentActivity activity = (FragmentActivity) view.getContext();

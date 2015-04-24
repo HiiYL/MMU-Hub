@@ -19,6 +19,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.helper.LogOutEvent;
+import com.squareup.otto.Bus;
 
 import java.util.Map;
 
@@ -115,13 +117,17 @@ public class BaseActivity extends ActionBarActivity
             case 2:
                 break;
             case 3:
+
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(BaseActivity.this);
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.clear();
                 editor.apply();
+                Bus bus = MySingleton.getInstance(BaseActivity.this).getBus();
+                bus.post(new LogOutEvent());
                 MMUDbHelper mOpenHelper = new MMUDbHelper(BaseActivity.this);
                 mOpenHelper.onLogout(MySingleton.getInstance(this).getDatabase());
                 intent = new Intent(this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 break;
             default:
                 break;
