@@ -16,6 +16,7 @@ import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -40,7 +41,6 @@ import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.MainThreadBus;
 import com.github.hiiyl.mmuhub.helper.SyncCompleteEvent;
 import com.github.hiiyl.mmuhub.helper.SyncStartEvent;
-import com.squareup.otto.Bus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,7 +57,9 @@ import java.util.Map;
 public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String SYNC_FINISHED = "sync_finished";
     public static final String SYNC_STARTING = "sync_starting";
-    public static final int SYNC_INTERVAL = 60 * 180;
+    // Interval at which to sync with the weather, in milliseconds.
+    // 60 seconds (1 minute) * 180 = 3 hours
+    public static final int SYNC_INTERVAL = 60 * 30;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
     private static final int ANNOUNCEMENT_NOTIFICATION_ID = 3004;
 
@@ -173,136 +175,136 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
 
             StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
-                public void onResponse(String response) {
-                    try {
-                        Cursor mCursor = null;
-                        JSONObject jobj = new JSONObject(response);
-                        List<String> announcement_list = new ArrayList<String>();
-                        JSONArray weeks = jobj.getJSONArray("weeks");
-                        if (weeks != null) {
-                            for (int j = 0; j < weeks.length(); j++) {
-                                JSONObject week_obj = weeks.getJSONObject(j);
-                                String week_title = week_obj.getString("title");
-                                Log.d("WEEK TTILE", week_title);
-                                String sql = "SELECT * FROM " + MMUContract.SubjectEntry.TABLE_NAME + ", " +
-                                        MMUContract.WeekEntry.TABLE_NAME + " WHERE " +
-                                        MMUContract.WeekEntry.TABLE_NAME + "." +
-                                        MMUContract.WeekEntry.COLUMN_SUBJECT_KEY + " = " +
-                                        MMUContract.SubjectEntry.TABLE_NAME + "." +
-                                        MMUContract.SubjectEntry._ID + " AND " +
-                                        MMUContract.WeekEntry.TABLE_NAME + "." +
-                                        MMUContract.WeekEntry.COLUMN_TITLE + " = ? " + " AND " +
-                                        MMUContract.SubjectEntry.TABLE_NAME + "." +
-                                        MMUContract.SubjectEntry._ID + " = ? ;";
-                                mCursor = database.rawQuery(sql, new String[]{week_title, subject_id});
-                                long week_id;
-                                if (!mCursor.moveToFirst()) {
-                                    ContentValues weekValues = new ContentValues();
-                                    weekValues.put(MMUContract.WeekEntry.COLUMN_TITLE, week_title);
-                                    weekValues.put(MMUContract.WeekEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                    week_id = database.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
-                                } else {
-                                    week_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.WeekEntry._ID));
-                                }
-
-                                JSONArray announcements = week_obj.getJSONArray("announcements");
-                                if (announcements != null && week_id != -1) {
-                                    for (int k = 0; k < announcements.length(); k++) {
-
-                                        JSONObject announcement = announcements.getJSONObject(k);
-                                        String announcement_title = announcement.getString("title");
-                                        String announcement_contents = announcement.getString("contents");
-                                        String announcement_author = announcement.getString("author");
-                                        String announcement_posted_date = announcement.getString("posted_date");
-                                        mCursor = database.query(MMUContract.AnnouncementEntry.TABLE_NAME,
-                                                new String[]{MMUContract.AnnouncementEntry._ID},
-                                                MMUContract.AnnouncementEntry.COLUMN_TITLE + " = ? AND " +
-                                                        MMUContract.AnnouncementEntry.COLUMN_CONTENTS + " = ?",
-                                                new String[]{announcement_title, announcement_contents},
-                                                null,
-                                                null,
-                                                null);
+                public void onResponse(final String response) {
+                    AsyncTask.execute(new Runnable() {
+                        public void run() {
+                            try {
+                                Cursor mCursor = null;
+                                JSONObject jobj = new JSONObject(response);
+                                List<String> announcement_list = new ArrayList<String>();
+                                JSONArray weeks = jobj.getJSONArray("weeks");
+                                if (weeks != null) {
+                                    for (int j = 0; j < weeks.length(); j++) {
+                                        JSONObject week_obj = weeks.getJSONObject(j);
+                                        String week_title = week_obj.getString("title");
+                                        Log.d("WEEK TTILE", week_title);
+                                        String sql = "SELECT * FROM " + MMUContract.SubjectEntry.TABLE_NAME + ", " +
+                                                MMUContract.WeekEntry.TABLE_NAME + " WHERE " +
+                                                MMUContract.WeekEntry.TABLE_NAME + "." +
+                                                MMUContract.WeekEntry.COLUMN_SUBJECT_KEY + " = " +
+                                                MMUContract.SubjectEntry.TABLE_NAME + "." +
+                                                MMUContract.SubjectEntry._ID + " AND " +
+                                                MMUContract.WeekEntry.TABLE_NAME + "." +
+                                                MMUContract.WeekEntry.COLUMN_TITLE + " = ? " + " AND " +
+                                                MMUContract.SubjectEntry.TABLE_NAME + "." +
+                                                MMUContract.SubjectEntry._ID + " = ? ;";
+                                        mCursor = database.rawQuery(sql, new String[]{week_title, subject_id});
+                                        long week_id;
                                         if (!mCursor.moveToFirst()) {
-                                            Log.d("ANNOUNCEMENT VALUE", "NOT UNIQUE");
-                                            ContentValues announcementValues = new ContentValues();
-                                            announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_TITLE, announcement_title);
-                                            announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_CONTENTS, announcement_contents);
-                                            announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_WEEK_KEY, week_id);
-                                            announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
-                                            announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
-                                            announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                            long _id = database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+                                            ContentValues weekValues = new ContentValues();
+                                            weekValues.put(MMUContract.WeekEntry.COLUMN_TITLE, week_title);
+                                            weekValues.put(MMUContract.WeekEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                            week_id = database.insert(MMUContract.WeekEntry.TABLE_NAME, null, weekValues);
+                                        } else {
+                                            week_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.WeekEntry._ID));
+                                        }
 
-                                            Intent resultIntent = new Intent(getContext(), AnnouncementDetailActivity.class);
-                                            resultIntent.putExtra("ANNOUNCEMENT_ID",Long.toString(_id));
-                                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-                                            stackBuilder.addNextIntent(resultIntent);
-                                            PendingIntent resultPendingIntent =
-                                                    stackBuilder.getPendingIntent(
-                                                            0,
-                                                            PendingIntent.FLAG_UPDATE_CURRENT
-                                                    );
-                                            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
-                                                    .setSmallIcon(R.drawable.ic_file_download_white_48dp)
-                                                    .setContentTitle(announcement_title)
-                                                    .setContentText(announcement_author);
-                                            notificationBuilder.setContentIntent(resultPendingIntent);
-                                            NotificationManager manager =
-                                                    (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                            notificationBuilder.setAutoCancel(true);
-                                            manager.notify(ANNOUNCEMENT_NOTIFICATION_ID, notificationBuilder.build());
+                                        JSONArray announcements = week_obj.getJSONArray("announcements");
+                                        if (announcements != null && week_id != -1) {
+                                            for (int k = 0; k < announcements.length(); k++) {
+
+                                                JSONObject announcement = announcements.getJSONObject(k);
+                                                String announcement_title = announcement.getString("title");
+                                                String announcement_contents = announcement.getString("contents");
+                                                String announcement_author = announcement.getString("author");
+                                                String announcement_posted_date = announcement.getString("posted_date");
+                                                mCursor = database.query(MMUContract.AnnouncementEntry.TABLE_NAME,
+                                                        new String[]{MMUContract.AnnouncementEntry._ID},
+                                                        MMUContract.AnnouncementEntry.COLUMN_TITLE + " = ? AND " +
+                                                                MMUContract.AnnouncementEntry.COLUMN_CONTENTS + " = ?",
+                                                        new String[]{announcement_title, announcement_contents},
+                                                        null,
+                                                        null,
+                                                        null);
+                                                if (!mCursor.moveToFirst()) {
+                                                    Log.d("ANNOUNCEMENT VALUE", "NOT UNIQUE");
+                                                    ContentValues announcementValues = new ContentValues();
+                                                    announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_TITLE, announcement_title);
+                                                    announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_CONTENTS, announcement_contents);
+                                                    announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_WEEK_KEY, week_id);
+                                                    announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
+                                                    announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
+                                                    announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                                    long _id = database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+
+                                                    Intent resultIntent = new Intent(getContext(), AnnouncementDetailActivity.class);
+                                                    resultIntent.putExtra("ANNOUNCEMENT_ID",Long.toString(_id));
+                                                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
+                                                    stackBuilder.addNextIntent(resultIntent);
+                                                    PendingIntent resultPendingIntent =
+                                                            stackBuilder.getPendingIntent(
+                                                                    0,
+                                                                    PendingIntent.FLAG_UPDATE_CURRENT
+                                                            );
+                                                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
+                                                            .setSmallIcon(R.drawable.ic_file_download_white_48dp)
+                                                            .setContentTitle(announcement_title)
+                                                            .setContentText(announcement_author);
+                                                    notificationBuilder.setContentIntent(resultPendingIntent);
+                                                    NotificationManager manager =
+                                                            (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                                    notificationBuilder.setAutoCancel(true);
+                                                    manager.notify(ANNOUNCEMENT_NOTIFICATION_ID, notificationBuilder.build());
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        }
-                        JSONArray filesArray = jobj.getJSONArray("subject_files");
-                        if (filesArray != null) {
-                            for (int l = 0; l < filesArray.length(); l++) {
-                                JSONObject file = filesArray.getJSONObject(l);
-                                String file_name = file.getString("file_name");
-                                String token = file.getString("token");
-                                String content_id = file.getString("content_id");
-                                String content_type = file.getString("content_type");
-                                String remote_file_path = file.getString("file_path");
-                                String sql = "SELECT * FROM " + MMUContract.FilesEntry.TABLE_NAME + ", " +
-                                        MMUContract.SubjectEntry.TABLE_NAME + " WHERE " +
-                                        MMUContract.FilesEntry.TABLE_NAME + "." +
-                                        MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = " +
-                                        MMUContract.SubjectEntry.TABLE_NAME + "." +
-                                        MMUContract.SubjectEntry._ID + " AND " +
-                                        MMUContract.FilesEntry.TABLE_NAME + "." +
-                                        MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
-                                        MMUContract.SubjectEntry.TABLE_NAME + "." +
-                                        MMUContract.SubjectEntry._ID + " = ? ;";
-                                mCursor = database.rawQuery(sql, new String[]{file_name,subject_id});
-                                if (!mCursor.moveToFirst()) {
-                                    ContentValues fileValues = new ContentValues();
-                                    fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
-                                    fileValues.put(MMUContract.FilesEntry.COLUMN_TOKEN, token);
-                                    fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_ID, content_id);
-                                    fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE, content_type);
-                                    fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
-                                    fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                    long _id = database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
+                                JSONArray filesArray = jobj.getJSONArray("subject_files");
+                                if (filesArray != null) {
+                                    for (int l = 0; l < filesArray.length(); l++) {
+                                        JSONObject file = filesArray.getJSONObject(l);
+                                        String file_name = file.getString("file_name");
+                                        String token = file.getString("token");
+                                        String content_id = file.getString("content_id");
+                                        String content_type = file.getString("content_type");
+                                        String remote_file_path = file.getString("file_path");
+                                        String sql = "SELECT * FROM " + MMUContract.FilesEntry.TABLE_NAME + ", " +
+                                                MMUContract.SubjectEntry.TABLE_NAME + " WHERE " +
+                                                MMUContract.FilesEntry.TABLE_NAME + "." +
+                                                MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = " +
+                                                MMUContract.SubjectEntry.TABLE_NAME + "." +
+                                                MMUContract.SubjectEntry._ID + " AND " +
+                                                MMUContract.FilesEntry.TABLE_NAME + "." +
+                                                MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
+                                                MMUContract.SubjectEntry.TABLE_NAME + "." +
+                                                MMUContract.SubjectEntry._ID + " = ? ;";
+                                        mCursor = database.rawQuery(sql, new String[]{file_name,subject_id});
+                                        if (!mCursor.moveToFirst()) {
+                                            ContentValues fileValues = new ContentValues();
+                                            fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
+                                            fileValues.put(MMUContract.FilesEntry.COLUMN_TOKEN, token);
+                                            fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_ID, content_id);
+                                            fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE, content_type);
+                                            fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
+                                            fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                            long _id = database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
 
 
 
+                                        }
+
+                                    }
                                 }
 
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
+                            MainThreadBus bus = MySingleton.getInstance(context).getBus();
+                            bus.post(new SyncCompleteEvent());
+                            // database insert here
                         }
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if(sync_queue == null) {
-                        Log.d("SYNC", "QUEUE IS EMPTY");
-                    }else {
-                        Log.d("SYNC", "QUEUE IS NOT EMPTY");
-                    }
-                    Bus bus = MySingleton.getInstance(context).getBus();
-                    bus.post(new SyncCompleteEvent());
+                    });
                 }
             }, new Response.ErrorListener() {
                 String json = null;
