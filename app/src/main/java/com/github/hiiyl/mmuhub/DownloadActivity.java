@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,10 +25,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.gc.materialdesign.views.ButtonFlat;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.DownloadCompleteEvent;
+import com.github.hiiyl.mmuhub.helper.DownloadListViewScrollEvent;
 import com.github.hiiyl.mmuhub.helper.FileOpen;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -42,6 +46,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import de.greenrobot.event.EventBus;
 
 
 public class DownloadActivity extends AppCompatActivity {
@@ -95,6 +101,8 @@ public class DownloadActivity extends AppCompatActivity {
         private ListView download_list;
         private MMUDbHelper mOpenHelper;
         private MMLSDownloadAdapter adapter;
+        private ButtonFlat mDownloadAllButton;
+        private String mSubjectName;
         private String mSubjectID;
         private Bus bus;
 
@@ -137,10 +145,64 @@ public class DownloadActivity extends AppCompatActivity {
             final String subject_id = Integer.toString(DownloadActivity.mSubjectID);
             Log.d("Subject ID is ", subject_id);
             mSubjectID = subject_id;
+            mSubjectName = Utility.getSubjectName(getActivity(), mSubjectID);
             final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
                     new String[] {subject_id}, null, null,null );
             adapter = new MMLSDownloadAdapter(getActivity(), cursor);
             download_list.setAdapter(adapter);
+
+            mDownloadAllButton = (ButtonFlat)rootView.findViewById(R.id.download_all_button);
+
+//            download_list.setRecyclerListener(new AbsListView.RecyclerListener() {
+//                @Override
+//                public void onMovedToScrapHeap(View view) {
+//                    EventBus.getDefault().post(new DownloadListViewScrollEvent());
+//                }
+//            });
+
+//            mDownloadAllButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+//                            new String[]{subject_id}, null, null, null);
+//                    new_cursor.moveToFirst();
+//                    int count = 0;
+//                    while (!new_cursor.isAfterLast()) {
+//                        String file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+//                        String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + file_name;
+//                        String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/";
+//                        File file = new File(file_path);
+//
+//                        if(!file.exists()) {
+//                            File temp = new File(file_directory);
+//                            temp.mkdirs();
+//                            View view =  getViewByPosition(count,download_list);
+//                            FragmentActivity activity = (FragmentActivity) view.getContext();
+//                            final DownloadTask downloadTask = new DownloadTask(getActivity(), activity);
+//                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//                            downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+//                            downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
+//                            downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
+//                            downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
+//                            downloadTask.token = prefs.getString("token", "");
+//                            downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
+//                            downloadTask.local_file_path = file_path;
+//                            downloadTask.view = view;
+//                            downloadTask.mDownloadList = download_list;
+//                            downloadTask.mPosition = count;
+//                            downloadTask.isDownloadAll = true;
+//
+//
+//                            Log.d("APP", "Now downloading " + downloadTask.file_name);
+//
+//                            downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+//                            count++;
+//                        }
+//                        new_cursor.moveToNext();
+//                    }
+//                }
+//            });
+
 
             download_list.setOnItemClickListener(new ListView.OnItemClickListener() {
                 @Override
@@ -152,7 +214,8 @@ public class DownloadActivity extends AppCompatActivity {
                     new_cursor.moveToPosition(position);
 
                     String file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
-                    String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + file_name;
+                    String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + file_name;
+                    String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/";
                     Log.d("FILE NAME", file_name);
                     Log.d("FILE PATH", file_path);
                     File file = new File(file_path);
@@ -164,6 +227,10 @@ public class DownloadActivity extends AppCompatActivity {
                         }
                     }
                     else {
+
+                        File temp = new File(file_directory);
+                        temp.mkdirs();
+                        view.setHasTransientState(true);
                         FragmentActivity activity = (FragmentActivity) view.getContext();
                         final DownloadTask downloadTask = new DownloadTask(getActivity(), activity);
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -173,7 +240,9 @@ public class DownloadActivity extends AppCompatActivity {
                         downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
                         downloadTask.token = prefs.getString("token", "");
                         downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
+                        downloadTask.local_file_path = file_path;
                         downloadTask.view = view;
+
 
                         Log.d("APP", "Now downloading " + downloadTask.file_name);
 
@@ -186,12 +255,26 @@ public class DownloadActivity extends AppCompatActivity {
             });
             return rootView;
         }
-
     }
+//    public static View getViewByPosition(int position, ListView listView) {
+//        final int firstListItemPosition = listView.getFirstVisiblePosition();
+//        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+//        View view;
+//
+//        if (position < firstListItemPosition || position > lastListItemPosition ) {
+//            view = listView.getAdapter().getView(position, listView.getChildAt(position), listView);
+//        } else {
+//            final int childIndex = position - firstListItemPosition;
+//            view = listView.getChildAt(childIndex);
+//        }
+//        view.setHasTransientState(true);
+//        return view;
+//    }
     private static class DownloadTask extends AsyncTask<String, Integer, String> {
 
         private Context context;
         private PowerManager.WakeLock mWakeLock;
+        private String local_file_path;
         private String cookie;
         private String content_id;
         private String file_name;
@@ -202,8 +285,24 @@ public class DownloadActivity extends AppCompatActivity {
         private ProgressBar mProgressBar;
         private Activity mActivity;
         private HttpsURLConnection connection = null;
+        private ListView mDownloadList;
+        private int mPosition;
+        boolean isDownloadAll = false;
+
+        public void onEvent(DownloadListViewScrollEvent event) {
+            if(isDownloadAll) {
+//                Log.d("HEARING", "I HEAR THE SUMMONS");
+//                view = getViewByPosition(mPosition, mDownloadList);
+                mProgressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
+            }
+        }
+
+
+
+
 
         public DownloadTask(Context context, Activity activity) {
+            EventBus.getDefault().register(this);
             this.context = context;
             mActivity = activity;
         }
@@ -286,10 +385,10 @@ public class DownloadActivity extends AppCompatActivity {
                 // download the file
                 input = connection.getInputStream();
 
-                String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + file_name;
-                Log.d("FILE PATH", file_path);
+//                String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + file_name;
+                Log.d("FILE PATH", local_file_path);
 
-                output = new FileOutputStream(file_path);
+                output = new FileOutputStream(local_file_path);
 
                 byte data[] = new byte[4096];
                 long total = 0;
@@ -322,12 +421,15 @@ public class DownloadActivity extends AppCompatActivity {
             }
             return null;
         }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             mProgressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
             mProgressBar.setVisibility(View.VISIBLE);
             mProgressBar.setIndeterminate(true);
+            mProgressBar.getProgressDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
+//            view.setHasTransientState(true);
 
             // take CPU lock to prevent CPU from going off if the user
             // presses the power button during download
@@ -346,7 +448,7 @@ public class DownloadActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progress) {
             super.onProgressUpdate(progress);
             // if we get here, length is known, now set indeterminate to false
-            Log.d("DOWNLOADING", Integer.toString(progress[0]));
+            mProgressBar.setVisibility(View.VISIBLE);
             mProgressBar.setIndeterminate(false);
             mProgressBar.setMax(100);
             mProgressBar.setProgress(progress[0]);
@@ -354,16 +456,15 @@ public class DownloadActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+            EventBus.getDefault().unregister(this);
             mWakeLock.release();
 //            mProgressDialog.dismiss();
             if (result != null) {
-                SnackBar new_snackbar = new SnackBar((Activity) context, "Download Failed",
-                        "Retry", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        execute();
-                    }
-                });
+                mProgressBar.setIndeterminate(false);
+                mProgressBar.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+                mProgressBar.setMax(100);
+                mProgressBar.setProgress(100);
+                SnackBar new_snackbar = new SnackBar((Activity) context, "Download Failed");
                 new_snackbar.show();
             }
             else {

@@ -30,6 +30,7 @@ public class Utility {
     private static SharedPreferences prefs;
     public static final String SYNC_FINISHED = "sync finish";
     public static final String SYNC_BEGIN = "sync begin";
+    public static final String DOWNLOAD_FOLDER = "MMUHub Downloads";
     public static String trimMessage(String json, String key){
         String trimmedString = null;
 
@@ -48,6 +49,15 @@ public class Utility {
         int subject_count = cursor.getCount();
         cursor.close();
         return subject_count;
+    }
+    public static String getSubjectName(Context context, String subject_id) {
+        Cursor cursor = MySingleton.getInstance(context).getDatabase().query(MMUContract.SubjectEntry.TABLE_NAME,
+                null, MMUContract.SubjectEntry._ID + " = ?",
+                new String[]{subject_id},null,null,null);
+        cursor.moveToFirst();
+        String subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
+        cursor.close();
+        return subject_name;
     }
     public static void refreshToken(Context context) {
         Context mContext = context;

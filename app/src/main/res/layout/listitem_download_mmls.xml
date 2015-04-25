@@ -2,26 +2,39 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="10dp">
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="17sp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:textStyle="bold"
         android:typeface="serif"
-        android:padding="10dp"
         android:id="@+id/file_download_name_textview"
         android:text="File name placeholder"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:gravity="left"
         android:layout_height="wrap_content"
         android:id="@+id/file_download_downloaded_status"
+        android:text="Download Status"
         />
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:id="@+id/file_download_interaction_hint"
+        android:gravity="right"
+        android:layout_gravity="right"
         android:text="Tap to Download"/>
+    </LinearLayout>
     <ProgressBar
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
