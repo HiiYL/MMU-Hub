@@ -52,8 +52,8 @@
         android:id="@+id/navList"
         android:layout_width="200dp"
         android:layout_height="match_parent"
-        android:layout_gravity="left|start"
-        android:background="@drawable/background"/>
+        android:background="#33b5e5"
+        android:layout_gravity="left|start"/>
     <!--<ListView android:id="@+id/left_drawer"-->
     <!--android:layout_width="240dp"-->
     <!--android:layout_height="match_parent"-->

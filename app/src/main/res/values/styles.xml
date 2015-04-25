@@ -1,6 +1,5 @@
 <resources>
 
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowContentOverlay">@null</item>
         <item name="elevation">0dp</item>
@@ -10,6 +9,7 @@
     <style name="LoginActivityTheme" parent="Theme.AppCompat.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
     <style name="AnnouncementDetailTheme" parent="Theme.AppCompat.Light">
         <item name="android:actionBarStyle">@style/ThemeActionBar</item>

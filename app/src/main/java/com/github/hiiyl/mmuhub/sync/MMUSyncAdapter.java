@@ -16,7 +16,6 @@ import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -38,9 +37,7 @@ import com.github.hiiyl.mmuhub.R;
 import com.github.hiiyl.mmuhub.Utility;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
-import com.github.hiiyl.mmuhub.helper.MainThreadBus;
-import com.github.hiiyl.mmuhub.helper.SyncCompleteEvent;
-import com.github.hiiyl.mmuhub.helper.SyncStartEvent;
+import com.github.hiiyl.mmuhub.helper.SyncEvent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,6 +47,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by Hii on 4/22/15.
@@ -63,6 +62,9 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
     private static final int ANNOUNCEMENT_NOTIFICATION_ID = 3004;
 
+    private int mNumberOfSubjects = Utility.getSubjectCount(getContext());
+    private int mSubjectSyncCount = 0;
+
     private SQLiteDatabase database;
     private RequestQueue sync_queue;
     MMUDbHelper helper;
@@ -72,8 +74,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         super(context, autoInitialize);
     }
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        MainThreadBus mainThreadBus = MySingleton.getInstance(getContext()).getBus();
-        mainThreadBus.post(new SyncStartEvent());
+        EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_BEGIN));
         sync_queue = MySingleton.getInstance(getContext()).
                 getRequestQueue();
         Log.d(LOG_TAG, "onPerformSync Called.");
@@ -176,8 +177,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(final String response) {
-                    AsyncTask.execute(new Runnable() {
-                        public void run() {
+//                    AsyncTask.execute(new Runnable() {
+//                        public void run() {
                             try {
                                 Cursor mCursor = null;
                                 JSONObject jobj = new JSONObject(response);
@@ -300,11 +301,14 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            MainThreadBus bus = MySingleton.getInstance(context).getBus();
-                            bus.post(new SyncCompleteEvent());
+                            mSubjectSyncCount++;
+                            if(mSubjectSyncCount == mNumberOfSubjects) {
+                                EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_FINISHED));
+                                mSubjectSyncCount = 0;
+                            }
                             // database insert here
-                        }
-                    });
+//                        }
+//                    });
                 }
             }, new Response.ErrorListener() {
                 String json = null;
@@ -346,8 +350,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             };
             sr.setRetryPolicy(new DefaultRetryPolicy(
                     30000,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                    0,
+                    0));
             sr.setTag(SYNC_TAG);
             sync_queue.add(sr);
         }

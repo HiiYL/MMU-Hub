@@ -27,9 +27,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
-import com.github.hiiyl.mmuhub.helper.SyncCompleteEvent;
-import com.github.hiiyl.mmuhub.helper.SyncStartEvent;
-import com.squareup.otto.Subscribe;
+import com.github.hiiyl.mmuhub.helper.SyncEvent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by Hii on 4/23/15.
@@ -51,7 +51,7 @@ public class MMLSFragment extends Fragment {
     private Cursor cursor;
     private MMUDbHelper mOpenHelper;
     private RequestQueue requestQueue;
-    private int mSyncCompleteNotificationCount = 0;
+    private static int mReceivedCount = 0;
     String slide_str;
     /**
      * The fragment argument representing the section number for this
@@ -74,39 +74,70 @@ public class MMLSFragment extends Fragment {
     public MMLSFragment() {
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        MySingleton.getInstance(getActivity()).getBus().register(this);
-    }
-    @Override
-    public void onPause() {
-        MySingleton.getInstance(getActivity()).getBus().unregister(this);
-        super.onPause();
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        MySingleton.getInstance(getActivity()).getBus().register(this);
+//    }
+//    @Override
+//    public void onPause() {
+//        MySingleton.getInstance(getActivity()).getBus().unregister(this);
+//        super.onPause();
+//    }
+//    @Subscribe
+//    public void syncComplete(SyncCompleteEvent event) {
+//        Log.d("DOWNLOAD COMPLETE", "NOTIFICATINO RECEIVED");
+//        mSyncCompleteNotificationCount++;
+//        if(mSyncCompleteNotificationCount == 3) {
+//            SnackBar sync_notify = new SnackBar(getActivity(), "Sync Complete");
+//            sync_notify.show();
+//            mSwipeRefreshLayout.setRefreshing(false);
+//            mSyncCompleteNotificationCount = 0;
+//        }
+//        cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
+//        mAdapter.changeCursor(cursor);
+//
+//    }
+//    @Subscribe
+//    public void syncStart(SyncStartEvent event) {
+//        Log.d("DOWNLOAD STARTING", "NOTIFICATINO RECEIVED");
+//        SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
+//        sync_notify.show();
+//        mSwipeRefreshLayout.setRefreshing(true);
+//    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().registerSticky(this);
     }
-    @Subscribe
-    public void syncComplete(SyncCompleteEvent event) {
-        Log.d("DOWNLOAD COMPLETE", "NOTIFICATINO RECEIVED");
-        mSyncCompleteNotificationCount++;
-        if(mSyncCompleteNotificationCount == 3) {
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    // This method will be called when a MessageEvent is posted
+    public void onEventMainThread(SyncEvent event){
+        if(event.message.equals(Utility.SYNC_FINISHED)) {
+            mReceivedCount++;
+            Log.d("RECEIVED COUNT", Integer.toString(mReceivedCount));
+            Log.d("SYNC COMPLETE", "COMPLETE");
             SnackBar sync_notify = new SnackBar(getActivity(), "Sync Complete");
             sync_notify.show();
             mSwipeRefreshLayout.setRefreshing(false);
-            mSyncCompleteNotificationCount = 0;
+            cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
+            mAdapter.changeCursor(cursor);
+            EventBus.getDefault().removeStickyEvent(event);
+        }else if(event.message.equals(Utility.SYNC_BEGIN)) {
+            Log.d("SYNC STARTING", "NOTIFICATINO RECEIVED");
+            SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
+            sync_notify.show();
+            mSwipeRefreshLayout.setRefreshing(true);
         }
-        cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
-        mAdapter.changeCursor(cursor);
 
     }
-    @Subscribe
-    public void syncStart(SyncStartEvent event) {
-        Log.d("DOWNLOAD STARTING", "NOTIFICATINO RECEIVED");
-        SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
-        sync_notify.show();
-        mSwipeRefreshLayout.setRefreshing(true);
-    }
-
 
 
 

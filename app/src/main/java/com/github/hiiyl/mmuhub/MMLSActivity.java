@@ -41,8 +41,6 @@ public class MMLSActivity extends BaseActivity{
      */
     static ViewPager mViewPager;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 

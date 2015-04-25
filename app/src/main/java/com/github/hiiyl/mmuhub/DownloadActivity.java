@@ -1,7 +1,6 @@
 package com.github.hiiyl.mmuhub;
 
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,7 +12,7 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
@@ -44,10 +44,9 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 
-public class DownloadActivity extends ActionBarActivity {
+public class DownloadActivity extends AppCompatActivity {
     private static int mSubjectID;
     private static ProgressDialog mProgressDialog;
-    private DownloadManager downloadManager;
 
 
     @Override
@@ -174,7 +173,7 @@ public class DownloadActivity extends ActionBarActivity {
                         downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
                         downloadTask.token = prefs.getString("token", "");
                         downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
-
+                        downloadTask.view = view;
 
                         Log.d("APP", "Now downloading " + downloadTask.file_name);
 
@@ -199,6 +198,8 @@ public class DownloadActivity extends ActionBarActivity {
         private String content_type;
         private String token;
         private String remote_file_path;
+        private View view;
+        private ProgressBar mProgressBar;
         private Activity mActivity;
         private HttpsURLConnection connection = null;
 
@@ -213,6 +214,7 @@ public class DownloadActivity extends ActionBarActivity {
         protected String doInBackground(String... sUrl) {
             InputStream input = null;
             OutputStream output = null;
+//
 
             try {
                 URL url = new URL(sUrl[0]);
@@ -323,19 +325,21 @@ public class DownloadActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            mProgressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
+            mProgressBar.setVisibility(View.VISIBLE);
+            mProgressBar.setIndeterminate(true);
 
             // take CPU lock to prevent CPU from going off if the user
             // presses the power button during download
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            mProgressDialog = new ProgressDialog(context);
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            mProgressDialog.setCancelable(true);
-            mProgressDialog.setMessage("Please wait... Authenticating");
+//            mProgressDialog = new ProgressDialog(context);
+//            mProgressDialog.setIndeterminate(true);
+//            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//            mProgressDialog.setCancelable(true);
+//            mProgressDialog.setMessage("Please wait... Authenticating");
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     getClass().getName());
             mWakeLock.acquire();
-            mProgressDialog.show();
         }
 
         @Override
@@ -343,15 +347,15 @@ public class DownloadActivity extends ActionBarActivity {
             super.onProgressUpdate(progress);
             // if we get here, length is known, now set indeterminate to false
             Log.d("DOWNLOADING", Integer.toString(progress[0]));
-            mProgressDialog.setIndeterminate(false);
-            mProgressDialog.setMax(100);
-            mProgressDialog.setProgress(progress[0]);
+            mProgressBar.setIndeterminate(false);
+            mProgressBar.setMax(100);
+            mProgressBar.setProgress(progress[0]);
         }
 
         @Override
         protected void onPostExecute(String result) {
             mWakeLock.release();
-            mProgressDialog.dismiss();
+//            mProgressDialog.dismiss();
             if (result != null) {
                 SnackBar new_snackbar = new SnackBar((Activity) context, "Download Failed",
                         "Retry", new View.OnClickListener() {

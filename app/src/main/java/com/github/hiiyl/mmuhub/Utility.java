@@ -3,6 +3,7 @@ package com.github.hiiyl.mmuhub;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -14,6 +15,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.hiiyl.mmuhub.data.MMUContract;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +28,8 @@ import java.util.Map;
  */
 public class Utility {
     private static SharedPreferences prefs;
+    public static final String SYNC_FINISHED = "sync finish";
+    public static final String SYNC_BEGIN = "sync begin";
     public static String trimMessage(String json, String key){
         String trimmedString = null;
 
@@ -38,6 +42,12 @@ public class Utility {
         }
 
         return trimmedString;
+    }
+    public static int getSubjectCount(Context context) {
+        Cursor cursor = MySingleton.getInstance(context).getDatabase().query(MMUContract.SubjectEntry.TABLE_NAME, null,null,null,null,null,null);
+        int subject_count = cursor.getCount();
+        cursor.close();
+        return subject_count;
     }
     public static void refreshToken(Context context) {
         Context mContext = context;

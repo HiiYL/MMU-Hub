@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -18,21 +18,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.Map;
 
-
-public class BaseActivity extends ActionBarActivity
+public class BaseActivity extends AppCompatActivity
 {
-    private static final long NAVDRAWER_LAUNCH_DELAY = 250;
     public DrawerLayout mDrawerLayout;
     public ListView mDrawerList;
     public String[] layers;
     private ActionBarDrawerToggle mDrawerToggle;
     private ArrayAdapter<String> mArrayAdapter;
-    private Map map;
     private String mActivityTitle;
     private Handler mHandler;
     private Runnable mPendingRunnable;
+
 
     protected void onCreateDrawer()
     {
@@ -66,10 +63,11 @@ public class BaseActivity extends ActionBarActivity
                 }
             }
         };
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         layers = getResources().getStringArray(R.array.layers_array);
@@ -94,9 +92,11 @@ public class BaseActivity extends ActionBarActivity
             }
         });
         View logoutView = getLayoutInflater().inflate(R.layout.drawer_list_item, null);
+//        View headerView = getLayoutInflater().inflate(R.layout.nav_drawer_header, null);
         TextView textView = (TextView)logoutView.findViewById(R.id.nav_drawer_footer_textview);
         textView.setText("Log Out");
         mDrawerList.addFooterView(logoutView);
+//        mDrawerList.addHeaderView(headerView);
 
     }
 

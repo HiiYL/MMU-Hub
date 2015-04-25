@@ -1,10 +1,7 @@
 package com.github.hiiyl.mmuhub;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -17,10 +14,9 @@ import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
-import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity{
     public static final String LOGGED_IN_PREF_TAG = "logged_in";
 
     private TextView welcome_text;
@@ -34,42 +30,6 @@ public class MainActivity extends BaseActivity {
 
 
 
-    private BroadcastReceiver syncStartingReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mProgressDialog = new ProgressDialog(context);
-            mProgressDialog.setTitle("Syncing ...");
-            mProgressDialog.setMessage("Please Wait...");
-
-            mProgressDialog.show();
-        }
-    };
-
-
-    private BroadcastReceiver syncFinishedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mProgressDialog.dismiss();
-        }
-    };
-
-
-    @Override
-    public void onResume() {
-        // TODO Auto-generated method stub
-        super.onStart();
-        registerReceiver(syncFinishedReceiver, new IntentFilter(MMUSyncAdapter.SYNC_FINISHED));
-        registerReceiver(syncStartingReceiver, new IntentFilter(MMUSyncAdapter.SYNC_STARTING));
-    }
-    @Override
-    public void onPause() {
-        unregisterReceiver(syncFinishedReceiver);
-        unregisterReceiver(syncStartingReceiver);
-        super.onStop();
-    }
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,20 +37,7 @@ public class MainActivity extends BaseActivity {
         super.onCreateDrawer();
         // declare the dialog as a member field of your activity
 
-
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//        SharedPreferences.Editor editor = prefs.edit();
-//
-//        boolean logged_in = prefs.getBoolean(LOGGED_IN_PREF_TAG, false);
-
-
-//        if (!logged_in) {
-//            Intent intent = new Intent(this, LoginActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }else {
-//            MMUSyncAdapter.initializeSyncAdapter(this);
-//        }
 
         welcome_text = (TextView) findViewById(R.id.welcome_text);
         faculty_text = (TextView) findViewById(R.id.faculty_text);
@@ -110,10 +57,6 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-
-    private void setupVariables() {
-
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -138,10 +81,6 @@ public class MainActivity extends BaseActivity {
             Utility.refreshToken(MainActivity.this);
         }
         if (id == R.id.action_logout) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.clear();
-            editor.commit();
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
