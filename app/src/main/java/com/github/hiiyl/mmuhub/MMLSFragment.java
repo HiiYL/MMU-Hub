@@ -52,7 +52,7 @@ public class MMLSFragment extends Fragment {
     private Cursor cursor;
     private MMUDbHelper mOpenHelper;
     private RequestQueue requestQueue;
-    private static int mReceivedCount = 0;
+    private int mReceivedCount = 0;
     String slide_str;
     /**
      * The fragment argument representing the section number for this
@@ -90,14 +90,14 @@ public class MMLSFragment extends Fragment {
     // This method will be called when a MessageEvent is posted
     public void onEventMainThread(SyncEvent event){
         if(event.message.equals(Utility.SYNC_FINISHED)) {
-            mReceivedCount++;
-            Log.d("RECEIVED COUNT", Integer.toString(mReceivedCount));
             Log.d("SYNC COMPLETE", "COMPLETE");
             SnackBar sync_notify = new SnackBar(getActivity(), "Sync Complete");
             sync_notify.show();
             mSwipeRefreshLayout.setRefreshing(false);
-            cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
+            cursor = MySingleton.getInstance(getActivity()).getDatabase().
+                    query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
             mAdapter.changeCursor(cursor);
+            mExListView.expandGroup(0);
             EventBus.getDefault().removeStickyEvent(event);
         }else if(event.message.equals(Utility.SYNC_BEGIN)) {
             Log.d("SYNC STARTING", "NOTIFICATINO RECEIVED");
