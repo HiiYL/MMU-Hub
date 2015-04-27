@@ -30,7 +30,7 @@
             android:background="@color/background_material_light">
 
             <com.gc.materialdesign.views.ButtonFlat
-                android:id="@+id/buttonflat"
+                android:id="@+id/logout_button"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="#1E88E5"

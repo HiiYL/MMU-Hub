@@ -36,6 +36,8 @@ public class MMLSAdapter extends CursorTreeAdapter {
     }
 
 
+
+
     @Override
     protected View newGroupView(Context context, Cursor cursor, boolean isExpanded, ViewGroup parent) {
         return LayoutInflater.from(context).inflate(R.layout.listgroup_announcement_mmls,parent,false);
@@ -65,6 +67,5 @@ public class MMLSAdapter extends CursorTreeAdapter {
         tvTitle.setText(title);
         tvPostedAt.setText(posted_at);
         tvAuthor.setText(author);
-
     }
 }

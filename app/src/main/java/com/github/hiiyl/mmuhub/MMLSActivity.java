@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,6 +53,20 @@ public class MMLSActivity extends BaseActivity{
 
         super.onCreateDrawer();
         mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                if(subjectHasFiles(0)) {
+                    mDownloadButton.show();
+                }else {
+                    mDownloadButton.hide();
+                }
+            }
+        }, 200);
+//        mDownloadButton.show();
+
 
 
         // Create the adapter that will return a fragment for each of the three
@@ -61,6 +77,34 @@ public class MMLSActivity extends BaseActivity{
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);
+
+
+
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                String str_pos = Integer.toString(position + 1);
+                if(subjectHasFiles(position)) {
+                    Log.d("SHOW", "EXISTS AND SHOWING " + str_pos);
+                    mDownloadButton.show();
+                }
+                else {
+                    Log.d("SHOW", "NOT EXISTS AND HIDING " + str_pos);
+                    mDownloadButton.hide();
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         mDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,6 +125,21 @@ public class MMLSActivity extends BaseActivity{
         }else {
             MMUSyncAdapter.initializeSyncAdapter(this);
         }
+    }
+    private boolean subjectHasFiles(int position) {
+        String pos = Integer.toString(position + 1);
+        boolean hasFiles;
+        Cursor cursor = MySingleton.getInstance(MMLSActivity.this).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null,
+                MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                new String[] {pos}, null, null, null);
+        if(cursor.moveToFirst()) {
+            hasFiles = true;
+        }else {
+            hasFiles = false;
+        }
+        cursor.close();
+        return hasFiles;
+
     }
 
 

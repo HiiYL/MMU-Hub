@@ -28,7 +28,6 @@ import com.gc.materialdesign.views.ButtonFlat;
 public class BaseActivity extends AppCompatActivity
 {
     public DrawerLayout mDrawerLayout;
-    public static int mSelectedPosition = 1;
     public ListView mDrawerList;
     public String[] layers;
     private LinearLayout mDrawerLinear;
@@ -37,8 +36,6 @@ public class BaseActivity extends AppCompatActivity
     private Handler mHandler;
     private Runnable mPendingRunnable;
 
-    private ButtonFlat mMMLSButton;
-    private ButtonFlat mBulletinButton;
     private ButtonFlat mLogOutButton;
 //    private ButtonFlat mTimetableButton;
 //    private ButtonFlat mCamsysButton;
@@ -85,6 +82,8 @@ public class BaseActivity extends AppCompatActivity
         TextView student_id = (TextView) headerView.findViewById(R.id.student_id);
         TextView faculty = (TextView) headerView.findViewById(R.id.faculty_text);
 
+        mLogOutButton = (ButtonFlat) findViewById(R.id.logout_button);
+
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
@@ -101,8 +100,6 @@ public class BaseActivity extends AppCompatActivity
         mListView.setAdapter(mAdapter);
 
         mHandler = new Handler();
-
-        mListView.setSelection(mSelectedPosition);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);        // Drawer object Assigned to the vie
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -146,6 +143,8 @@ public class BaseActivity extends AppCompatActivity
 
             }
         });
+
+
 
 
 
@@ -200,28 +199,29 @@ public class BaseActivity extends AppCompatActivity
 //                onCreateDrawer();
 //            }
 //        });
-//        mLogOutButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mDrawerLayout.closeDrawer(mDrawerLinear);
-//                SharedPreferences.Editor editor = prefs.edit();
-//                editor.putBoolean("logged_in", false);
-//                editor.apply();
-//                final Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//
-//                finish();
-//                mPendingRunnable = new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        startActivity(intent);
-//                        overridePendingTransition(0, 0);
-//                        finish();
-//                    }
-//                };
-//
-//            }
-//        });
+        mLogOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDrawerLayout.closeDrawer(Gravity.START);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setHomeButtonEnabled(true);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean("logged_in", false);
+                editor.apply();
+                final Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                finish();
+                mPendingRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(intent);
+                        overridePendingTransition(0, 0);
+                        finish();
+                    }
+                };
+
+            }
+        });
 
 
 
@@ -268,19 +268,9 @@ public class BaseActivity extends AppCompatActivity
             case 2:
                 intent = new Intent(this, BulletinActivity.class);
                 break;
-            case 3:
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putBoolean("logged_in", false);
-                editor.apply();
-                intent = new Intent(this, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                finish();
-                break;
             default:
                 break;
         }
-        mSelectedPosition = position;
         if(intent != null) {
             final Intent finalIntent = intent;
             mPendingRunnable = new Runnable() {

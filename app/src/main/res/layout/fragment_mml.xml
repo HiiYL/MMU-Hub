@@ -12,6 +12,8 @@
         android:layout_height="match_parent"
         android:id = "@+id/listview_expandable_mmls"
         android:divider="@android:color/transparent"
+        android:transcriptMode="alwaysScroll"
+        android:groupIndicator="@drawable/settings_selector"
         android:dividerHeight="2.0sp"
         >
         </ExpandableListView>

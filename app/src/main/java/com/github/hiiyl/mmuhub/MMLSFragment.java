@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -156,6 +157,15 @@ public class MMLSFragment extends Fragment {
                 return true;
             }
         });
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int screenWidth = displaymetrics.widthPixels;
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mExListView.setIndicatorBounds(screenWidth-72, screenWidth);
+        } else {
+            mExListView.setIndicatorBoundsRelative(screenWidth-72, screenWidth);
+        }
+//        mExListView.setIndicatorBounds(screenWidth-50, screenWidth);
 
 
         return rootView;
