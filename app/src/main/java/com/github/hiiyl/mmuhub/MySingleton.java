@@ -10,7 +10,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
-import com.github.hiiyl.mmuhub.helper.MainThreadBus;
 
 /**
  * Created by Hii on 4/23/15.
@@ -21,13 +20,11 @@ public class MySingleton {
     private ImageLoader mImageLoader;
     private static Context mCtx;
     private SQLiteDatabase database;
-    private MainThreadBus mainThreadBus;
     private MMUDbHelper mMMUDbHelper;
 
     private MySingleton(Context context) {
         mCtx = context;
         mRequestQueue = getRequestQueue();
-        mainThreadBus = getBus();
         mMMUDbHelper = getMMUDbHelper();
         database = getDatabase();
 
@@ -70,12 +67,6 @@ public class MySingleton {
         return database;
     }
 
-    public MainThreadBus getBus() {
-        if(mainThreadBus == null) {
-            mainThreadBus = new MainThreadBus();
-        }
-        return mainThreadBus;
-    }
 
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {

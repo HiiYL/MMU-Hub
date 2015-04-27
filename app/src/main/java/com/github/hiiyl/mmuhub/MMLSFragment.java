@@ -74,38 +74,6 @@ public class MMLSFragment extends Fragment {
     public MMLSFragment() {
     }
 
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        MySingleton.getInstance(getActivity()).getBus().register(this);
-//    }
-//    @Override
-//    public void onPause() {
-//        MySingleton.getInstance(getActivity()).getBus().unregister(this);
-//        super.onPause();
-//    }
-//    @Subscribe
-//    public void syncComplete(SyncCompleteEvent event) {
-//        Log.d("DOWNLOAD COMPLETE", "NOTIFICATINO RECEIVED");
-//        mSyncCompleteNotificationCount++;
-//        if(mSyncCompleteNotificationCount == 3) {
-//            SnackBar sync_notify = new SnackBar(getActivity(), "Sync Complete");
-//            sync_notify.show();
-//            mSwipeRefreshLayout.setRefreshing(false);
-//            mSyncCompleteNotificationCount = 0;
-//        }
-//        cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
-//        mAdapter.changeCursor(cursor);
-//
-//    }
-//    @Subscribe
-//    public void syncStart(SyncStartEvent event) {
-//        Log.d("DOWNLOAD STARTING", "NOTIFICATINO RECEIVED");
-//        SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
-//        sync_notify.show();
-//        mSwipeRefreshLayout.setRefreshing(true);
-//    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -134,7 +102,12 @@ public class MMLSFragment extends Fragment {
             Log.d("SYNC STARTING", "NOTIFICATINO RECEIVED");
             SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
             sync_notify.show();
-            mSwipeRefreshLayout.setRefreshing(true);
+            mSwipeRefreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSwipeRefreshLayout.setRefreshing(true);
+                }
+            });
         }
 
     }
@@ -436,26 +409,4 @@ public class MMLSFragment extends Fragment {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(sr);
     }
-
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//
-//        Uri announcementsForSubject = MMUContract.AnnouncementEntry.buildAnnouncementWithSubjectUri(slide_str);
-//        return new CursorLoader(getActivity(),
-//                announcementsForSubject,
-//                null,
-//                null,
-//                null,
-//                null);
-//    }
-//
-//    @Override
-//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-//
-//    }
-//
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> loader) {
-//
-//    }
 }

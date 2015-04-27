@@ -1,31 +1,33 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_marginTop="25dp"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.github.hiiyl.mmuhub.AnnouncementDetailActivity$PlaceholderFragment">
-
+    tools:context="com.github.hiiyl.mmuhub.BulletinDetailActivity$PlaceholderFragment">
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id = "@+id/announcement_detail_title"/>
+        android:textSize="17sp"
+        android:id="@+id/bulletin_detail_title"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id = "@+id/announcement_detail_contents"/>
+        android:id="@+id/bulletin_detail_contents"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id = "@+id/announcement_detail_author"/>
+        android:id="@+id/bulletin_detail_author"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id = "@+id/announcement_detail_posted_date"/>
+        android:id="@+id/bulletin_detail_posted_date"/>
     </LinearLayout>
+
 </ScrollView>

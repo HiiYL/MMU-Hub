@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:layout_height="match_parent">
+    <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textSize="17sp"
+    android:id="@+id/bulletin_title"
+    android:text="Title"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="15dp"
+        android:orientation="horizontal">
+    <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="left"
+        android:layout_weight="1"
+       android:gravity="left"
+       android:id="@+id/bulletin_author"
+       android:text="Posted By"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="right"
+        android:gravity="right"
+        android:id="@+id/bulletin_posted_date"
+        android:text="Date"/>
+    </LinearLayout>
+</LinearLayout>

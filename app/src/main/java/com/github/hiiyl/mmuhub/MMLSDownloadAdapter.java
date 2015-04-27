@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
@@ -31,6 +32,7 @@ public class MMLSDownloadAdapter extends CursorAdapter {
         TextView tvTitle = (TextView) view.findViewById(R.id.file_download_name_textview);
         TextView tvStatus = (TextView) view.findViewById(R.id.file_download_downloaded_status);
         TextView tvHint = (TextView) view.findViewById(R.id.file_download_interaction_hint);
+        ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
         String file_name = cursor.getString(cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
         String subject_id = cursor.getString(cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY));
         String sql = "SELECT " + MMUContract.SubjectEntry.TABLE_NAME + "." + MMUContract.SubjectEntry.COLUMN_NAME + " FROM " + MMUContract.SubjectEntry.TABLE_NAME + "," +
@@ -46,9 +48,13 @@ public class MMLSDownloadAdapter extends CursorAdapter {
         if(file.exists()) {
             tvStatus.setText("Downloaded");
             tvHint.setText("Tap to View");
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setProgress(100);
         } else {
             tvStatus.setText("Not Downloaded");
             tvHint.setText("Tap to Download");
+            progressBar.setVisibility(View.INVISIBLE);
+            progressBar.setProgress(0);
         }
         temp_cursor.close();
 

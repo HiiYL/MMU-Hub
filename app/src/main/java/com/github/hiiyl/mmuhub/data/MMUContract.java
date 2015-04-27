@@ -93,10 +93,10 @@ public class MMUContract {
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_BULLETIN;
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_BULLETIN;
-        public static final String TABLE_NAME = "announcement";
+        public static final String TABLE_NAME = "bulletin";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_CONTENTS = "contents";
-        public static final String COLUMN_DETAILS = "author";
+        public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_POSTED_DATE = "posted_date";
     }
     public static class FilesEntry implements BaseColumns {

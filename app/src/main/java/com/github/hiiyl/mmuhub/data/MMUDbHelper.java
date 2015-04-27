@@ -5,15 +5,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.github.hiiyl.mmuhub.data.MMUContract.AnnouncementEntry;
+import com.github.hiiyl.mmuhub.data.MMUContract.FilesEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.SubjectEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.WeekEntry;
-import com.github.hiiyl.mmuhub.data.MMUContract.FilesEntry;
+import com.github.hiiyl.mmuhub.data.MMUContract.BulletinEntry;
 /**
  * Created by Hii on 4/19/15.
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 8;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -57,10 +58,19 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                 FilesEntry.COLUMN_DOWNLOADED + " BOOLEAN, " +
                 "FOREIGN KEY (" + FilesEntry.COLUMN_SUBJECT_KEY + ") REFERENCES " +
                 SubjectEntry.TABLE_NAME + " (" + SubjectEntry._ID + " ));";
+        final String SQL_CREATE_BULLETIN_TABLE = "CREATE TABLE " + BulletinEntry.TABLE_NAME + " (" +
+                BulletinEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                BulletinEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
+                BulletinEntry.COLUMN_POSTED_DATE + " TEXT NOT NULL, " +
+                BulletinEntry.COLUMN_CONTENTS + " TEXT NOT NULL, " +
+                BulletinEntry.COLUMN_AUTHOR + " TEXT NOT NULL" +
+//                SubjectEntry.COLUMN_URL + " TEXT NOT NULL" +
+                " );";
         sqLiteDatabase.execSQL(SQL_CREATE_SUBJECT_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_WEEK_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_ANNOUNCEMENT_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_FILES_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_BULLETIN_TABLE);
     }
 
     @Override
@@ -75,6 +85,7 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeekEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AnnouncementEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FilesEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + BulletinEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {
@@ -82,6 +93,7 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeekEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AnnouncementEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FilesEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + BulletinEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

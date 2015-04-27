@@ -2,6 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
+    android:background="@color/material_blue_grey_800"
     android:layout_height="match_parent">
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -54,10 +55,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/mmls_load_status"/>
         </LinearLayout>
-
     </LinearLayout>
-
-
 </RelativeLayout>
     <FrameLayout
         android:id="@+id/content_frame"
@@ -71,6 +69,8 @@
         android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_gravity="left|start"
+        android:choiceMode="singleChoice"
+        android:listSelector="#666666"
         android:background="#ffeeeeee"/>
     <!--<ListView android:id="@+id/left_drawer"-->
         <!--android:layout_width="240dp"-->

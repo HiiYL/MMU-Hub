@@ -3,7 +3,7 @@
     package="com.github.hiiyl.mmuhub" >
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
@@ -16,26 +16,29 @@
         android:label="@string/app_name" >
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AnnouncementDetailTheme"
-            android:label="@string/app_name" >
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+            android:label="@string/app_name"
+            android:theme="@style/AnnouncementDetailTheme" >
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/LoginActivityTheme"
             android:excludeFromRecents="true"
             android:label="@string/title_activity_login"
-            android:noHistory="true" >
+            android:noHistory="true"
+            android:theme="@style/LoginActivityTheme" >
         </activity>
         <activity
             android:name=".MMLSActivity"
-            android:theme="@style/MMLSTheme"
-            android:label="@string/app_name">
-            <!--android:label="@string/title_activity_mmls" >-->
+            android:label="@string/app_name"
+            android:theme="@style/MMLSTheme" >
+
+            <!-- android:label="@string/title_activity_mmls" > -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -45,7 +48,7 @@
         <activity
             android:name=".AnnouncementDetailActivity"
             android:label="@string/title_activity_announcement_detail"
-            android:theme="@style/AnnouncementDetailTheme">
+            android:theme="@style/AnnouncementDetailTheme" >
             android:parentActivityName="com.github.hiiyl.mmuhub.MMLSActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -53,13 +56,14 @@
         </activity>
         <activity
             android:name=".BulletinActivity"
-            android:label="@string/title_activity_bulletin" >
+            android:label="@string/title_activity_bulletin"
+            android:theme="@style/AnnouncementDetailTheme" >
         </activity>
         <activity
             android:name=".DownloadActivity"
-            android:theme="@style/AnnouncementDetailTheme"
             android:label="@string/title_activity_download"
-            android:parentActivityName=".MMLSActivity" >
+            android:parentActivityName=".MMLSActivity"
+            android:theme="@style/AnnouncementDetailTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.github.hiiyl.mmuhub.MMLSActivity" />
@@ -97,6 +101,14 @@
         <activity
             android:name=".BaseActivity"
             android:label="@string/title_activity_base" >
+        </activity>
+        <activity
+            android:name=".BulletinDetailActivity"
+            android:theme="@style/AnnouncementDetailTheme"
+            android:label="@string/title_activity_bulletin_detail" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.github.hiiyl.mmuhub.BulletinActivity" />
         </activity>
     </application>
 

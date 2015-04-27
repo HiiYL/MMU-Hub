@@ -9,7 +9,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,9 +30,7 @@ import com.gc.materialdesign.views.ButtonRectangle;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
-import com.github.hiiyl.mmuhub.helper.LogOutEvent;
 import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
-import com.squareup.otto.Bus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class LoginActivity extends ActionBarActivity {
+public class LoginActivity extends AppCompatActivity {
     private EditText student_id;
 //    private EditText camsys_password;
     private EditText mmls_password;
@@ -61,8 +59,8 @@ public class LoginActivity extends ActionBarActivity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.clear();
             editor.apply();
-            Bus bus = MySingleton.getInstance(LoginActivity.this).getBus();
-            bus.post(new LogOutEvent());
+//            Bus bus = MySingleton.getInstance(LoginActivity.this).getBus();
+//            bus.post(new LogOutEvent());
             MMUDbHelper mOpenHelper = new MMUDbHelper(LoginActivity.this);
             mOpenHelper.onLogout(MySingleton.getInstance(this).getDatabase());
         }
@@ -165,7 +163,7 @@ public class LoginActivity extends ActionBarActivity {
 
                             break;
                         default:
-                            SnackBar new_snackbar = new SnackBar(LoginActivity.this, "Internal Server Error",
+                            SnackBar new_snackbar = new SnackBar(LoginActivity.this, "MMLS server did not respond in time",
                                     "Retry", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {

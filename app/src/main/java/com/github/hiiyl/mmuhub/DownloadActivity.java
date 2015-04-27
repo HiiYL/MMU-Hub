@@ -1,7 +1,5 @@
 package com.github.hiiyl.mmuhub;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -21,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -30,10 +29,8 @@ import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.DownloadCompleteEvent;
-import com.github.hiiyl.mmuhub.helper.DownloadListViewScrollEvent;
+import com.github.hiiyl.mmuhub.helper.DownloadListRecycleEvent;
 import com.github.hiiyl.mmuhub.helper.FileOpen;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,7 +49,6 @@ import de.greenrobot.event.EventBus;
 
 public class DownloadActivity extends AppCompatActivity {
     private static int mSubjectID;
-    private static ProgressDialog mProgressDialog;
 
 
     @Override
@@ -104,38 +100,32 @@ public class DownloadActivity extends AppCompatActivity {
         private ButtonFlat mDownloadAllButton;
         private String mSubjectName;
         private String mSubjectID;
-        private Bus bus;
 
         public PlaceholderFragment() {
 
         }
 
         @Override
-        public void onResume() {
-            super.onResume();
-            MySingleton.getInstance(getActivity()).getBus().register(this);
+        public void onStart() {
+            super.onStart();
+            EventBus.getDefault().registerSticky(this);
         }
 
         @Override
-        public void onPause() {
-            super.onPause();
-            MySingleton.getInstance(getActivity()).getBus().unregister(this);
-
+        public void onStop() {
+            EventBus.getDefault().unregister(this);
+            super.onStop();
         }
 
-        @Subscribe
-        public void answerAvailable(DownloadCompleteEvent event) {
-//            final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
-//                    new String[] {mSubjectID}, null, null,null );
+        public void onEventMainThread(DownloadCompleteEvent event) {
+            SnackBar new_snackbar = new SnackBar(getActivity(), event.message);
+            new_snackbar.show();
             adapter.notifyDataSetChanged();
-//            adapter.changeCursor(cursor);
         }
-
         @Override
         public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                                  Bundle savedInstanceState) {
 
-            bus = MySingleton.getInstance(getActivity()).getBus();
 
 
             mOpenHelper = new MMUDbHelper(getActivity());
@@ -153,55 +143,75 @@ public class DownloadActivity extends AppCompatActivity {
 
             mDownloadAllButton = (ButtonFlat)rootView.findViewById(R.id.download_all_button);
 
-//            download_list.setRecyclerListener(new AbsListView.RecyclerListener() {
-//                @Override
-//                public void onMovedToScrapHeap(View view) {
-//                    EventBus.getDefault().post(new DownloadListViewScrollEvent());
-//                }
-//            });
 
-//            mDownloadAllButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
-//                            new String[]{subject_id}, null, null, null);
-//                    new_cursor.moveToFirst();
-//                    int count = 0;
-//                    while (!new_cursor.isAfterLast()) {
-//                        String file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
-//                        String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + file_name;
-//                        String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/";
-//                        File file = new File(file_path);
-//
-//                        if(!file.exists()) {
-//                            File temp = new File(file_directory);
-//                            temp.mkdirs();
-//                            View view =  getViewByPosition(count,download_list);
+
+            mDownloadAllButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    SnackBar download_all_confirm = new SnackBar(getActivity(), "Download All Items?", "Yes",
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    download_list.setRecyclerListener(new AbsListView.RecyclerListener() {
+                                        @Override
+                                        public void onMovedToScrapHeap(View view) {
+                                            EventBus.getDefault().post(new DownloadListRecycleEvent(download_list));
+                                        }
+                                    });
+                                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                                            new String[]{subject_id}, null, null, null);
+                                    new_cursor.moveToFirst();
+                                    int count = 0;
+                                    while (!new_cursor.isAfterLast()) {
+                                        String file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+                                        String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + file_name;
+                                        String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/";
+                                        File file = new File(file_path);
+
+                                        if(!file.exists()) {
+                                            File temp = new File(file_directory);
+                                            temp.mkdirs();
 //                            FragmentActivity activity = (FragmentActivity) view.getContext();
-//                            final DownloadTask downloadTask = new DownloadTask(getActivity(), activity);
-//                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//                            downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
-//                            downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
-//                            downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
-//                            downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
-//                            downloadTask.token = prefs.getString("token", "");
-//                            downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
-//                            downloadTask.local_file_path = file_path;
-//                            downloadTask.view = view;
-//                            downloadTask.mDownloadList = download_list;
-//                            downloadTask.mPosition = count;
-//                            downloadTask.isDownloadAll = true;
-//
-//
-//                            Log.d("APP", "Now downloading " + downloadTask.file_name);
-//
-//                            downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
-//                            count++;
-//                        }
-//                        new_cursor.moveToNext();
-//                    }
-//                }
-//            });
+                                            final DownloadTask downloadTask = new DownloadTask(getActivity());
+                                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                                            downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+                                            downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
+                                            downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
+                                            downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
+                                            downloadTask.token = prefs.getString("token", "");
+                                            downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
+                                            downloadTask.local_file_path = file_path;
+                                            downloadTask.mPosition = count;
+                                            downloadTask.view = getViewByPosition(count,download_list);
+                                            downloadTask.isDownloadAll = true;
+                                            final int firstListItemPosition = download_list.getFirstVisiblePosition();
+                                            final int lastListItemPosition = firstListItemPosition + download_list.getChildCount() - 1;
+                                            View view;
+                                            if (count < firstListItemPosition || count > lastListItemPosition ) {
+                                                downloadTask.isVisible = false;
+                                            } else {
+                                                final int childIndex = count - firstListItemPosition;
+                                                downloadTask.view = download_list.getChildAt(childIndex);
+                                                downloadTask.isVisible = true;
+                                            }
+
+
+                                            Log.d("APP", "Now downloading " + downloadTask.file_name);
+
+                                            downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+
+                                        }
+                                        new_cursor.moveToNext();
+                                        count++;
+                                    }
+                                    new_cursor.close();
+
+                                }
+                            });
+                    download_all_confirm.show();
+                }
+            });
 
 
             download_list.setOnItemClickListener(new ListView.OnItemClickListener() {
@@ -232,7 +242,7 @@ public class DownloadActivity extends AppCompatActivity {
                         temp.mkdirs();
                         view.setHasTransientState(true);
                         FragmentActivity activity = (FragmentActivity) view.getContext();
-                        final DownloadTask downloadTask = new DownloadTask(getActivity(), activity);
+                        final DownloadTask downloadTask = new DownloadTask(getActivity());
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                         downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
                         downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
@@ -256,20 +266,19 @@ public class DownloadActivity extends AppCompatActivity {
             return rootView;
         }
     }
-//    public static View getViewByPosition(int position, ListView listView) {
-//        final int firstListItemPosition = listView.getFirstVisiblePosition();
-//        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
-//        View view;
-//
-//        if (position < firstListItemPosition || position > lastListItemPosition ) {
-//            view = listView.getAdapter().getView(position, listView.getChildAt(position), listView);
-//        } else {
-//            final int childIndex = position - firstListItemPosition;
-//            view = listView.getChildAt(childIndex);
-//        }
-//        view.setHasTransientState(true);
-//        return view;
-//    }
+    public static View getViewByPosition(int position, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+        View view;
+
+        if (position < firstListItemPosition || position > lastListItemPosition ) {
+            view = listView.getAdapter().getView(position, listView.getChildAt(position), listView);
+        } else {
+            final int childIndex = position - firstListItemPosition;
+            view = listView.getChildAt(childIndex);
+        }
+        return view;
+    }
     private static class DownloadTask extends AsyncTask<String, Integer, String> {
 
         private Context context;
@@ -281,30 +290,30 @@ public class DownloadActivity extends AppCompatActivity {
         private String content_type;
         private String token;
         private String remote_file_path;
-        private View view;
         private ProgressBar mProgressBar;
-        private Activity mActivity;
         private HttpsURLConnection connection = null;
-        private ListView mDownloadList;
+        private View view;
         private int mPosition;
         boolean isDownloadAll = false;
+        boolean isVisible = true;
 
-        public void onEvent(DownloadListViewScrollEvent event) {
-            if(isDownloadAll) {
-//                Log.d("HEARING", "I HEAR THE SUMMONS");
-//                view = getViewByPosition(mPosition, mDownloadList);
-                mProgressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
-            }
-        }
-
-
-
-
-
-        public DownloadTask(Context context, Activity activity) {
-            EventBus.getDefault().register(this);
+        public DownloadTask(Context context) {
             this.context = context;
-            mActivity = activity;
+            EventBus.getDefault().register(this);
+        }
+        public void onEvent(DownloadListRecycleEvent event) {
+            ListView listView = event.download_list;
+            final int firstListItemPosition = listView.getFirstVisiblePosition();
+            final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+            View view;
+            if (mPosition < firstListItemPosition || mPosition > lastListItemPosition ) {
+                isVisible = false;
+            } else {
+                final int childIndex = mPosition - firstListItemPosition;
+                view = listView.getChildAt(childIndex);
+                mProgressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
+                isVisible = true;
+            }
         }
 
 
@@ -425,20 +434,18 @@ public class DownloadActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
-            mProgressBar.setVisibility(View.VISIBLE);
-            mProgressBar.setIndeterminate(true);
-            mProgressBar.getProgressDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
-//            view.setHasTransientState(true);
+            Log.d("HELLO THERE", Boolean.toString(isVisible));
+            if(isVisible) {
+                mProgressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
+                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressBar.setIndeterminate(true);
+                mProgressBar.getProgressDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
+                view.setHasTransientState(true);
+            }
 
             // take CPU lock to prevent CPU from going off if the user
             // presses the power button during download
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-//            mProgressDialog = new ProgressDialog(context);
-//            mProgressDialog.setIndeterminate(true);
-//            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//            mProgressDialog.setCancelable(true);
-//            mProgressDialog.setMessage("Please wait... Authenticating");
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     getClass().getName());
             mWakeLock.acquire();
@@ -448,32 +455,31 @@ public class DownloadActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progress) {
             super.onProgressUpdate(progress);
             // if we get here, length is known, now set indeterminate to false
-            mProgressBar.setVisibility(View.VISIBLE);
-            mProgressBar.setIndeterminate(false);
-            mProgressBar.setMax(100);
-            mProgressBar.setProgress(progress[0]);
+            if(isVisible) {
+                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressBar.setIndeterminate(false);
+                mProgressBar.setMax(100);
+                mProgressBar.setProgress(progress[0]);
+            }
         }
 
         @Override
         protected void onPostExecute(String result) {
-            EventBus.getDefault().unregister(this);
             mWakeLock.release();
-//            mProgressDialog.dismiss();
+            String download_result;
             if (result != null) {
-                mProgressBar.setIndeterminate(false);
-                mProgressBar.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
-                mProgressBar.setMax(100);
-                mProgressBar.setProgress(100);
-                SnackBar new_snackbar = new SnackBar((Activity) context, "Download Failed");
-                new_snackbar.show();
+                if(isVisible) {
+                    mProgressBar.setIndeterminate(false);
+                    mProgressBar.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+                    mProgressBar.setMax(100);
+                    mProgressBar.setProgress(100);
+                }
+                download_result = "Download Failed";
             }
             else {
-                SnackBar new_snackbar = new SnackBar((Activity) context, "Download Successful");
-                new_snackbar.show();
-                Bus bus = MySingleton.getInstance(context).getBus();
-                bus.post(new DownloadCompleteEvent());
-
+                download_result = "Download Successful";
             }
+            EventBus.getDefault().post(new DownloadCompleteEvent(download_result));
         }
     };
 }
