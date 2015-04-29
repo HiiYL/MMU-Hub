@@ -20,12 +20,18 @@ public class MMUProvider extends ContentProvider {
     static final int WEEK = 300;
     static final int WEEK_WITH_SUBJECT = 300;
     static final int FILE = 400;
-    static final int FILE_WITH_SUBJECT = 401;
+    public static final int FILE_WITH_SUBJECT = 401;
+
+    static final String AUTHORITY = "com.github.hiiyl.mmuhub";
 
     private static final SQLiteQueryBuilder sAnnouncementByWeekQueryBuilder;
     private static final SQLiteQueryBuilder sAnnouncementBySubjectQueryBuilder;
     private static final SQLiteQueryBuilder sWeekBySubjectQueryBuilder;
     private static final SQLiteQueryBuilder sFileBySubjectQueryBuilder;
+
+    public static String getAuthority() {
+        return AUTHORITY;
+    }
 
 
 

@@ -16,11 +16,15 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.gc.materialdesign.views.ButtonFloat;
+import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
+import com.github.hiiyl.mmuhub.helper.SyncEvent;
 import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 import java.util.ArrayList;
 import java.util.Locale;
+
+import de.greenrobot.event.EventBus;
 
 
 public class MMLSActivity extends BaseActivity{
@@ -65,7 +69,6 @@ public class MMLSActivity extends BaseActivity{
                 }
             }
         }, 200);
-//        mDownloadButton.show();
 
 
 
@@ -139,6 +142,30 @@ public class MMLSActivity extends BaseActivity{
         }
         cursor.close();
         return hasFiles;
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().registerSticky(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    public void onEventMainThread(SyncEvent event){
+        if(event.message.equals(Utility.SYNC_FINISHED)) {
+            Log.d("SYNC COMPLETE", "COMPLETE");
+            SnackBar sync_notify = new SnackBar(this, "Sync Complete");
+            sync_notify.show();
+        }else if(event.message.equals(Utility.SYNC_BEGIN)) {
+            SnackBar sync_notify = new SnackBar(this, "Syncing ...");
+            sync_notify.show();
+        }
 
     }
 

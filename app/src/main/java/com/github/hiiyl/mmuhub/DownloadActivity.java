@@ -31,6 +31,7 @@ import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.DownloadCompleteEvent;
 import com.github.hiiyl.mmuhub.helper.DownloadListRecycleEvent;
 import com.github.hiiyl.mmuhub.helper.FileOpen;
+import com.github.hiiyl.mmuhub.helper.RefreshTokenEvent;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -71,7 +72,7 @@ public class DownloadActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_download, menu);
+//        getMenuInflater().inflate(R.menu.menu_download, menu);
         return true;
     }
 
@@ -121,6 +122,10 @@ public class DownloadActivity extends AppCompatActivity {
             SnackBar new_snackbar = new SnackBar(getActivity(), event.message);
             new_snackbar.show();
             adapter.notifyDataSetChanged();
+        }
+        public void onEventMainThread(RefreshTokenEvent event) {
+            SnackBar new_snackbar = new SnackBar(getActivity(), event.status);
+            new_snackbar.show();
         }
         @Override
         public View onCreateView(LayoutInflater inflater, final ViewGroup container,
@@ -379,14 +384,13 @@ public class DownloadActivity extends AppCompatActivity {
                 // expect HTTP 200 OK, so we don't mistakenly save error report
                 // instead of the file
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    if(connection.getResponseCode() == 302)
-
-                    Log.d("DownloadTask","CONNECTION ERROR" + "Server returned HTTP " + connection.getResponseCode()
-                            + " " + connection.getResponseMessage());
+                    Log.d("CONNECT", " FAILED AND RESPONSE CODE IS " + connection.getResponseCode());
+                    if(connection.getResponseCode() == 302) {
+                        Utility.refreshToken(context);
+                    }
                     return "Server returned HTTP " + connection.getResponseCode()
                             + " " + connection.getResponseMessage();
                 }
-                Log.d("CONNECTION", "RESPONSE CODE RECEIVED");
                 // this will be useful to display download percentage
                 // might be -1: server did not report the length
                 int fileLength = connection.getContentLength();
@@ -478,8 +482,8 @@ public class DownloadActivity extends AppCompatActivity {
             }
             else {
                 download_result = "Download Successful";
+                EventBus.getDefault().post(new DownloadCompleteEvent(download_result));
             }
-            EventBus.getDefault().post(new DownloadCompleteEvent(download_result));
         }
     };
 }

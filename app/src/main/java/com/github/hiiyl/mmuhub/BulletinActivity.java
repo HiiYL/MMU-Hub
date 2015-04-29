@@ -57,7 +57,7 @@ public class BulletinActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_bulletin, menu);
+//        getMenuInflater().inflate(R.menu.menu_bulletin, menu);
         return true;
     }
 
@@ -149,7 +149,7 @@ public class BulletinActivity extends BaseActivity {
             final Context mContext = context;
             final MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
             Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME, null, null, null, null, null, null);
-                String url = "https://mmu-api.herokuapp.com/bulletin_api";
+                String url = "https://mmu-api.co/bulletin_api";
                 mSwipeRefreshLayout.setRefreshing(true);
                 StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
                     @Override

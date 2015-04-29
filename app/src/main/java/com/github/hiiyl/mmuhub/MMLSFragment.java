@@ -91,8 +91,6 @@ public class MMLSFragment extends Fragment {
     public void onEventMainThread(SyncEvent event){
         if(event.message.equals(Utility.SYNC_FINISHED)) {
             Log.d("SYNC COMPLETE", "COMPLETE");
-            SnackBar sync_notify = new SnackBar(getActivity(), "Sync Complete");
-            sync_notify.show();
             mSwipeRefreshLayout.setRefreshing(false);
             cursor = MySingleton.getInstance(getActivity()).getDatabase().
                     query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
@@ -101,8 +99,6 @@ public class MMLSFragment extends Fragment {
             EventBus.getDefault().removeStickyEvent(event);
         }else if(event.message.equals(Utility.SYNC_BEGIN)) {
             Log.d("SYNC STARTING", "NOTIFICATINO RECEIVED");
-            SnackBar sync_notify = new SnackBar(getActivity(), "Syncing ...");
-            sync_notify.show();
             mSwipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
@@ -165,9 +161,6 @@ public class MMLSFragment extends Fragment {
         } else {
             mExListView.setIndicatorBoundsRelative(screenWidth-72, screenWidth);
         }
-//        mExListView.setIndicatorBounds(screenWidth-50, screenWidth);
-
-
         return rootView;
     }
 
@@ -185,8 +178,7 @@ public class MMLSFragment extends Fragment {
                 MMUContract.SubjectEntry._ID + " = ? ",
                 new String[]{subject_id}, null, null, null);
         if (cursor.moveToFirst()) {
-
-            String url = "https://mmu-api.herokuapp.com/refresh_subject";
+            String url = "https://mmu-api.co/refresh_subject";
             subject_url = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_URL));
             subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
 
@@ -374,7 +366,7 @@ public class MMLSFragment extends Fragment {
         progressDialog.setTitle("Refreshing Token & Cookie...");
         progressDialog.setMessage("Please Wait");
         progressDialog.show();
-        String url = "https://mmu-api.herokuapp.com/refresh_token";
+        String url = "https://mmu-api.co/refresh_token";
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {

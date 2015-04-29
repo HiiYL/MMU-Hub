@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:title="@string/sync_preferences">
+
+        <CheckBoxPreference
+            android:key="sync_enabled"
+            android:title="@string/sync_checkbox_pereference"
+            android:summary="@string/summary_sync_preference" />
+
+        <ListPreference
+            android:key="sync_interval"
+            android:title="@string/sync_interval_list_preference"
+            android:summary="@string/summary_sync_interval_list_preference"
+            android:entries="@array/entries_sync_interval_list_preference"
+            android:entryValues="@array/entryvalues_sync_interval_list_list_preference"
+            android:dialogTitle="@string/dialog_title_list_preference" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

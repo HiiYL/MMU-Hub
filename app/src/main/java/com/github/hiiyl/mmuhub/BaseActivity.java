@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gc.materialdesign.views.ButtonFlat;
+import com.gc.materialdesign.widgets.SnackBar;
 
 
 public class BaseActivity extends AppCompatActivity
@@ -47,8 +48,8 @@ public class BaseActivity extends AppCompatActivity
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
 
-    String TITLES[] = {"MMLS","Bulletin"};
-    int ICONS[] = {R.drawable.ic_mmls,R.drawable.ic_bulletin};
+    String TITLES[] = {"MMLS","Bulletin", "Settings"};
+    int ICONS[] = {R.drawable.ic_mmls,R.drawable.ic_bulletin, R.drawable.ic_settings};
 
     //Similarly we Create a String Resource for the name and email in the header view
     //And we also create a int resource for profile picture in the header view
@@ -202,24 +203,31 @@ public class BaseActivity extends AppCompatActivity
         mLogOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDrawerLayout.closeDrawer(Gravity.START);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setHomeButtonEnabled(true);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putBoolean("logged_in", false);
-                editor.apply();
-                final Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                finish();
-                mPendingRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(intent);
-                        overridePendingTransition(0, 0);
-                        finish();
-                    }
-                };
+                SnackBar log_out_confirm = new SnackBar(BaseActivity.this, "Confirm log out?", "Yes",
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mDrawerLayout.closeDrawer(Gravity.START);
+                                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                                getSupportActionBar().setHomeButtonEnabled(true);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putBoolean("logged_in", false);
+                                editor.apply();
+                                final Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                finish();
+                                mPendingRunnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        startActivity(intent);
+                                        overridePendingTransition(0, 0);
+                                        finish();
+                                    }
+                                };
 
+                            }
+                        });
+                log_out_confirm.show();
             }
         });
 
@@ -268,6 +276,9 @@ public class BaseActivity extends AppCompatActivity
             case 2:
                 intent = new Intent(this, BulletinActivity.class);
                 break;
+            case 3:
+                intent = new Intent(this, SettingsActivity.class);
+                break;
             default:
                 break;
         }
@@ -278,7 +289,6 @@ public class BaseActivity extends AppCompatActivity
                 public void run() {
                     startActivity(finalIntent);
                     overridePendingTransition(0, 0);
-                    finish();
                 }
             };
         }

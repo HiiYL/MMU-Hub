@@ -96,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
     public void requestAuthentication() {
         RequestQueue queue = MySingleton.getInstance(this).
                 getRequestQueue();
-        String url = "https://mmu-api.herokuapp.com/login_mmls";
+        String url = "https://mmu-api.co/login_mmls";
         final ProgressDialog mProgressDialog = new ProgressDialog(this);
 
         mProgressDialog.setTitle("Signing you in...");

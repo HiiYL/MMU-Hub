@@ -16,6 +16,7 @@ import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -168,7 +169,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                 MMUContract.SubjectEntry._ID + " = ? ",
                 new String[]{subject_id}, null, null, null);
         if (cursor.moveToFirst()) {
-            String url = "https://mmu-api.herokuapp.com/refresh_subject";
+            String url = "https://mmu-api.co/refresh_subject";
             subject_url = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_URL));
             subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
             Log.d("SENT DATA COOKIE", prefs.getString("cookie", ""));
@@ -177,8 +178,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(final String response) {
-//                    AsyncTask.execute(new Runnable() {
-//                        public void run() {
+                    AsyncTask.execute(new Runnable() {
+                        public void run() {
                             try {
                                 Cursor mCursor = null;
                                 JSONObject jobj = new JSONObject(response);
@@ -239,7 +240,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                                     long _id = database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
 
                                                     Intent resultIntent = new Intent(getContext(), AnnouncementDetailActivity.class);
-                                                    resultIntent.putExtra("ANNOUNCEMENT_ID",Long.toString(_id));
+                                                    resultIntent.putExtra("ANNOUNCEMENT_ID", Long.toString(_id));
                                                     TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
                                                     stackBuilder.addNextIntent(resultIntent);
                                                     PendingIntent resultPendingIntent =
@@ -280,7 +281,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                                 MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
                                                 MMUContract.SubjectEntry.TABLE_NAME + "." +
                                                 MMUContract.SubjectEntry._ID + " = ? ;";
-                                        mCursor = database.rawQuery(sql, new String[]{file_name,subject_id});
+                                        mCursor = database.rawQuery(sql, new String[]{file_name, subject_id});
                                         if (!mCursor.moveToFirst()) {
                                             ContentValues fileValues = new ContentValues();
                                             fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
@@ -292,7 +293,6 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                             long _id = database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
 
 
-
                                         }
 
                                     }
@@ -302,36 +302,36 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                 e.printStackTrace();
                             }
                             mSubjectSyncCount++;
-                            if(mSubjectSyncCount == mNumberOfSubjects) {
+                            if (mSubjectSyncCount == mNumberOfSubjects) {
                                 EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_FINISHED));
                                 mSubjectSyncCount = 0;
                             }
                             // database insert here
-//                        }
-//                    });
-                }
-            }, new Response.ErrorListener() {
-                String json = null;
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-//                    mSwipeRefreshLayout.setRefreshing(false);
-                    NetworkResponse networkResponse = error.networkResponse;
-                    AlertDialog.Builder alertDialogBuilder;
-                    AlertDialog alertDialog;
-                    if (networkResponse != null && networkResponse.data != null) {
-                        switch (networkResponse.statusCode) {
-                            case 400:
-                                Log.d("HELLO THERE~", "HTTTP 400");
-                                sync_queue.cancelAll(SYNC_TAG);
-                                refreshTokenAndRetry(context, subject_id);
-                                break;
-                            default:
                         }
-                        //Additional cases
-                    }
-                }
-            }) {
+                    });
+                        }
+                    }, new Response.ErrorListener() {
+                        String json = null;
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+//                    mSwipeRefreshLayout.setRefreshing(false);
+                            NetworkResponse networkResponse = error.networkResponse;
+                            AlertDialog.Builder alertDialogBuilder;
+                            AlertDialog alertDialog;
+                            if (networkResponse != null && networkResponse.data != null) {
+                                switch (networkResponse.statusCode) {
+                                    case 400:
+                                        Log.d("HELLO THERE~", "HTTTP 400");
+                                        sync_queue.cancelAll(SYNC_TAG);
+                                        refreshTokenAndRetry(context, subject_id);
+                                        break;
+                                    default:
+                                }
+                                //Additional cases
+                            }
+                        }
+                    }) {
                 @Override
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<String, String>();
@@ -358,7 +358,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
     }
     public void refreshTokenAndRetry(final Context context, final String subject_id) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String url = "https://mmu-api.herokuapp.com/refresh_token";
+        String url = "https://mmu-api.co/refresh_token";
         Log.d("HELLO THERE~", "PREPARING TO REFRESH TOKEN");
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override

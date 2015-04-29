@@ -25,4 +25,35 @@
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_bulletin_detail">BulletinDetailActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="pref_sync">Sync Frequency</string>
+    <string name="pref_sync_summ">Turn sync on or off</string>
+    <string name="inline_preferences">Preferences</string>
+    <string name="title_checkbox_preference">checkbox</string>
+    <string name="summary_checkbox_preference">its a checkbox</string>
+    <string name="dialog_based_preferences">dialog</string>
+    <string name="title_edittext_preference">edittext</string>
+    <string name="dialog_title_edittext_preference">editext tile</string>
+    <string name="summary_edittext_preference">editext duh</string>
+    <string name="title_list_preference">list title</string>
+    <string name="summary_list_preference">wow</string>
+    <string name="dialog_title_list_preference">stop</string>
+    <string name="launch_preferences">launch preference</string>
+    <string name="title_screen_preference">title screen</string>
+    <string name="summary_screen_preference">summary screen</string>
+    <string name="title_next_screen_toggle_preference">next title</string>
+    <string name="summary_next_screen_toggle_preference">summary</string>
+    <string name="title_intent_preference">title</string>
+    <string name="summary_intent_preference">summary title</string>
+    <string name="preference_attributes">attributes</string>
+    <string name="title_parent_preference">title preference</string>
+    <string name="summary_parent_preference">parent preference</string>
+    <string name="title_child_preference">title preference</string>
+    <string name="summary_child_preference">child preference</string>
+    <string name="sync_preferences">Sync Preferences</string>
+    <string name="sync_checkbox_pereference">Enable Sync</string>
+    <string name="summary_sync_preference">Enable syncing with MMLS</string>
+    <string name="sync_interval_list_preference">Sync Interval</string>
+    <string name="summary_sync_interval_list_preference">Adjust interval between syncs</string>
+    <string name="sync_interval">sync interval</string>
 </resources>

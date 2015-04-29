@@ -16,12 +16,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.hiiyl.mmuhub.data.MMUContract;
+import com.github.hiiyl.mmuhub.helper.RefreshTokenEvent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by Hii on 4/13/15.
@@ -31,6 +34,11 @@ public class Utility {
     public static final String SYNC_FINISHED = "sync finish";
     public static final String SYNC_BEGIN = "sync begin";
     public static final String DOWNLOAD_FOLDER = "MMUHub Downloads";
+
+    static final String REFRESH_TOKEN_STARTING = "Refreshing Token...";
+    static final String REFRESH_TOKEN_COMPLETE = "Token Refreshed";
+    static final String REFRESH_TOKEN_FAILED = "Token Refresh Failed";
+
     public static String trimMessage(String json, String key){
         String trimmedString = null;
 
@@ -60,6 +68,7 @@ public class Utility {
         return subject_name;
     }
     public static void refreshToken(Context context) {
+        EventBus.getDefault().postSticky(new RefreshTokenEvent(REFRESH_TOKEN_STARTING));
         Context mContext = context;
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 
@@ -68,17 +77,17 @@ public class Utility {
         progressDialog.setTitle("Refreshing Token & Cookie...");
         progressDialog.setMessage("Please Wait");
         progressDialog.show();
-        String url = "https://mmu-api.herokuapp.com/refresh_token";
-//        String url = "https://mmu-api.herokuapp.com/login_test.json";
+        String url = "https://mmu-api.co/refresh_token";
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
+                EventBus.getDefault().postSticky(new RefreshTokenEvent(REFRESH_TOKEN_COMPLETE));
                 SharedPreferences.Editor editor = prefs.edit();
                 String cookie = Utility.trimMessage(response, "cookie");
                 String token = Utility.trimMessage(response, "token");
                 editor.putString("cookie", cookie);
                 editor.putString("token", token);
-                editor.commit();
+                editor.apply();
                 Log.d("Token", "Successful");
                 progressDialog.dismiss();
             }
@@ -86,6 +95,7 @@ public class Utility {
             String json = null;
             @Override
             public void onErrorResponse(VolleyError error) {
+                EventBus.getDefault().postSticky(new RefreshTokenEvent(REFRESH_TOKEN_FAILED));
                 progressDialog.dismiss();
                 Log.d("Token", "Refresh unsuccessful");
             }
