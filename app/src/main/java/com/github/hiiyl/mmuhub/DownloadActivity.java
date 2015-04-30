@@ -141,7 +141,7 @@ public class DownloadActivity extends AppCompatActivity {
             Log.d("Subject ID is ", subject_id);
             mSubjectID = subject_id;
             mSubjectName = Utility.getSubjectName(getActivity(), mSubjectID);
-            final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+            final Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? AND " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " IS NULL",
                     new String[] {subject_id}, null, null,null );
             adapter = new MMLSDownloadAdapter(getActivity(), cursor);
             download_list.setAdapter(adapter);
@@ -164,7 +164,7 @@ public class DownloadActivity extends AppCompatActivity {
                                             EventBus.getDefault().post(new DownloadListRecycleEvent(download_list));
                                         }
                                     });
-                                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? AND " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " IS NULL",
                                             new String[]{subject_id}, null, null, null);
                                     new_cursor.moveToFirst();
                                     int count = 0;
@@ -224,7 +224,7 @@ public class DownloadActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? AND " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " IS NULL",
                             new String[]{subject_id}, null, null, null);
                     new_cursor.moveToPosition(position);
 
@@ -386,6 +386,7 @@ public class DownloadActivity extends AppCompatActivity {
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                     Log.d("CONNECT", " FAILED AND RESPONSE CODE IS " + connection.getResponseCode());
                     if(connection.getResponseCode() == 302) {
+                        Log.d("WOW!", "REFRESHING TOKEN");
                         Utility.refreshToken(context);
                     }
                     return "Server returned HTTP " + connection.getResponseCode()
@@ -472,6 +473,7 @@ public class DownloadActivity extends AppCompatActivity {
             mWakeLock.release();
             String download_result;
             if (result != null) {
+                Log.d("RESULT IS", result);
                 if(isVisible) {
                     mProgressBar.setIndeterminate(false);
                     mProgressBar.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);

@@ -30,6 +30,7 @@
             android:name=".LoginActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_activity_login"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:noHistory="true"
             android:theme="@style/LoginActivityTheme" >
         </activity>

@@ -37,7 +37,7 @@
     <string name="summary_edittext_preference">editext duh</string>
     <string name="title_list_preference">list title</string>
     <string name="summary_list_preference">wow</string>
-    <string name="dialog_title_list_preference">stop</string>
+    <string name="dialog_title_list_preference">Sync Refresh Interval</string>
     <string name="launch_preferences">launch preference</string>
     <string name="title_screen_preference">title screen</string>
     <string name="summary_screen_preference">summary screen</string>

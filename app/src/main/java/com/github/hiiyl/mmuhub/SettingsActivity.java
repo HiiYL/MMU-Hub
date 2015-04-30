@@ -13,28 +13,29 @@ import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 
 public class SettingsActivity extends Activity {
+    public final String SYNC_INTERVAL = "sync_interval";
+    public final String SYNC_ENABLED = "sync_enabled";
     SharedPreferences.OnSharedPreferenceChangeListener listener;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new PrefsFragment()).commit();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                Log.d("ON CHANGE", "wow");
-                if(key.equals("sync_enabled")) {
-                    boolean sync_enabled = prefs.getBoolean("sync_enabled", true);
+                if(key.equals(SYNC_ENABLED)) {
+                    boolean sync_enabled = prefs.getBoolean(SYNC_ENABLED, true);
                     int sync_enabled_int = (sync_enabled) ? 1 : 0;
                     ContentResolver.setIsSyncable(MMUSyncAdapter.getSyncAccount(SettingsActivity.this), MMUProvider.getAuthority(), sync_enabled_int);
                 }
-                if(key.equals("sync_interval")) {
-                    String  interval = prefs.getString("sync_interval", "");
+                if(key.equals(SYNC_INTERVAL)) {
+                    String  interval = prefs.getString(SYNC_INTERVAL, "");
                     int interval_in_seconds = Integer.parseInt(interval) * 60;
                     Log.d("SYNC SETTING","NEW INTERVAL IS " + interval);
                     MMUSyncAdapter.configurePeriodicSync(SettingsActivity.this, interval_in_seconds, interval_in_seconds/3);

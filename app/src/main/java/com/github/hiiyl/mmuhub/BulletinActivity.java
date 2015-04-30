@@ -29,6 +29,7 @@ import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.DownloadCompleteEvent;
+import com.github.hiiyl.mmuhub.helper.ViewEvent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,6 +107,14 @@ public class BulletinActivity extends BaseActivity {
             if(event.message.equals(BULLETIN_SYNC_COMPLETE)) {
                 SnackBar new_snackbar = new SnackBar(getActivity(), event.message);
                 new_snackbar.show();
+                Cursor newCursor = MySingleton.getInstance(getActivity()).getDatabase().query(
+                        MMUContract.BulletinEntry.TABLE_NAME, null, null, null, null, null, null);
+                mAdapter.changeCursor(newCursor);
+            }
+        }
+        public void onEventMainThread(ViewEvent event) {
+            if(event.message.equals(Utility.VIEW_BULLETIN_EVENT)) {
+                Log.d("ANNOUNCEMENT", "BULLETIN VIEW EVENT RECEIVED");
                 Cursor newCursor = MySingleton.getInstance(getActivity()).getDatabase().query(
                         MMUContract.BulletinEntry.TABLE_NAME, null, null, null, null, null, null);
                 mAdapter.changeCursor(newCursor);
@@ -227,7 +236,6 @@ public class BulletinActivity extends BaseActivity {
                         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 MySingleton.getInstance(getActivity()).addToRequestQueue(sr);
-
         }
     }
 }

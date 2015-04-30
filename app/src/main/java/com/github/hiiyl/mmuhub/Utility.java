@@ -1,6 +1,5 @@
 package com.github.hiiyl.mmuhub;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -39,6 +38,12 @@ public class Utility {
     static final String REFRESH_TOKEN_COMPLETE = "Token Refreshed";
     static final String REFRESH_TOKEN_FAILED = "Token Refresh Failed";
 
+    static final String VIEW_ANNOUNCEMENT_EVENT = "view announcement";
+
+    static final String VIEW_BULLETIN_EVENT = "view bulletin";
+
+    static final String ANNOUNCEMENT_ATTACHMENT_FOLDER = "Announcement Attachments";
+
     public static String trimMessage(String json, String key){
         String trimmedString = null;
 
@@ -69,14 +74,9 @@ public class Utility {
     }
     public static void refreshToken(Context context) {
         EventBus.getDefault().postSticky(new RefreshTokenEvent(REFRESH_TOKEN_STARTING));
-        Context mContext = context;
-        prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         RequestQueue queue = Volley.newRequestQueue(context);
-        final ProgressDialog progressDialog = new ProgressDialog(context);
-        progressDialog.setTitle("Refreshing Token & Cookie...");
-        progressDialog.setMessage("Please Wait");
-        progressDialog.show();
         String url = "https://mmu-api.co/refresh_token";
         StringRequest sr = new StringRequest(Request.Method.POST, url , new Response.Listener<String>() {
             @Override
@@ -89,14 +89,12 @@ public class Utility {
                 editor.putString("token", token);
                 editor.apply();
                 Log.d("Token", "Successful");
-                progressDialog.dismiss();
             }
         }, new Response.ErrorListener() {
             String json = null;
             @Override
             public void onErrorResponse(VolleyError error) {
                 EventBus.getDefault().postSticky(new RefreshTokenEvent(REFRESH_TOKEN_FAILED));
-                progressDialog.dismiss();
                 Log.d("Token", "Refresh unsuccessful");
             }
         }){

@@ -74,6 +74,7 @@ public class MMUContract {
         public static final String COLUMN_POSTED_DATE = "posted_date";
         public static final String COLUMN_WEEK_KEY = "week_id";
         public static final String COLUMN_SUBJECT_KEY = "subject_id";
+        public static final String COLUMN_HAS_SEEN = "announcement_seen";
 
         public static Uri buildAnnouncementUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -98,6 +99,7 @@ public class MMUContract {
         public static final String COLUMN_CONTENTS = "contents";
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_POSTED_DATE = "posted_date";
+        public static final String COLUMN_HAS_SEEN = "bulletin_has_seen";
     }
     public static class FilesEntry implements BaseColumns {
         public static final Uri CONTENT_URI =
@@ -115,6 +117,7 @@ public class MMUContract {
         public static final String COLUMN_REMOTE_FILE_PATH = "remote_file_path";
         public static final String COLUMN_LOCAL_FILE_PATH = "local_file_path";
         public static final String COLUMN_SUBJECT_KEY = "subject_id";
+        public static final String COLUMN_ANNOUNCEMENT_KEY = "announcement_id";
         public static final String COLUMN_DOWNLOADED = "downloaded";
         public static Uri buildFileUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

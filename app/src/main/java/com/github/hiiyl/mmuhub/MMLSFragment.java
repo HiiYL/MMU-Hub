@@ -29,6 +29,7 @@ import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.SyncEvent;
+import com.github.hiiyl.mmuhub.helper.ViewEvent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,7 +107,12 @@ public class MMLSFragment extends Fragment {
                 }
             });
         }
-
+    }
+    public void onEventMainThread(ViewEvent event) {
+        if(event.message.equals(Utility.VIEW_ANNOUNCEMENT_EVENT)) {
+            Log.d("ANNOUNCEMENT", "VIEW EVENT RECEIVED");
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
 
@@ -235,6 +241,7 @@ public class MMLSFragment extends Fragment {
                                                 null,
                                                 null,
                                                 null);
+                                        long announcement_id;
                                         if (!mCursor.moveToFirst()) {
                                             Log.d("ANNOUNCEMENT VALUE", "NOT UNIQUE");
                                             ContentValues announcementValues = new ContentValues();
@@ -244,8 +251,44 @@ public class MMLSFragment extends Fragment {
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
                                             announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                            long _id = MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+                                            announcement_id = MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+                                        }else {
+                                            announcement_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
                                         }
+                                        JSONArray announcement_files = announcement.getJSONArray("subject_files");
+                                        for(int l = 0; l < announcement_files.length(); l++) {
+                                            Log.d("HELO THERE", "HAS FILES " + Long.toString(announcement_id) + " AND SUBJECT ID IS " + subject_id);
+                                            JSONObject file = announcement_files.getJSONObject(l);
+                                            String file_name = file.getString("file_name");
+                                            String token = file.getString("token");
+                                            String content_id = file.getString("content_id");
+                                            String content_type = file.getString("content_type");
+                                            String remote_file_path = file.getString("file_path");
+                                            String raw_sql = "SELECT * FROM " + MMUContract.FilesEntry.TABLE_NAME + ", " +
+                                                    MMUContract.SubjectEntry.TABLE_NAME + " WHERE " +
+                                                    MMUContract.FilesEntry.TABLE_NAME + "." +
+                                                    MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = " +
+                                                    MMUContract.AnnouncementEntry.TABLE_NAME + "." +
+                                                    MMUContract.AnnouncementEntry._ID + " AND " +
+                                                    MMUContract.FilesEntry.TABLE_NAME + "." +
+                                                    MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
+                                                    MMUContract.AnnouncementEntry.TABLE_NAME + "." +
+                                                    MMUContract.AnnouncementEntry._ID + " = ? ;";
+                                            mCursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(sql, new String[]{file_name, Long.toString(announcement_id)});
+                                            if(!mCursor.moveToFirst()) {
+                                                ContentValues fileValues = new ContentValues();
+                                                fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
+                                                fileValues.put(MMUContract.FilesEntry.COLUMN_TOKEN, token);
+                                                fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_ID, content_id);
+                                                fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE, content_type);
+                                                fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
+                                                fileValues.put(MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY, announcement_id);
+                                                fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                                long _id = MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
+                                            }
+
+                                        }
+
                                     }
                                 }
                             }

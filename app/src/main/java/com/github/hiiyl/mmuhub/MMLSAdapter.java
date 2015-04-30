@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorTreeAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
@@ -56,9 +57,18 @@ public class MMLSAdapter extends CursorTreeAdapter {
     }
     @Override
     protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
+        ImageView ivHasSeen = (ImageView) view.findViewById(R.id.imageview_has_seen);
+
+
         TextView tvTitle = (TextView) view.findViewById(R.id.listitem_mmls_title);
         TextView tvPostedAt = (TextView) view.findViewById(R.id.list_item_mmls_posted_at);
         TextView tvAuthor = (TextView) view.findViewById(R.id.list_item_mmls_author);
+
+        if(cursor.getInt(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_HAS_SEEN)) == 0) {
+            ivHasSeen.setVisibility(View.VISIBLE);
+        }else {
+            ivHasSeen.setVisibility(View.INVISIBLE);
+        }
 
         String title = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_TITLE));
         String posted_at = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE));

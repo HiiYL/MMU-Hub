@@ -8,7 +8,6 @@
         android:id="@+id/listgroup_week_textview"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:typeface="serif"
         android:padding="10dp"
         />
 </LinearLayout>

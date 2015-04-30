@@ -14,7 +14,7 @@ import com.github.hiiyl.mmuhub.data.MMUContract.BulletinEntry;
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 13;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -42,6 +42,7 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                 AnnouncementEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
                 AnnouncementEntry.COLUMN_POSTED_DATE + " TEXT NOT NULL, " +
                 AnnouncementEntry.COLUMN_WEEK_KEY + " INTEGER NOT NULL, " +
+                AnnouncementEntry.COLUMN_HAS_SEEN + " BOOLEAN NOT NULL DEFAULT FALSE," +  //TODO SEE IF THIS WORKS
                 "FOREIGN KEY (" +AnnouncementEntry.COLUMN_SUBJECT_KEY + ") REFERENCES " +
                 SubjectEntry.TABLE_NAME + " (" + SubjectEntry._ID + "), " +
                 "FOREIGN KEY (" +AnnouncementEntry.COLUMN_WEEK_KEY + ") REFERENCES " +
@@ -54,8 +55,11 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                 FilesEntry.COLUMN_LOCAL_FILE_PATH + " TEXT, " +
                 FilesEntry.COLUMN_CONTENT_ID + " TEXT NOT NULL, " +
                 FilesEntry.COLUMN_CONTENT_TYPE + " TEXT NOT NULL, " +
-                FilesEntry.COLUMN_SUBJECT_KEY + " INTEGER NOT NULL, " +
+                FilesEntry.COLUMN_SUBJECT_KEY + " INTEGER, " +
+                FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " INTEGER, " +
                 FilesEntry.COLUMN_DOWNLOADED + " BOOLEAN, " +
+                "FOREIGN KEY (" + FilesEntry.COLUMN_ANNOUNCEMENT_KEY + ") REFERENCES " +
+                AnnouncementEntry.TABLE_NAME + " (" + AnnouncementEntry._ID + ") " +
                 "FOREIGN KEY (" + FilesEntry.COLUMN_SUBJECT_KEY + ") REFERENCES " +
                 SubjectEntry.TABLE_NAME + " (" + SubjectEntry._ID + " ));";
         final String SQL_CREATE_BULLETIN_TABLE = "CREATE TABLE " + BulletinEntry.TABLE_NAME + " (" +
@@ -63,7 +67,8 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                 BulletinEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 BulletinEntry.COLUMN_POSTED_DATE + " TEXT NOT NULL, " +
                 BulletinEntry.COLUMN_CONTENTS + " TEXT NOT NULL, " +
-                BulletinEntry.COLUMN_AUTHOR + " TEXT NOT NULL" +
+                BulletinEntry.COLUMN_AUTHOR + " TEXT NOT NULL," +
+                BulletinEntry.COLUMN_HAS_SEEN + " BOOLEAN NOT NULL DEFAULT FALSE " +  //TODO SEE IF THIS WORKS
 //                SubjectEntry.COLUMN_URL + " TEXT NOT NULL" +
                 " );";
         sqLiteDatabase.execSQL(SQL_CREATE_SUBJECT_TABLE);

@@ -23,6 +23,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import android.view.View;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -32,12 +33,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.AnnouncementDetailActivity;
+import com.github.hiiyl.mmuhub.BulletinActivity;
 import com.github.hiiyl.mmuhub.MySingleton;
 import com.github.hiiyl.mmuhub.R;
 import com.github.hiiyl.mmuhub.Utility;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.helper.DownloadCompleteEvent;
 import com.github.hiiyl.mmuhub.helper.SyncEvent;
 
 import org.json.JSONArray;
@@ -59,7 +63,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String SYNC_STARTING = "sync_starting";
     // Interval at which to sync with the weather, in milliseconds.
     // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60 * 30;
+    public static final int SYNC_INTERVAL = 60 * 60;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
     private static final int ANNOUNCEMENT_NOTIFICATION_ID = 3004;
 
@@ -87,7 +91,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             for (int i = 1; i < cursor.getCount() + 1; i++)
                 updateSubject(getContext(), Integer.toString(i));
         }
-        Log.d("HELLO THERE", "SYNC FINISHED?");
+        updateBulletin(getContext());
     }
     private static void onAccountCreated(Account newAccount, Context context) {
         /*
@@ -228,6 +232,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                                         null,
                                                         null,
                                                         null);
+                                                long announcement_id;
                                                 if (!mCursor.moveToFirst()) {
                                                     Log.d("ANNOUNCEMENT VALUE", "NOT UNIQUE");
                                                     ContentValues announcementValues = new ContentValues();
@@ -237,10 +242,10 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                                     announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_AUTHOR, announcement_author);
                                                     announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE, announcement_posted_date);
                                                     announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
-                                                    long _id = database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
+                                                    announcement_id = database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
 
                                                     Intent resultIntent = new Intent(getContext(), AnnouncementDetailActivity.class);
-                                                    resultIntent.putExtra("ANNOUNCEMENT_ID", Long.toString(_id));
+                                                    resultIntent.putExtra("ANNOUNCEMENT_ID", Long.toString(announcement_id));
                                                     TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
                                                     stackBuilder.addNextIntent(resultIntent);
                                                     PendingIntent resultPendingIntent =
@@ -257,6 +262,41 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                                             (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
                                                     notificationBuilder.setAutoCancel(true);
                                                     manager.notify(ANNOUNCEMENT_NOTIFICATION_ID, notificationBuilder.build());
+                                                }else {
+                                                    announcement_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
+                                                }
+                                                JSONArray announcement_files = announcement.getJSONArray("subject_files");
+                                                for(int l = 0; l < announcement_files.length(); l++) {
+                                                    Log.d("HELO THERE", "HAS FILES " + Long.toString(announcement_id) + " AND SUBJECT ID IS " + subject_id);
+                                                    JSONObject file = announcement_files.getJSONObject(l);
+                                                    String file_name = file.getString("file_name");
+                                                    String token = file.getString("token");
+                                                    String content_id = file.getString("content_id");
+                                                    String content_type = file.getString("content_type");
+                                                    String remote_file_path = file.getString("file_path");
+                                                    String raw_sql = "SELECT * FROM " + MMUContract.FilesEntry.TABLE_NAME + ", " +
+                                                            MMUContract.SubjectEntry.TABLE_NAME + " WHERE " +
+                                                            MMUContract.FilesEntry.TABLE_NAME + "." +
+                                                            MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = " +
+                                                            MMUContract.AnnouncementEntry.TABLE_NAME + "." +
+                                                            MMUContract.AnnouncementEntry._ID + " AND " +
+                                                            MMUContract.FilesEntry.TABLE_NAME + "." +
+                                                            MMUContract.FilesEntry.COLUMN_NAME + " = ? " + " AND " +
+                                                            MMUContract.AnnouncementEntry.TABLE_NAME + "." +
+                                                            MMUContract.AnnouncementEntry._ID + " = ? ;";
+                                                    mCursor = database.rawQuery(sql, new String[]{file_name, Long.toString(announcement_id)});
+                                                    if(!mCursor.moveToFirst()) {
+                                                        ContentValues fileValues = new ContentValues();
+                                                        fileValues.put(MMUContract.FilesEntry.COLUMN_NAME, file_name);
+                                                        fileValues.put(MMUContract.FilesEntry.COLUMN_TOKEN, token);
+                                                        fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_ID, content_id);
+                                                        fileValues.put(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE, content_type);
+                                                        fileValues.put(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH, remote_file_path);
+                                                        fileValues.put(MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY, announcement_id);
+                                                        fileValues.put(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY, subject_id);
+                                                        long _id = database.insert(MMUContract.FilesEntry.TABLE_NAME, null, fileValues);
+                                                    }
+
                                                 }
                                             }
                                         }
@@ -402,6 +442,92 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                 0));
         sync_queue.add(sr);
     }
+    public void updateBulletin(final Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Log.d("UPDATE Bulletin", "UPDATING BULLETIN");
+        final String subject_url, subject_name;
+        final Context mContext = context;
+        final MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
+        Cursor cursor = MySingleton.getInstance(context).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME, null, null, null, null, null, null);
+        String url = "https://mmu-api.co/bulletin_api";
+//        mSwipeRefreshLayout.setRefreshing(true);
+        StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    Log.d("RECEIVE", "RECEIVED");
+                    JSONArray bulletin_array = new JSONArray(response);
+                    for (int i = 0; i < bulletin_array.length(); i++) {
+                        JSONObject bulletin_obj = bulletin_array.getJSONObject(i);
+                        String bulletin_title = bulletin_obj.getString("title");
+                        String bulletin_posted_date = bulletin_obj.getString("posted_date");
+                        String bulletin_author = bulletin_obj.getString("author");
+                        String bulletin_contents = bulletin_obj.getString("contents");
+
+
+                        Cursor cursor = MySingleton.getInstance(context).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME,
+                                null, MMUContract.BulletinEntry.COLUMN_TITLE + " = ? AND " + MMUContract.BulletinEntry.COLUMN_POSTED_DATE + " = ? "
+                                , new String[]{bulletin_title, bulletin_posted_date}, null, null, null);
+                        if (!cursor.moveToFirst()) {
+                            ContentValues bulletinValues = new ContentValues();
+                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_TITLE, bulletin_title);
+                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_POSTED_DATE, bulletin_posted_date);
+                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_CONTENTS, bulletin_contents);
+                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_AUTHOR, bulletin_author);
+                            MySingleton.getInstance(context).getDatabase().insert(MMUContract.BulletinEntry.TABLE_NAME, null, bulletinValues);
+                        }
+                    }
+//                    mSwipeRefreshLayout.setRefreshing(false);
+                    EventBus.getDefault().post(new DownloadCompleteEvent(BulletinActivity.BulletinFragment.BULLETIN_SYNC_COMPLETE));
+
+
+                } catch (JSONException exception) {
+
+                }
+            }
+        }, new Response.ErrorListener() {
+            String json = null;
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("WOW", "ITS DEAD JIM");
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    switch (networkResponse.statusCode) {
+                        case 400:
+                            SnackBar snackbar = new SnackBar((android.app.Activity) context, "Wrong Username or Password");
+                            snackbar.show();
+
+                            break;
+                        default:
+                            SnackBar new_snackbar = new SnackBar((android.app.Activity) context, "Internal Server Error",
+                                    "Retry", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    updateBulletin(context);
+                                }
+                            });
+                            new_snackbar.show();
+                    }
+                    //Additional cases
+                } else {
+                    SnackBar snackbar = new SnackBar((android.app.Activity) context, "No Internet Connection",
+                            "Retry", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            updateBulletin(context);
+                        }
+                    });
+                    snackbar.show();
+                }
+            }
+        });
+        sr.setRetryPolicy(new DefaultRetryPolicy(
+                30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        MySingleton.getInstance(context).addToRequestQueue(sr);
+    }
+
     public static void initializeSyncAdapter(Context context) {
         getSyncAccount(context);
     }

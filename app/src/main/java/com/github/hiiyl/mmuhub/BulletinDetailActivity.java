@@ -1,5 +1,6 @@
 package com.github.hiiyl.mmuhub;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
+import com.github.hiiyl.mmuhub.helper.ViewEvent;
+
+import de.greenrobot.event.EventBus;
 
 
 public class BulletinDetailActivity extends AppCompatActivity {
@@ -76,6 +80,10 @@ public class BulletinDetailActivity extends AppCompatActivity {
             TextView bulletin_contents = (TextView) rootView.findViewById(R.id.bulletin_detail_contents);
             TextView bulletin_posted_at = (TextView) rootView.findViewById(R.id.bulletin_posted_date);
 
+            ContentValues has_seen = new ContentValues();
+            has_seen.put(MMUContract.BulletinEntry.COLUMN_HAS_SEEN, true);
+            MySingleton.getInstance(getActivity()).getDatabase().update(MMUContract.BulletinEntry.TABLE_NAME, has_seen, MMUContract.AnnouncementEntry._ID + "=?", new String[]{bulletin_id});
+            EventBus.getDefault().post(new ViewEvent(Utility.VIEW_BULLETIN_EVENT));
             Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME, null, MMUContract.BulletinEntry._ID + "=?",new String[] {bulletin_id},null,null,null);
             cursor.moveToFirst();
             bulletin_title.setText(cursor.getString(cursor.getColumnIndex(MMUContract.BulletinEntry.COLUMN_TITLE)));

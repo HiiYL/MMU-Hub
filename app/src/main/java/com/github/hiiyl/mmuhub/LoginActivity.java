@@ -142,6 +142,8 @@ public class LoginActivity extends AppCompatActivity {
 //                editor.putString("icems_password", icems_password.getText().toString());
                 editor.putString("name", name);
                 editor.putString("faculty", faculty);
+                editor.putString("sync_interval", "60");
+                editor.putBoolean("sync_enabled", true);
                 editor.apply();
                 MMUSyncAdapter.syncImmediately(LoginActivity.this);
                 Intent intent = new Intent(mContext, MMLSActivity.class);

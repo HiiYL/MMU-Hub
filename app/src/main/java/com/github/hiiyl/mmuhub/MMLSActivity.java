@@ -56,10 +56,10 @@ public class MMLSActivity extends BaseActivity{
         setContentView(R.layout.activity_mmls);
 
         super.onCreateDrawer();
+
         mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
-
             @Override
             public void run() {
                 if(subjectHasFiles(0)) {
@@ -69,9 +69,6 @@ public class MMLSActivity extends BaseActivity{
                 }
             }
         }, 200);
-
-
-
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());

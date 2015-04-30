@@ -14,11 +14,38 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textStyle="bold"
         android:id = "@+id/announcement_detail_title"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:autoLink="web"
         android:id = "@+id/announcement_detail_contents"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="invisible"
+            android:id="@+id/announcement_detail_download_layout"
+            android:background="@drawable/download_shape"
+            android:padding="20dp" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/announcement_detail_attachment_name"
+                android:text="Placeholder Attachment Name"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/announcement_detail_attachment_interaction_prompt"
+                android:text="Placeholder prompt"/>
+            <ProgressBar
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:id="@+id/announcement_detail_attachment_progressbar"
+                style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal" />
+        </LinearLayout>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,5 +54,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id = "@+id/announcement_detail_posted_date"/>
+
     </LinearLayout>
 </ScrollView>

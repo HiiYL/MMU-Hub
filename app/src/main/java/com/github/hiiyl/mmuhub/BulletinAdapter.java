@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
@@ -28,8 +29,17 @@ public class BulletinAdapter extends CursorAdapter {
         TextView bulletin_title = (TextView) view.findViewById(R.id.bulletin_title);
         TextView bulletin_posted = (TextView) view.findViewById(R.id.bulletin_posted_date);
         TextView bulletin_author = (TextView) view.findViewById(R.id.bulletin_author);
+        ImageView ivHasSeen = (ImageView) view.findViewById(R.id.imageview_has_seen);
+
+        if(cursor.getInt(cursor.getColumnIndex(MMUContract.BulletinEntry.COLUMN_HAS_SEEN)) == 0) {
+            ivHasSeen.setVisibility(View.VISIBLE);
+        }else {
+            ivHasSeen.setVisibility(View.INVISIBLE);
+        }
+
 
         bulletin_title.setText(cursor.getString(cursor.getColumnIndex(MMUContract.BulletinEntry.COLUMN_TITLE)));
+        bulletin_author.setText(Integer.toString(cursor.getInt(cursor.getColumnIndex(MMUContract.BulletinEntry.COLUMN_HAS_SEEN))));
         bulletin_author.setText(cursor.getString(cursor.getColumnIndex(MMUContract.BulletinEntry.COLUMN_AUTHOR)));
         bulletin_posted.setText(cursor.getString(cursor.getColumnIndex(MMUContract.BulletinEntry.COLUMN_POSTED_DATE)));
     }
