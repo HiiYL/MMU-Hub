@@ -56,4 +56,5 @@
     <string name="sync_interval_list_preference">Sync Interval</string>
     <string name="summary_sync_interval_list_preference">Adjust interval between syncs</string>
     <string name="sync_interval">sync interval</string>
+    <string name="notifications_category">Notifications</string>
 </resources>

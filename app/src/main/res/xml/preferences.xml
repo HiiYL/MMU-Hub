@@ -16,6 +16,12 @@
             android:entries="@array/entries_sync_interval_list_preference"
             android:entryValues="@array/entryvalues_sync_interval_list_list_preference"
             android:dialogTitle="@string/dialog_title_list_preference" />
-
     </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/notifications_category">
+        <CheckBoxPreference
+            android:key="notifications_enabled"
+            android:title="Enable Notifications"
+            android:summary="Enable MMLS Announcement Notifications" />
+        </PreferenceCategory>
 </PreferenceScreen>

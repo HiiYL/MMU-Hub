@@ -30,15 +30,6 @@
             android:singleLine="true"
             android:imeOptions="actionNext"
             android:hint="Student ID"/>
-        <!--<EditText-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!---->
-            <!--android:layout_margin="10dp"-->
-            <!--android:gravity="center"-->
-            <!--android:singleLine="true"-->
-            <!--android:imeOptions="actionNext"-->
-            <!--android:hint="Student ID"/>-->
         <!--<TextView-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
@@ -49,14 +40,6 @@
             <!--android:layout_height="wrap_content"-->
             <!--android:id = "@+id/camsys_pass_field"-->
             <!--android:hint="Camsys Password"-->
-            <!--android:imeOptions="actionNext"-->
-            <!--android:singleLine="true"-->
-            <!--android:password="true"/>-->
-        <!--<EditText-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id = "@+id/icems_pass_field"-->
-            <!--android:hint="ICEMS Password"-->
             <!--android:imeOptions="actionNext"-->
             <!--android:singleLine="true"-->
             <!--android:password="true"/>-->
@@ -71,16 +54,6 @@
             android:imeOptions="actionDone"
             android:hint="MMLS Password"
             android:inputType="textPassword"/>
-        <!--<EditText-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id = "@+id/mmls_pass_field"-->
-            <!--android:hint="MMLS Password"-->
-            <!--android:layout_margin="10dp"-->
-            <!--android:gravity="center"-->
-            <!--android:singleLine="true"-->
-            <!--android:imeOptions="actionDone"-->
-            <!--android:password="true"/>-->
         <com.gc.materialdesign.views.ButtonRectangle
             android:id="@+id/loginBtn"
             android:layout_margin="24dp"

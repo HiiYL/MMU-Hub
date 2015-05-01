@@ -2,7 +2,6 @@ package com.github.hiiyl.mmuhub.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
@@ -23,7 +22,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
-import android.view.View;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -33,7 +31,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.AnnouncementDetailActivity;
 import com.github.hiiyl.mmuhub.BulletinActivity;
 import com.github.hiiyl.mmuhub.MySingleton;
@@ -251,7 +248,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                                             MMUContract.AnnouncementEntry.TABLE_NAME, new String[] {MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE},
                                                             null, null, null, null, MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE + " DESC ", "1"
                                                             );
-                                                    if(posted_date_cursor.moveToFirst()) {
+
+                                                    if(Utility.getNotificationsEnabled(context) && posted_date_cursor.moveToFirst()) {
                                                         String latest_posted_date = posted_date_cursor.getString(posted_date_cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE));
                                                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                                                         Log.d("POSTED_DATE", posted_date_cursor.getString(posted_date_cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE)));
@@ -371,10 +369,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-//                    mSwipeRefreshLayout.setRefreshing(false);
                             NetworkResponse networkResponse = error.networkResponse;
-                            AlertDialog.Builder alertDialogBuilder;
-                            AlertDialog alertDialog;
                             if (networkResponse != null && networkResponse.data != null) {
                                 switch (networkResponse.statusCode) {
                                     case 400:
@@ -459,14 +454,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         sync_queue.add(sr);
     }
     public void updateBulletin(final Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         Log.d("UPDATE Bulletin", "UPDATING BULLETIN");
-        final String subject_url, subject_name;
-        final Context mContext = context;
-        final MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
-        Cursor cursor = MySingleton.getInstance(context).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME, null, null, null, null, null, null);
         String url = "https://mmu-api.co/bulletin_api";
-//        mSwipeRefreshLayout.setRefreshing(true);
         StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -493,48 +482,15 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                             MySingleton.getInstance(context).getDatabase().insert(MMUContract.BulletinEntry.TABLE_NAME, null, bulletinValues);
                         }
                     }
-//                    mSwipeRefreshLayout.setRefreshing(false);
                     EventBus.getDefault().post(new DownloadCompleteEvent(BulletinActivity.BulletinFragment.BULLETIN_SYNC_COMPLETE));
-
-
                 } catch (JSONException exception) {
-
+                    exception.printStackTrace();
                 }
             }
         }, new Response.ErrorListener() {
             String json = null;
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("WOW", "ITS DEAD JIM");
-                NetworkResponse networkResponse = error.networkResponse;
-                if (networkResponse != null && networkResponse.data != null) {
-                    switch (networkResponse.statusCode) {
-                        case 400:
-                            SnackBar snackbar = new SnackBar((android.app.Activity) context, "Wrong Username or Password");
-                            snackbar.show();
-
-                            break;
-                        default:
-                            SnackBar new_snackbar = new SnackBar((android.app.Activity) context, "Internal Server Error",
-                                    "Retry", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    updateBulletin(context);
-                                }
-                            });
-                            new_snackbar.show();
-                    }
-                    //Additional cases
-                } else {
-                    SnackBar snackbar = new SnackBar((android.app.Activity) context, "No Internet Connection",
-                            "Retry", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            updateBulletin(context);
-                        }
-                    });
-                    snackbar.show();
-                }
             }
         });
         sr.setRetryPolicy(new DefaultRetryPolicy(

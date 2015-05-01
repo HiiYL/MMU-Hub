@@ -141,4 +141,8 @@ public class Utility {
         snackBar.show();
         return false;
     }
+    public static boolean getNotificationsEnabled(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean("notifications_enabled", true);
+    }
 }
