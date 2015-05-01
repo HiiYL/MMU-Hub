@@ -389,9 +389,11 @@ public class DownloadActivity extends AppCompatActivity {
                         Log.d("WOW!", "REFRESHING TOKEN");
                         Utility.refreshToken(context);
                     }
+                    Log.d("CONNECTION CODE", "RESPONSE CODE IS " + connection.getResponseCode());
                     return "Server returned HTTP " + connection.getResponseCode()
                             + " " + connection.getResponseMessage();
                 }
+                Log.d("CONNECTION CODE", "RESPONSE CODE IS " + connection.getResponseCode());
                 // this will be useful to display download percentage
                 // might be -1: server did not report the length
                 int fileLength = connection.getContentLength();

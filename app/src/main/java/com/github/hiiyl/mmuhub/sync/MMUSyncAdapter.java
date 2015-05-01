@@ -254,7 +254,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                                                     PendingIntent.FLAG_UPDATE_CURRENT
                                                             );
                                                     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
-                                                            .setSmallIcon(R.drawable.ic_file_download_white_48dp)
+                                                            .setSmallIcon(R.drawable.ic_launcher)
                                                             .setContentTitle(announcement_title)
                                                             .setContentText(announcement_author);
                                                     notificationBuilder.setContentIntent(resultPendingIntent);

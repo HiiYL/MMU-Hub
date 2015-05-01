@@ -64,7 +64,6 @@
         <activity
             android:name=".DownloadActivity"
             android:label="@string/title_activity_download"
-            android:parentActivityName=".MMLSActivity"
             android:theme="@style/AnnouncementDetailTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
