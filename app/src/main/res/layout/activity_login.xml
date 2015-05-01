@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -19,15 +20,25 @@
         android:orientation="vertical"
         android:gravity="center"
         android:id="@+id/linearLayout">
-        <EditText
+        <com.rengwuxian.materialedittext.MaterialEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id = "@+id/student_id_field"
+            app:met_floatingLabel="normal"
             android:layout_margin="10dp"
             android:gravity="center"
             android:singleLine="true"
             android:imeOptions="actionNext"
             android:hint="Student ID"/>
+        <!--<EditText-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!---->
+            <!--android:layout_margin="10dp"-->
+            <!--android:gravity="center"-->
+            <!--android:singleLine="true"-->
+            <!--android:imeOptions="actionNext"-->
+            <!--android:hint="Student ID"/>-->
         <!--<TextView-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
@@ -49,16 +60,27 @@
             <!--android:imeOptions="actionNext"-->
             <!--android:singleLine="true"-->
             <!--android:password="true"/>-->
-        <EditText
+        <com.rengwuxian.materialedittext.MaterialEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id = "@+id/mmls_pass_field"
-            android:hint="MMLS Password"
+            app:met_floatingLabel="normal"
             android:layout_margin="10dp"
             android:gravity="center"
             android:singleLine="true"
             android:imeOptions="actionDone"
-            android:password="true"/>
+            android:hint="MMLS Password"
+            android:inputType="textPassword"/>
+        <!--<EditText-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id = "@+id/mmls_pass_field"-->
+            <!--android:hint="MMLS Password"-->
+            <!--android:layout_margin="10dp"-->
+            <!--android:gravity="center"-->
+            <!--android:singleLine="true"-->
+            <!--android:imeOptions="actionDone"-->
+            <!--android:password="true"/>-->
         <com.gc.materialdesign.views.ButtonRectangle
             android:id="@+id/loginBtn"
             android:layout_margin="24dp"

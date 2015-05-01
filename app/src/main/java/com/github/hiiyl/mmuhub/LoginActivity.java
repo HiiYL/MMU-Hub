@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -31,6 +30,7 @@ import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
+import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,9 +41,9 @@ import java.util.Map;
 
 
 public class LoginActivity extends AppCompatActivity {
-    private EditText student_id;
+    private MaterialEditText student_id;
 //    private EditText camsys_password;
-    private EditText mmls_password;
+    private MaterialEditText mmls_password;
 //    private EditText icems_password;
     private ButtonRectangle login_btn;
     private Context mContext;
@@ -86,9 +86,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setupVariables() {
-        student_id = (EditText) findViewById(R.id.student_id_field);
+        student_id = (MaterialEditText) findViewById(R.id.student_id_field);
 //        camsys_password = (EditText) findViewById(R.id.camsys_pass_field);
-        mmls_password = (EditText) findViewById(R.id.mmls_pass_field);
+        mmls_password = (MaterialEditText) findViewById(R.id.mmls_pass_field);
 //        icems_password = (EditText) findViewById(R.id.icems_pass_field);
         login_btn = (ButtonRectangle) findViewById(R.id.loginBtn);
 
@@ -232,7 +232,7 @@ public class LoginActivity extends AppCompatActivity {
         requestAuthentication();
     }
 
-    private boolean isEmpty(EditText etText) {
+    private boolean isEmpty(MaterialEditText etText) {
         return etText.getText().toString().trim().length() == 0;
     }
 
