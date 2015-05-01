@@ -48,6 +48,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -244,24 +246,38 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                                     announcementValues.put(MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY, subject_id);
                                                     announcement_id = database.insert(MMUContract.AnnouncementEntry.TABLE_NAME, null, announcementValues);
 
-                                                    Intent resultIntent = new Intent(getContext(), AnnouncementDetailActivity.class);
-                                                    resultIntent.putExtra("ANNOUNCEMENT_ID", Long.toString(announcement_id));
-                                                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-                                                    stackBuilder.addNextIntent(resultIntent);
-                                                    PendingIntent resultPendingIntent =
-                                                            stackBuilder.getPendingIntent(
-                                                                    0,
-                                                                    PendingIntent.FLAG_UPDATE_CURRENT
+                                                    String max_posted_date_query = "SELECT MAX(" + MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE + ") FROM " + MMUContract.AnnouncementEntry.TABLE_NAME;
+                                                    Cursor posted_date_cursor = MySingleton.getInstance(context).getDatabase().query(
+                                                            MMUContract.AnnouncementEntry.TABLE_NAME, new String[] {MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE},
+                                                            null, null, null, null, MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE + " DESC ", "1"
                                                             );
-                                                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
-                                                            .setSmallIcon(R.drawable.ic_launcher)
-                                                            .setContentTitle(announcement_title)
-                                                            .setContentText(announcement_author);
-                                                    notificationBuilder.setContentIntent(resultPendingIntent);
-                                                    NotificationManager manager =
-                                                            (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                                    notificationBuilder.setAutoCancel(true);
-                                                    manager.notify(ANNOUNCEMENT_NOTIFICATION_ID, notificationBuilder.build());
+                                                    if(posted_date_cursor.moveToFirst()) {
+                                                        String latest_posted_date = posted_date_cursor.getString(posted_date_cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE));
+                                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                                        Log.d("POSTED_DATE", posted_date_cursor.getString(posted_date_cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE)));
+                                                        Log.d("IS AFTER", Boolean.toString(sdf.parse(announcement_posted_date).before(sdf.parse(latest_posted_date))));
+                                                        if (!sdf.parse(announcement_posted_date).before(sdf.parse(latest_posted_date))) {
+                                                            Intent resultIntent = new Intent(getContext(), AnnouncementDetailActivity.class);
+                                                            resultIntent.putExtra("ANNOUNCEMENT_ID", Long.toString(announcement_id));
+                                                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
+                                                            stackBuilder.addParentStack(AnnouncementDetailActivity.class);
+                                                            stackBuilder.addNextIntent(resultIntent);
+                                                            PendingIntent resultPendingIntent =
+                                                                    stackBuilder.getPendingIntent(
+                                                                            0,
+                                                                            PendingIntent.FLAG_UPDATE_CURRENT
+                                                                    );
+                                                            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getContext())
+                                                                    .setSmallIcon(R.drawable.ic_mmls)
+                                                                    .setContentTitle(announcement_title)
+                                                                    .setContentText(announcement_author);
+                                                            notificationBuilder.setContentIntent(resultPendingIntent);
+                                                            NotificationManager manager =
+                                                                    (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                                                            notificationBuilder.setAutoCancel(true);
+                                                            manager.notify(ANNOUNCEMENT_NOTIFICATION_ID, notificationBuilder.build());
+                                                        }
+                                                    }
                                                 }else {
                                                     announcement_id = mCursor.getLong(mCursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
                                                 }
@@ -338,7 +354,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                                     }
                                 }
 
-                            } catch (JSONException e) {
+                            } catch (JSONException | ParseException e) {
                                 e.printStackTrace();
                             }
                             mSubjectSyncCount++;

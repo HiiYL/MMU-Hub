@@ -3,6 +3,8 @@ package com.github.hiiyl.mmuhub;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -14,6 +16,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.RefreshTokenEvent;
 
@@ -34,9 +37,9 @@ public class Utility {
     public static final String SYNC_BEGIN = "sync begin";
     public static final String DOWNLOAD_FOLDER = "MMUHub Downloads";
 
-    static final String REFRESH_TOKEN_STARTING = "Refreshing Token...";
-    static final String REFRESH_TOKEN_COMPLETE = "Token Refreshed";
-    static final String REFRESH_TOKEN_FAILED = "Token Refresh Failed";
+    static final String REFRESH_TOKEN_STARTING = "Session Cookie Expired. Refreshing ...";
+    static final String REFRESH_TOKEN_COMPLETE = "Session Refreshed. Please Retry Download";
+    static final String REFRESH_TOKEN_FAILED = "Session Refresh Failed";
 
     static final String VIEW_ANNOUNCEMENT_EVENT = "view announcement";
 
@@ -57,6 +60,7 @@ public class Utility {
 
         return trimmedString;
     }
+
     public static int getSubjectCount(Context context) {
         Cursor cursor = MySingleton.getInstance(context).getDatabase().query(MMUContract.SubjectEntry.TABLE_NAME, null,null,null,null,null,null);
         int subject_count = cursor.getCount();
@@ -119,5 +123,22 @@ public class Utility {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(sr);
+    }
+    public static boolean isNetworksAvailable(Context context) {
+        ConnectivityManager mConnMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (mConnMgr != null)  {
+            NetworkInfo[] mNetInfo = mConnMgr.getAllNetworkInfo();
+            if (mNetInfo != null) {
+                for (int i = 0; i < mNetInfo.length; i++) {
+                    if (mNetInfo[i].getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+                }
+            }
+        }
+        Log.e("isNetworkAvailable", "NO INTERNET");
+        SnackBar snackBar = new SnackBar((android.app.Activity) context, "No Internet Connection");
+        snackBar.show();
+        return false;
     }
 }

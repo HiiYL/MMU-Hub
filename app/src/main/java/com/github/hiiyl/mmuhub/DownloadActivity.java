@@ -126,6 +126,9 @@ public class DownloadActivity extends AppCompatActivity {
         public void onEventMainThread(RefreshTokenEvent event) {
             SnackBar new_snackbar = new SnackBar(getActivity(), event.status);
             new_snackbar.show();
+            if(event.status.equals(Utility.REFRESH_TOKEN_COMPLETE)) {
+                EventBus.getDefault().removeStickyEvent(event);
+            }
         }
         @Override
         public View onCreateView(LayoutInflater inflater, final ViewGroup container,
@@ -158,60 +161,63 @@ public class DownloadActivity extends AppCompatActivity {
                             new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    download_list.setRecyclerListener(new AbsListView.RecyclerListener() {
-                                        @Override
-                                        public void onMovedToScrapHeap(View view) {
-                                            EventBus.getDefault().post(new DownloadListRecycleEvent(download_list));
-                                        }
-                                    });
-                                    Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? AND " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " IS NULL",
-                                            new String[]{subject_id}, null, null, null);
-                                    new_cursor.moveToFirst();
-                                    int count = 0;
-                                    while (!new_cursor.isAfterLast()) {
-                                        String file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
-                                        String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + file_name;
-                                        String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/";
-                                        File file = new File(file_path);
+                                    if (Utility.isNetworksAvailable(getActivity())) {
 
-                                        if(!file.exists()) {
-                                            File temp = new File(file_directory);
-                                            temp.mkdirs();
-//                            FragmentActivity activity = (FragmentActivity) view.getContext();
-                                            final DownloadTask downloadTask = new DownloadTask(getActivity());
-                                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                                            downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
-                                            downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
-                                            downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
-                                            downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
-                                            downloadTask.token = prefs.getString("token", "");
-                                            downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
-                                            downloadTask.local_file_path = file_path;
-                                            downloadTask.mPosition = count;
-                                            downloadTask.view = getViewByPosition(count,download_list);
-                                            downloadTask.isDownloadAll = true;
-                                            final int firstListItemPosition = download_list.getFirstVisiblePosition();
-                                            final int lastListItemPosition = firstListItemPosition + download_list.getChildCount() - 1;
-                                            View view;
-                                            if (count < firstListItemPosition || count > lastListItemPosition ) {
-                                                downloadTask.isVisible = false;
-                                            } else {
-                                                final int childIndex = count - firstListItemPosition;
-                                                downloadTask.view = download_list.getChildAt(childIndex);
-                                                downloadTask.isVisible = true;
+                                        download_list.setRecyclerListener(new AbsListView.RecyclerListener() {
+                                            @Override
+                                            public void onMovedToScrapHeap(View view) {
+                                                EventBus.getDefault().post(new DownloadListRecycleEvent(download_list));
                                             }
+                                        });
+                                        Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null, MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? AND " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " IS NULL",
+                                                new String[]{subject_id}, null, null, null);
+                                        new_cursor.moveToFirst();
+                                        int count = 0;
+                                        while (!new_cursor.isAfterLast()) {
+                                            String file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+                                            String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + file_name;
+                                            String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/";
+                                            File file = new File(file_path);
+
+                                            if (!file.exists()) {
+                                                File temp = new File(file_directory);
+                                                temp.mkdirs();
+//                            FragmentActivity activity = (FragmentActivity) view.getContext();
+                                                final DownloadTask downloadTask = new DownloadTask(getActivity());
+                                                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                                                downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+                                                downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
+                                                downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
+                                                downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
+                                                downloadTask.token = prefs.getString("token", "");
+                                                downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
+                                                downloadTask.local_file_path = file_path;
+                                                downloadTask.mPosition = count;
+                                                downloadTask.view = getViewByPosition(count, download_list);
+                                                downloadTask.isDownloadAll = true;
+                                                final int firstListItemPosition = download_list.getFirstVisiblePosition();
+                                                final int lastListItemPosition = firstListItemPosition + download_list.getChildCount() - 1;
+                                                View view;
+                                                if (count < firstListItemPosition || count > lastListItemPosition) {
+                                                    downloadTask.isVisible = false;
+                                                } else {
+                                                    final int childIndex = count - firstListItemPosition;
+                                                    downloadTask.view = download_list.getChildAt(childIndex);
+                                                    downloadTask.isVisible = true;
+                                                }
 
 
-                                            Log.d("APP", "Now downloading " + downloadTask.file_name);
+                                                Log.d("APP", "Now downloading " + downloadTask.file_name);
 
-                                            downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+                                                downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
 
+                                            }
+                                            new_cursor.moveToNext();
+                                            count++;
                                         }
-                                        new_cursor.moveToNext();
-                                        count++;
-                                    }
-                                    new_cursor.close();
+                                        new_cursor.close();
 
+                                    }
                                 }
                             });
                     download_all_confirm.show();
@@ -242,28 +248,29 @@ public class DownloadActivity extends AppCompatActivity {
                         }
                     }
                     else {
+                        if(Utility.isNetworksAvailable(getActivity())) {
+                            File temp = new File(file_directory);
+                            temp.mkdirs();
+                            view.setHasTransientState(true);
+                            FragmentActivity activity = (FragmentActivity) view.getContext();
+                            final DownloadTask downloadTask = new DownloadTask(getActivity());
+                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                            downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+                            downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
+                            downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
+                            downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
+                            downloadTask.token = prefs.getString("token", "");
+                            downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
+                            downloadTask.local_file_path = file_path;
+                            downloadTask.view = view;
 
-                        File temp = new File(file_directory);
-                        temp.mkdirs();
-                        view.setHasTransientState(true);
-                        FragmentActivity activity = (FragmentActivity) view.getContext();
-                        final DownloadTask downloadTask = new DownloadTask(getActivity());
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                        downloadTask.file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
-                        downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
-                        downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
-                        downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
-                        downloadTask.token = prefs.getString("token", "");
-                        downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
-                        downloadTask.local_file_path = file_path;
-                        downloadTask.view = view;
 
+                            Log.d("APP", "Now downloading " + downloadTask.file_name);
 
-                        Log.d("APP", "Now downloading " + downloadTask.file_name);
+                            new_cursor.close();
 
-                        new_cursor.close();
-
-                        downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+                            downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+                        }
                     }
 
                 }
@@ -489,5 +496,5 @@ public class DownloadActivity extends AppCompatActivity {
                 EventBus.getDefault().post(new DownloadCompleteEvent(download_result));
             }
         }
-    };
+    }
 }

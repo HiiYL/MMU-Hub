@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -50,8 +51,8 @@
         <activity
             android:name=".AnnouncementDetailActivity"
             android:label="@string/title_activity_announcement_detail"
-            android:theme="@style/AnnouncementDetailTheme" >
-            android:parentActivityName="com.github.hiiyl.mmuhub.MMLSActivity" >
+            android:theme="@style/AnnouncementDetailTheme"
+            android:parentActivityName=".MMLSActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.github.hiiyl.mmuhub.MMLSActivity" />

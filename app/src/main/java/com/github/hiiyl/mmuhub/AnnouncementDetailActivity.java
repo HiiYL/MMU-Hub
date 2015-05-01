@@ -83,6 +83,7 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -111,6 +112,9 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
         public void onEventMainThread(RefreshTokenEvent event) {
             SnackBar new_snackbar = new SnackBar(getActivity(), event.status);
             new_snackbar.show();
+            if(event.status.equals(Utility.REFRESH_TOKEN_COMPLETE)) {
+                EventBus.getDefault().removeStickyEvent(event);
+            }
         }
 
         @Override
@@ -142,7 +146,7 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
             String title = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_TITLE));
             String contents = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_CONTENTS));
             String posted_at = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE));
-            String author = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
+            String author = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_AUTHOR));
             title_textview.setText(title);
             contents_textview.setText(contents);
             author_textview.setText(author);
@@ -198,21 +202,24 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
                             }
                         }
                         else {
-                            mProgressBar.setVisibility(View.VISIBLE);
-                            File temp = new File(file_directory);
-                            temp.mkdirs();
-                            final DownloadTask downloadTask = new DownloadTask(getActivity());
-                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                            downloadTask.file_name = file_name;
-                            downloadTask.content_type = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
-                            downloadTask.content_id = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
-                            downloadTask.remote_file_path = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
-                            downloadTask.token = prefs.getString("token", "");
-                            downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
-                            downloadTask.local_file_path = file_path;
+                            if(Utility.isNetworksAvailable(getActivity())) {
+                                mProgressBar.setVisibility(View.VISIBLE);
+                                File temp = new File(file_directory);
+                                temp.mkdirs();
+                                final DownloadTask downloadTask = new DownloadTask(getActivity());
+                                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                                downloadTask.file_name = file_name;
+                                downloadTask.content_type = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
+                                downloadTask.content_id = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
+                                downloadTask.remote_file_path = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
+                                downloadTask.token = prefs.getString("token", "");
+                                downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
+                                downloadTask.local_file_path = file_path;
 
-                            Log.d("APP", "Now downloading " + downloadTask.file_name);
-                            downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+                                Log.d("APP", "Now downloading " + downloadTask.file_name);
+                                downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
+                            }
+
                         }
 
                     }
