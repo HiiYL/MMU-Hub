@@ -12,7 +12,6 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,10 +47,7 @@ import de.greenrobot.event.EventBus;
 
 public class AnnouncementDetailActivity extends ActionBarActivity {
     private static String ANNOUNCEMENT_ID;
-
     private static String TAG = AnnouncementDetailActivity.class.getSimpleName();
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,15 +58,8 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
                     .commit();
         }
         Bundle extras = getIntent().getExtras();
-        if(extras != null) {
-            ANNOUNCEMENT_ID = extras.getString("ANNOUNCEMENT_ID");
-            Log.d("RECEIVED", "NOT NULL ANNOUNCEMENT_ID = " + ANNOUNCEMENT_ID);
-        } else {
-            Log.d("RECEIVED", "NULL ANNOUNCEMENT_ID = " + ANNOUNCEMENT_ID);
-        }
-
+        ANNOUNCEMENT_ID = extras.getString("ANNOUNCEMENT_ID");
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -151,25 +140,27 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
             }
 
             String title = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_TITLE));
+            String contents = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_CONTENTS));
             String posted_at = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE));
             String author = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
-            title_textview.setText(cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_TITLE)));
-            contents_textview.setText(cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_CONTENTS)));
-            author_textview.setText(cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_AUTHOR)));
-            posted_date_textview.setText(cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE)));
+            title_textview.setText(title);
+            contents_textview.setText(contents);
+            author_textview.setText(author);
+            posted_date_textview.setText(posted_at);
 
-
-            String has_attachment_query =
+            String attachment_file_query =
                     "SELECT * FROM " + MMUContract.FilesEntry.TABLE_NAME +
                             " WHERE " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " = " +
                             cursor.getLong(cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
-            cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(has_attachment_query, null);
+            cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(attachment_file_query, null);
 
             if(cursor.moveToFirst()) {
                 LinearLayout layout = (LinearLayout)rootView.findViewById(R.id.announcement_detail_download_layout);
                 TextView attachment_view = (TextView) rootView.findViewById(R.id.announcement_detail_attachment_name);
                 mInteractionPromptText = (TextView) rootView.findViewById(R.id.announcement_detail_attachment_interaction_prompt);
                 mProgressBar = (ProgressBar) rootView.findViewById(R.id.announcement_detail_attachment_progressbar);
+
+
                 layout.setVisibility(View.VISIBLE);
                 attachment_view.setText(cursor.getString(cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME)));
                 final Cursor finalCursor = cursor;
@@ -179,6 +170,7 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
                 String subject_name_query = "SELECT " + MMUContract.SubjectEntry.COLUMN_NAME
                         + " FROM " + MMUContract.SubjectEntry.TABLE_NAME + " WHERE " + MMUContract.SubjectEntry._ID + " = " +
                 cursor.getString(cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY));
+
                 Log.d("ID OF SUBJECT IS ", Long.toString(finalCursor.getLong(finalCursor.getColumnIndex(MMUContract.FilesEntry._ID))));
                 Cursor subject_cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(subject_name_query, null);
                 subject_cursor.moveToFirst();
@@ -209,7 +201,6 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
                             mProgressBar.setVisibility(View.VISIBLE);
                             File temp = new File(file_directory);
                             temp.mkdirs();
-                            FragmentActivity activity = getActivity();
                             final DownloadTask downloadTask = new DownloadTask(getActivity());
                             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                             downloadTask.file_name = file_name;
@@ -219,7 +210,6 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
                             downloadTask.token = prefs.getString("token", "");
                             downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
                             downloadTask.local_file_path = file_path;
-                            downloadTask.view = rootView;
 
                             Log.d("APP", "Now downloading " + downloadTask.file_name);
                             downloadTask.execute("https://mmls.mmu.edu.my/form-download-content");
@@ -245,8 +235,6 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
             private String token;
             private String remote_file_path;
             private HttpsURLConnection connection = null;
-            private View view;
-            private int mPosition;
 
             public DownloadTask(Context context) {
                 this.context = context;
@@ -309,7 +297,6 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
                     pw.write(payload);
                     pw.flush();
                     pw.close();
-                    Log.d("HTTP URL CINNECT", "STREAM FLUSHED AND CLOSED");
 
                     // expect HTTP 200 OK, so we don't mistakenly save error report
                     // instead of the file

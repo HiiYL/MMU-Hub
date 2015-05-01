@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,27 +20,15 @@ import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.SyncEvent;
 import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
 
 
 public class MMLSActivity extends BaseActivity{
-
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     SectionsPagerAdapter mSectionsPagerAdapter;
     public static final String LOGGED_IN_PREF_TAG = "logged_in";
     private static ButtonFloat mDownloadButton;
-    private static int mPosition = 1;
-    private static String DOWNLOAD_TAG = "download_notes";
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -49,12 +36,8 @@ public class MMLSActivity extends BaseActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-//        final ActionBar actionBar = getActionBar();
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_mmls);
-
         super.onCreateDrawer();
 
         mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
@@ -69,11 +52,8 @@ public class MMLSActivity extends BaseActivity{
                 }
             }
         }, 200);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);
@@ -88,13 +68,10 @@ public class MMLSActivity extends BaseActivity{
 
             @Override
             public void onPageSelected(int position) {
-                String str_pos = Integer.toString(position + 1);
                 if(subjectHasFiles(position)) {
-                    Log.d("SHOW", "EXISTS AND SHOWING " + str_pos);
                     mDownloadButton.show();
                 }
                 else {
-                    Log.d("SHOW", "NOT EXISTS AND HIDING " + str_pos);
                     mDownloadButton.hide();
                 }
 
@@ -115,7 +92,6 @@ public class MMLSActivity extends BaseActivity{
             }
         });
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = prefs.edit();
 
         boolean logged_in = prefs.getBoolean(LOGGED_IN_PREF_TAG, false);
         if (!logged_in) {
@@ -130,13 +106,9 @@ public class MMLSActivity extends BaseActivity{
         String pos = Integer.toString(position + 1);
         boolean hasFiles;
         Cursor cursor = MySingleton.getInstance(MMLSActivity.this).getDatabase().query(MMUContract.FilesEntry.TABLE_NAME, null,
-                MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                MMUContract.FilesEntry.COLUMN_SUBJECT_KEY + " = ?  AND " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " IS NULL",
                 new String[] {pos}, null, null, null);
-        if(cursor.moveToFirst()) {
-            hasFiles = true;
-        }else {
-            hasFiles = false;
-        }
+        hasFiles = cursor.moveToFirst();
         cursor.close();
         return hasFiles;
 
@@ -156,17 +128,13 @@ public class MMLSActivity extends BaseActivity{
 
     public void onEventMainThread(SyncEvent event){
         if(event.message.equals(Utility.SYNC_FINISHED)) {
-            Log.d("SYNC COMPLETE", "COMPLETE");
             SnackBar sync_notify = new SnackBar(this, "Sync Complete");
             sync_notify.show();
         }else if(event.message.equals(Utility.SYNC_BEGIN)) {
             SnackBar sync_notify = new SnackBar(this, "Syncing ...");
             sync_notify.show();
         }
-
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -190,7 +158,6 @@ public class MMLSActivity extends BaseActivity{
         return super.onOptionsItemSelected(item);
     }
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -216,12 +183,10 @@ public class MMLSActivity extends BaseActivity{
         public CharSequence getPageTitle(int position) {
             String subject_id = Integer.toString(position + 1);
             Cursor cursor = MySingleton.getInstance(MMLSActivity.this).getDatabase().query(MMUContract.SubjectEntry.TABLE_NAME, new String[]{MMUContract.SubjectEntry.COLUMN_NAME}, MMUContract.AnnouncementEntry._ID + "=?", new String[]{subject_id}, null, null, null);
-            ArrayList<String> names = new ArrayList<String>();
             if(cursor.moveToFirst()) {
                 String subject_name = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
                 cursor.close();
                 return subject_name;
-
             }
             else {
                 cursor.close();
@@ -242,11 +207,4 @@ public class MMLSActivity extends BaseActivity{
            return null;
         }
     }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-
-
-
 }
