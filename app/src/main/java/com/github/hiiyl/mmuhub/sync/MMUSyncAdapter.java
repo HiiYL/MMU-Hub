@@ -376,7 +376,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                             if (networkResponse != null && networkResponse.data != null) {
                                 switch (networkResponse.statusCode) {
                                     case 400:
-                                        Log.d("HELLO THERE~", "HTTTP 400");
+                                        Log.d("SESSION COOKIE FAILED", "HTTTP 400");
+                                        mSubjectSyncCount = 0;
                                         sync_queue.cancelAll(SYNC_TAG);
                                         refreshTokenAndRetry(context, subject_id);
                                         break;
