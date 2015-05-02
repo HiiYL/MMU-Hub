@@ -145,4 +145,14 @@ public class Utility {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getBoolean("notifications_enabled", true);
     }
+    public static boolean isFirstSync(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean("first_sync", true);
+    }
+    public static void setFirstSync(Context context, boolean is_first_sync) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("first_sync", is_first_sync);
+        editor.apply();
+    }
 }

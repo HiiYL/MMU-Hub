@@ -28,7 +28,6 @@ public class MMLSAdapter extends CursorTreeAdapter {
 
     @Override
     protected Cursor getChildrenCursor(Cursor groupCursor) {
-        mHelper = new MMUDbHelper(mContext);
         String week_id = groupCursor.getString(groupCursor.getColumnIndex(MMUContract.WeekEntry._ID));
         mCursor = MySingleton.getInstance(mContext).getDatabase().query(MMUContract.AnnouncementEntry.TABLE_NAME, null,
                 "week_id = ?", new String[] {week_id}, null, null, null);

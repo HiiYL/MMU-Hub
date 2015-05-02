@@ -32,7 +32,8 @@ public class SettingsActivity extends Activity {
                 if(key.equals(SYNC_ENABLED)) {
                     boolean sync_enabled = prefs.getBoolean(SYNC_ENABLED, true);
                     int sync_enabled_int = (sync_enabled) ? 1 : 0;
-                    ContentResolver.setIsSyncable(MMUSyncAdapter.getSyncAccount(SettingsActivity.this), MMUProvider.getAuthority(), sync_enabled_int);
+                    ContentResolver.setSyncAutomatically(MMUSyncAdapter.getSyncAccount(SettingsActivity.this), MMUProvider.getAuthority(), sync_enabled);
+//                    ContentResolver.setIsSyncable(MMUSyncAdapter.getSyncAccount(SettingsActivity.this), MMUProvider.getAuthority(), sync_enabled_int);
                 }
                 if(key.equals(SYNC_INTERVAL)) {
                     String  interval = prefs.getString(SYNC_INTERVAL, "");

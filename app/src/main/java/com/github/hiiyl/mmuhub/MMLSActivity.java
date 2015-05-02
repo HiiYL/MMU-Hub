@@ -41,17 +41,7 @@ public class MMLSActivity extends BaseActivity{
         super.onCreateDrawer();
 
         mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(subjectHasFiles(0)) {
-                    mDownloadButton.show();
-                }else {
-                    mDownloadButton.hide();
-                }
-            }
-        }, 200);
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -101,6 +91,18 @@ public class MMLSActivity extends BaseActivity{
         }else {
             MMUSyncAdapter.initializeSyncAdapter(this);
         }
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(subjectHasFiles(mViewPager.getCurrentItem())) {
+                    mDownloadButton.show();
+                }else {
+                    mDownloadButton.hide();
+                }
+            }
+        }, 200);
     }
     private boolean subjectHasFiles(int position) {
         String pos = Integer.toString(position + 1);
@@ -128,8 +130,11 @@ public class MMLSActivity extends BaseActivity{
 
     public void onEventMainThread(SyncEvent event){
         if(event.message.equals(Utility.SYNC_FINISHED)) {
-            SnackBar sync_notify = new SnackBar(this, "Sync Complete");
-            sync_notify.show();
+            if(Utility.isFirstSync(this)) {
+                SnackBar sync_notify = new SnackBar(this, "Sync Complete");
+                sync_notify.show();
+                Utility.setFirstSync(this, false);
+            }
         }else if(event.message.equals(Utility.SYNC_BEGIN)) {
             SnackBar sync_notify = new SnackBar(this, "Syncing ...");
             sync_notify.show();
