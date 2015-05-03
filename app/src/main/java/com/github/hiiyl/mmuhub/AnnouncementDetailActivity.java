@@ -224,9 +224,6 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
 
                     }
                 });
-
-
-
             }
             return rootView;
         }

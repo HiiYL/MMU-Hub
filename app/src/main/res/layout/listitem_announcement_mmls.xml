@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:padding="10dp">
     <ImageView
         android:layout_width="wrap_content"
@@ -11,29 +11,70 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:src="@drawable/ic_not_seen"/>
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:layout_height="match_parent">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id = "@+id/listitem_mmls_title"
-                android:text="ANNOUNCEMENT TITLE"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/list_item_mmls_author"
-                android:text="AUTHOR"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|right"
-                android:id="@+id/list_item_mmls_posted_at"
-                android:text="POSTED AT"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Announcement Title Placeholder"
 
+            android:textSize="16sp"
+            android:id="@+id/listitem_mmls_title"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:text="Announcement Snippet Placeholder"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:id="@+id/listitem_mmls_snippet" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:id="@+id/announcement_detail_download_layout"
+            android:background="@drawable/download_shape"
+            android:padding="20dp" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/announcement_detail_attachment_name"
+                android:text="Placeholder Attachment Name"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/announcement_detail_attachment_interaction_prompt"
+                android:text="Placeholder prompt"/>
+            <ProgressBar
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:id="@+id/announcement_detail_attachment_progressbar"
+                style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal" />
         </LinearLayout>
-
-
-
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/list_item_mmls_author"
+                    android:text="AUTHOR"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:gravity="right"
+                        android:id="@+id/list_item_mmls_posted_at"
+                        android:text="POSTED AT"/>
+            </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>
