@@ -23,6 +23,9 @@ import com.github.hiiyl.mmuhub.helper.RefreshTokenEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -144,5 +147,28 @@ public class Utility {
     public static boolean getNotificationsEnabled(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getBoolean("notifications_enabled", true);
+    }
+    public static boolean isFirstSync(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean("first_sync", true);
+    }
+    public static void setFirstSync(Context context, boolean is_first_sync) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("first_sync", is_first_sync);
+        editor.apply();
+    }
+    public static String humanizeDate(String date){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("MMM dd");
+        try {
+            Date parsed_date = sdf.parse(date);
+            return shortenedDateFormat.format(parsed_date);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+
     }
 }

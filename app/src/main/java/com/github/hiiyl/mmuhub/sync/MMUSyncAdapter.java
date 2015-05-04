@@ -78,7 +78,10 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         super(context, autoInitialize);
     }
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_BEGIN));
+        if(Utility.isFirstSync(getContext())) {
+            Log.d("FIRST SYNC", "FIRST SYNC");
+            EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_BEGIN));
+        }
         sync_queue = MySingleton.getInstance(getContext()).
                 getRequestQueue();
         Log.d(LOG_TAG, "onPerformSync Called.");
@@ -373,7 +376,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                             if (networkResponse != null && networkResponse.data != null) {
                                 switch (networkResponse.statusCode) {
                                     case 400:
-                                        Log.d("HELLO THERE~", "HTTTP 400");
+                                        Log.d("SESSION COOKIE FAILED", "HTTTP 400");
+                                        mSubjectSyncCount = 0;
                                         sync_queue.cancelAll(SYNC_TAG);
                                         refreshTokenAndRetry(context, subject_id);
                                         break;

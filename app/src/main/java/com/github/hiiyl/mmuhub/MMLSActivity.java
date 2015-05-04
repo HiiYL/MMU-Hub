@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,7 +17,6 @@ import com.gc.materialdesign.views.ButtonFloat;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.SyncEvent;
-import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 import java.util.Locale;
 
@@ -29,6 +27,7 @@ public class MMLSActivity extends BaseActivity{
     SectionsPagerAdapter mSectionsPagerAdapter;
     public static final String LOGGED_IN_PREF_TAG = "logged_in";
     private static ButtonFloat mDownloadButton;
+    private static int mIntentSubjectPage;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -41,25 +40,12 @@ public class MMLSActivity extends BaseActivity{
         super.onCreateDrawer();
 
         mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(subjectHasFiles(0)) {
-                    mDownloadButton.show();
-                }else {
-                    mDownloadButton.hide();
-                }
-            }
-        }, 200);
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);
-
-
-
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -98,9 +84,18 @@ public class MMLSActivity extends BaseActivity{
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
-        }else {
-            MMUSyncAdapter.initializeSyncAdapter(this);
         }
+        mDownloadButton.post(new Runnable() {
+            @Override
+            public void run() {
+                if(subjectHasFiles(mViewPager.getCurrentItem())) {
+                    mDownloadButton.show();
+                }else {
+                    mDownloadButton.hide();
+                }
+
+            }
+        });
     }
     private boolean subjectHasFiles(int position) {
         String pos = Integer.toString(position + 1);
@@ -128,8 +123,11 @@ public class MMLSActivity extends BaseActivity{
 
     public void onEventMainThread(SyncEvent event){
         if(event.message.equals(Utility.SYNC_FINISHED)) {
-            SnackBar sync_notify = new SnackBar(this, "Sync Complete");
-            sync_notify.show();
+            if(Utility.isFirstSync(this)) {
+                SnackBar sync_notify = new SnackBar(this, "Sync Complete");
+                sync_notify.show();
+                Utility.setFirstSync(this, false);
+            }
         }else if(event.message.equals(Utility.SYNC_BEGIN)) {
             SnackBar sync_notify = new SnackBar(this, "Syncing ...");
             sync_notify.show();
@@ -172,7 +170,6 @@ public class MMLSActivity extends BaseActivity{
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             Cursor cursor =MySingleton.getInstance(MMLSActivity.this).getDatabase().query(MMUContract.SubjectEntry.TABLE_NAME, null, null, null, null, null, null);
             int count = cursor.getCount();
             cursor.close();
