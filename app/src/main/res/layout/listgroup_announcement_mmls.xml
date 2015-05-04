@@ -7,6 +7,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/listgroup_week_textview"
         android:textSize="20sp"
+        android:fontFamily="san-serif"
         android:textStyle="bold"
         android:padding="10dp"
         />

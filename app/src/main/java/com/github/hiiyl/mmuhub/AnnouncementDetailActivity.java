@@ -13,6 +13,7 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -129,6 +130,7 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
             TextView contents_textview = (TextView) rootView.findViewById(R.id.announcement_detail_contents);
             TextView author_textview = (TextView) rootView.findViewById(R.id.announcement_detail_author);
             TextView posted_date_textview = (TextView) rootView.findViewById(R.id.announcement_detail_posted_date);
+            TextView subject_textview = (TextView) rootView.findViewById(R.id.announcement_detail_subject);
             MMUDbHelper mOpenHelper = new MMUDbHelper(getActivity());
             ContentValues has_seen = new ContentValues();
             has_seen.put(MMUContract.AnnouncementEntry.COLUMN_HAS_SEEN, true);
@@ -145,13 +147,19 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
 
             String title = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_TITLE));
             String contents = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_CONTENTS));
-            String posted_at = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE));
+            String posted_at = Utility.humanizeDate(cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_POSTED_DATE)));
             String author = cursor.getString(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_AUTHOR));
+
+            String subject_name_query = "SELECT " + MMUContract.SubjectEntry.COLUMN_NAME
+                    + " FROM " + MMUContract.SubjectEntry.TABLE_NAME + " WHERE " + MMUContract.SubjectEntry._ID + " = " +
+                    cursor.getString(cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY));
+            Cursor subject_cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(subject_name_query, null);
+            subject_cursor.moveToFirst();
             title_textview.setText(title);
-            contents_textview.setText(contents);
+            contents_textview.setText(Html.fromHtml(contents.replace("\n", "<br>")));
             author_textview.setText(author);
             posted_date_textview.setText(posted_at);
-
+            subject_textview.setText(subject_cursor.getString(subject_cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME)));
             String attachment_file_query =
                     "SELECT * FROM " + MMUContract.FilesEntry.TABLE_NAME +
                             " WHERE " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " = " +
@@ -171,13 +179,7 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
                 final String file_name = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
                 Log.d("SUBJECT ID IS ", cursor.getString(cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY)));
 
-                String subject_name_query = "SELECT " + MMUContract.SubjectEntry.COLUMN_NAME
-                        + " FROM " + MMUContract.SubjectEntry.TABLE_NAME + " WHERE " + MMUContract.SubjectEntry._ID + " = " +
-                cursor.getString(cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY));
 
-                Log.d("ID OF SUBJECT IS ", Long.toString(finalCursor.getLong(finalCursor.getColumnIndex(MMUContract.FilesEntry._ID))));
-                Cursor subject_cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(subject_name_query, null);
-                subject_cursor.moveToFirst();
                 String mSubjectName = subject_cursor.getString(subject_cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
                 final String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + Utility.ANNOUNCEMENT_ATTACHMENT_FOLDER + "/" + file_name;
                 final String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/"  + Utility.ANNOUNCEMENT_ATTACHMENT_FOLDER + "/";

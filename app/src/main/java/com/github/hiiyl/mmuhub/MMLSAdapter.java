@@ -2,6 +2,7 @@ package com.github.hiiyl.mmuhub;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +73,8 @@ public class MMLSAdapter extends CursorTreeAdapter {
         tvTitle.setText(title.trim());
         tvPostedAt.setText(Utility.humanizeDate(posted_at));
         tvAuthor.setText(author);
-        tvSnippet.setText(contents);
+
+        tvSnippet.setText(Html.fromHtml(contents.replace("\n", "<br>")));
 
         if(cursor.getInt(cursor.getColumnIndex(MMUContract.AnnouncementEntry.COLUMN_HAS_SEEN)) == 0) {
             ivHasSeen.setVisibility(View.VISIBLE);

@@ -165,6 +165,7 @@ public class MMLSFragment extends Fragment {
         mExListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                v.setHasTransientState(true);
                 TextView snippet =  (TextView)v.findViewById(R.id.listitem_mmls_snippet);
                 LinearLayout layout = (LinearLayout)v.findViewById(R.id.announcement_detail_download_layout);
                 if(snippet.getLineCount() == 1) {
