@@ -249,7 +249,6 @@ public class MMLSFragment extends Fragment {
                             }
                         });
                     }
-                    new_cursor.close();
                 mAdapter.notifyDataSetChanged();
                 }else {
                     layout.setVisibility(View.GONE);
