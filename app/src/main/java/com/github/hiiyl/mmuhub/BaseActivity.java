@@ -119,6 +119,7 @@ public class BaseActivity extends AppCompatActivity
         });
 
         mLogOutButton.setOnClickListener(new View.OnClickListener() {
+            Intent intent;
             @Override
             public void onClick(View v) {
                 SnackBar log_out_confirm = new SnackBar(BaseActivity.this, "Confirm log out?", "Yes",
@@ -131,9 +132,8 @@ public class BaseActivity extends AppCompatActivity
                                 SharedPreferences.Editor editor = prefs.edit();
                                 editor.putBoolean("logged_in", false);
                                 editor.apply();
-                                final Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
+                                intent = new Intent(BaseActivity.this, LoginActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                finish();
                                 mPendingRunnable = new Runnable() {
                                     @Override
                                     public void run() {

@@ -170,18 +170,19 @@ public class MMLSFragment extends Fragment {
                 if(snippet.getLineCount() == 1) {
                     snippet.setSingleLine(false);
                     snippet.setEllipsize(null);
-                    Cursor new_cursor = mAdapter.getChild(
+                    Cursor has_seen_cursor = mAdapter.getChild(
                             groupPosition, childPosition);
                     ContentValues has_seen = new ContentValues();
                     has_seen.put(MMUContract.AnnouncementEntry.COLUMN_HAS_SEEN, true);
                     MySingleton.getInstance(getActivity()).getDatabase().update(MMUContract.AnnouncementEntry.TABLE_NAME,
                             has_seen, MMUContract.AnnouncementEntry._ID + "=?",
-                            new String[]{new_cursor.getString(new_cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID))});
+                            new String[]{has_seen_cursor.getString(has_seen_cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID))});
                     String attachment_file_query =
                             "SELECT * FROM " + MMUContract.FilesEntry.TABLE_NAME +
                                     " WHERE " + MMUContract.FilesEntry.COLUMN_ANNOUNCEMENT_KEY + " = " +
-                                    new_cursor.getLong(new_cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
-                    new_cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(attachment_file_query, null);
+                                    has_seen_cursor.getLong(has_seen_cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
+                    final Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(attachment_file_query, null);
+                    has_seen_cursor.close();
                     if(new_cursor.moveToFirst()) {
                         TextView attachment_view = (TextView) v.findViewById(R.id.announcement_detail_attachment_name);
                         mInteractionPromptText = (TextView) v.findViewById(R.id.announcement_detail_attachment_interaction_prompt);
@@ -190,15 +191,14 @@ public class MMLSFragment extends Fragment {
 
                         layout.setVisibility(View.VISIBLE);
                         attachment_view.setText(new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME)));
-                        final Cursor finalCursor = new_cursor;
-                        final String file_name = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
-                        Log.d("SUBJECT ID IS ", cursor.getString(cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY)));
+                        final String file_name = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_NAME));
+
 
                         String subject_name_query = "SELECT " + MMUContract.SubjectEntry.COLUMN_NAME
                                 + " FROM " + MMUContract.SubjectEntry.TABLE_NAME + " WHERE " + MMUContract.SubjectEntry._ID + " = " +
                                 new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_SUBJECT_KEY));
 
-                        Log.d("ID OF SUBJECT IS ", Long.toString(finalCursor.getLong(finalCursor.getColumnIndex(MMUContract.FilesEntry._ID))));
+                        Log.d("ID OF SUBJECT IS ", Long.toString(new_cursor.getLong(new_cursor.getColumnIndex(MMUContract.FilesEntry._ID))));
                         Cursor subject_cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(subject_name_query, null);
                         subject_cursor.moveToFirst();
                         String mSubjectName = subject_cursor.getString(subject_cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
@@ -232,9 +232,9 @@ public class MMLSFragment extends Fragment {
                                         final DownloadTask downloadTask = new DownloadTask(getActivity());
                                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
                                         downloadTask.file_name = file_name;
-                                        downloadTask.content_type = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
-                                        downloadTask.content_id = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
-                                        downloadTask.remote_file_path = finalCursor.getString(finalCursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
+                                        downloadTask.content_type = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_TYPE));
+                                        downloadTask.content_id = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_CONTENT_ID));
+                                        downloadTask.remote_file_path = new_cursor.getString(new_cursor.getColumnIndex(MMUContract.FilesEntry.COLUMN_REMOTE_FILE_PATH));
                                         downloadTask.token = prefs.getString("token", "");
                                         downloadTask.cookie = "laravel_session=" + prefs.getString("cookie", "");
                                         downloadTask.local_file_path = file_path;
@@ -248,6 +248,7 @@ public class MMLSFragment extends Fragment {
                             }
                         });
                     }
+                    new_cursor.close();
                 mAdapter.notifyDataSetChanged();
                 }else {
                     layout.setVisibility(View.GONE);
@@ -603,7 +604,9 @@ public class MMLSFragment extends Fragment {
 
                             }
                         }
-                        Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
+                        Cursor new_cursor = MySingleton.getInstance(getActivity()).
+                                getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",
+                                new String[]{slide_str}, null, null, null);
                         mAdapter.changeCursor(new_cursor);
                         mSwipeRefreshLayout.setRefreshing(false);
 

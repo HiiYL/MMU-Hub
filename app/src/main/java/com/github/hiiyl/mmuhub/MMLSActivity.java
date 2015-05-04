@@ -1,6 +1,5 @@
 package com.github.hiiyl.mmuhub;
 
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -9,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,24 +46,6 @@ public class MMLSActivity extends BaseActivity{
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);
-
-        Bundle extras = getIntent().getExtras();
-        if(extras != null) {
-            mIntentSubjectPage = extras.getInt("SUBJECT_ID");
-            mViewPager.setCurrentItem(mIntentSubjectPage, true);
-        }
-
-        long subject_id = 4;
-        Intent resultIntent = new Intent(this, MMLSActivity.class);
-        resultIntent.putExtra("SUBJECT_ID", 1);
-        resultIntent.putExtra("ANNOUNCEMENT_ID", subject_id);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
