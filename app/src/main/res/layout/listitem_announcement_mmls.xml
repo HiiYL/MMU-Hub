@@ -22,7 +22,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Announcement Title Placeholder"
-
             android:textSize="16sp"
             android:id="@+id/listitem_mmls_title"/>
         <TextView
