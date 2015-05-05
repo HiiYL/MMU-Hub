@@ -1,8 +1,12 @@
 package com.github.hiiyl.mmuhub.helper;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+
+import com.gc.materialdesign.widgets.SnackBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,8 +65,12 @@ public class FileOpen {
             //so you can choose which application to use
             intent.setDataAndType(uri, "*/*");
         }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        try {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }catch (ActivityNotFoundException e) {
+            SnackBar snackBar = new SnackBar((Activity) context, "No application to handle file type");
+            snackBar.show();
+        }
     }
 }
