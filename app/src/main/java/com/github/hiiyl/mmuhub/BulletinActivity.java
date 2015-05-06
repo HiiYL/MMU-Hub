@@ -35,6 +35,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import de.greenrobot.event.EventBus;
 
 
@@ -167,6 +170,7 @@ public class BulletinActivity extends BaseActivity {
                             Log.d("RECEIVE", "RECEIVED");
                             JSONArray bulletin_array = new JSONArray(response);
                             for (int i = 0; i < bulletin_array.length(); i++) {
+                                Log.d("BULLETIN", "BULLETIN RECEIVED");
                                 JSONObject bulletin_obj = bulletin_array.getJSONObject(i);
                                 String bulletin_title = bulletin_obj.getString("title");
                                 String bulletin_posted_date = bulletin_obj.getString("posted_date");
@@ -230,11 +234,20 @@ public class BulletinActivity extends BaseActivity {
                             snackbar.show();
                         }
                     }
-                });
-                sr.setRetryPolicy(new DefaultRetryPolicy(
-                        30000,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                }) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<String, String>();
+                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+                        params.put("cookie", prefs.getString("cookie", ""));
+                        params.put("last_sync", Utility.getLastSyncDate(context));
+                        return params;
+                    }
+                };
+            sr.setRetryPolicy(new DefaultRetryPolicy(
+                    0,
+                    0,
+                    0));
                 MySingleton.getInstance(getActivity()).addToRequestQueue(sr);
         }
     }

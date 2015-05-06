@@ -9,7 +9,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -23,8 +22,10 @@ import com.github.hiiyl.mmuhub.helper.RefreshTokenEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -121,10 +122,6 @@ public class Utility {
                 return headers;
             }
         };
-        sr.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(sr);
     }
     public static boolean isNetworksAvailable(Context context) {
@@ -170,5 +167,18 @@ public class Utility {
         }
         return null;
 
+    }
+    public static void updateLastSyncDate(Context context) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        String date = df.format(Calendar.getInstance().getTime());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        Log.d("Last Sync Date", date);
+        editor.putString("last_sync", date);
+        editor.apply();
+    }
+    public static String getLastSyncDate(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("last_sync", "");
     }
 }

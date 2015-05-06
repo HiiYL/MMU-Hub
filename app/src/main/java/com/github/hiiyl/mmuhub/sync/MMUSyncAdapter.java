@@ -362,6 +362,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                             if (mSubjectSyncCount == mNumberOfSubjects) {
                                 EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_FINISHED));
                                 mSubjectSyncCount = 0;
+                                Utility.updateLastSyncDate(context);
                             }
                             // database insert here
                         }
@@ -393,6 +394,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                     params.put("cookie", prefs.getString("cookie", ""));
                     params.put("subject_url", subject_url);
+                    params.put("last_sync", Utility.getLastSyncDate(context));
                     return params;
                 }
 
@@ -404,7 +406,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             };
             sr.setRetryPolicy(new DefaultRetryPolicy(
-                    30000,
+                    0,
                     0,
                     0));
             sr.setTag(SYNC_TAG);
@@ -452,7 +454,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         };
         sr.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
+                0,
                 0,
                 0));
         sync_queue.add(sr);
@@ -498,9 +500,9 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         });
         sr.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                0,
+                0,
+                0));
         MySingleton.getInstance(context).addToRequestQueue(sr);
     }
 

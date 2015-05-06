@@ -675,9 +675,9 @@ public class MMLSFragment extends Fragment {
                 }
             };
             sr.setRetryPolicy(new DefaultRetryPolicy(
-                    30000,
                     0,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                    0,
+                    0));
             sr.setTag(DOWNLOAD_TAG);
             requestQueue.add(sr);
         }
@@ -719,19 +719,7 @@ public class MMLSFragment extends Fragment {
                 params.put("password", prefs.getString("mmls_password",""));
                 return params;
             }
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String,String> headers = new HashMap<String, String>();
-                headers.put("Content-Type","application/x-www-form-urlencoded");
-                headers.put("abc", "value");
-                return headers;
-            }
         };
-        sr.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(sr);
     }
 }

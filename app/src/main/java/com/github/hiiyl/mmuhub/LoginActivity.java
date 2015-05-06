@@ -148,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.apply();
 
                 MMUSyncAdapter.initializeSyncAdapter(LoginActivity.this);
-                MMUSyncAdapter.syncImmediately(LoginActivity.this);
+//                MMUSyncAdapter.syncImmediately(LoginActivity.this);
                 Intent intent = new Intent(mContext, MMLSActivity.class);
                 startActivity(intent);
                 finish();
@@ -217,9 +217,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
         sr.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                0,
+                0,
+                0));
         queue.add(sr);
     }
 
