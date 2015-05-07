@@ -8,8 +8,8 @@ android {
         applicationId "com.github.hiiyl.mmuhub"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 8
-        versionName "1.33"
+        versionCode 10
+        versionName "1.3.5"
     }
     signingConfigs {
         release {

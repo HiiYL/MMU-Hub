@@ -719,7 +719,17 @@ public class MMLSFragment extends Fragment {
                 params.put("password", prefs.getString("mmls_password",""));
                 return params;
             }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded");
+                return headers;
+            }
         };
+        sr.setRetryPolicy(new DefaultRetryPolicy(
+                0,
+                0,
+                0));
         requestQueue.add(sr);
     }
 }

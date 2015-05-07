@@ -240,7 +240,7 @@ public class BulletinActivity extends BaseActivity {
                         Map<String, String> params = new HashMap<String, String>();
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                         params.put("cookie", prefs.getString("cookie", ""));
-                        params.put("last_sync", Utility.getLastSyncDate(context));
+//                        params.put("last_sync", Utility.getLastSyncDate(context));
                         return params;
                     }
                 };

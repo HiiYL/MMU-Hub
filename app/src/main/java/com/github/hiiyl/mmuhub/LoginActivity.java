@@ -147,8 +147,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putBoolean("notifications_enabled", true);
                 editor.apply();
 
-                MMUSyncAdapter.initializeSyncAdapter(LoginActivity.this);
-//                MMUSyncAdapter.syncImmediately(LoginActivity.this);
+                MMUSyncAdapter.syncImmediately(LoginActivity.this);
                 Intent intent = new Intent(mContext, MMLSActivity.class);
                 startActivity(intent);
                 finish();

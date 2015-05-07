@@ -119,6 +119,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                 context.getString(R.string.content_authority), bundle);
     }
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
+        Log.d("CONFIGURED", "PERIODC SYNC CONFIGURED");
         Account account = getSyncAccount(context);
         String authority = context.getString(R.string.content_authority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -362,7 +363,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                             if (mSubjectSyncCount == mNumberOfSubjects) {
                                 EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_FINISHED));
                                 mSubjectSyncCount = 0;
-                                Utility.updateLastSyncDate(context);
+//                                Utility.updateLastSyncDate(context);
                             }
                             // database insert here
                         }
@@ -394,7 +395,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                     params.put("cookie", prefs.getString("cookie", ""));
                     params.put("subject_url", subject_url);
-                    params.put("last_sync", Utility.getLastSyncDate(context));
+//                    params.put("last_sync", Utility.getLastSyncDate(context));
                     return params;
                 }
 
