@@ -69,6 +69,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
     private int mNumberOfSubjects = Utility.getSubjectCount(getContext());
     private int mSubjectSyncCount = 0;
 
+    private String mLastSyncTime;
+
     private SQLiteDatabase database;
     private RequestQueue sync_queue;
     MMUDbHelper helper;
@@ -82,6 +84,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.d("FIRST SYNC", "FIRST SYNC");
             EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_BEGIN));
         }
+        mLastSyncTime = Utility.getLastSyncDate(getContext());
         sync_queue = MySingleton.getInstance(getContext()).
                 getRequestQueue();
         Log.d(LOG_TAG, "onPerformSync Called.");
@@ -363,7 +366,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                             if (mSubjectSyncCount == mNumberOfSubjects) {
                                 EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_FINISHED));
                                 mSubjectSyncCount = 0;
-//                                Utility.updateLastSyncDate(context);
+                                Utility.updateLastSyncDate(context);
                             }
                             // database insert here
                         }
@@ -395,7 +398,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                     params.put("cookie", prefs.getString("cookie", ""));
                     params.put("subject_url", subject_url);
-//                    params.put("last_sync", Utility.getLastSyncDate(context));
+                    params.put("last_sync", mLastSyncTime);
+                    Log.d("LAST SYNC SENT", mLastSyncTime);
                     return params;
                 }
 
@@ -499,7 +503,15 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
-        });
+        }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("last_sync", mLastSyncTime);
+                Log.d("LAST SYNC SENT", mLastSyncTime);
+                return params;
+            }
+        };
         sr.setRetryPolicy(new DefaultRetryPolicy(
                 0,
                 0,

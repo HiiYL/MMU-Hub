@@ -184,6 +184,7 @@ public class Utility {
     }
     public static String getLastSyncDate(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Log.d("GET LAST SYNC", prefs.getString("last_sync", ""));
         return prefs.getString("last_sync", "");
     }
 }

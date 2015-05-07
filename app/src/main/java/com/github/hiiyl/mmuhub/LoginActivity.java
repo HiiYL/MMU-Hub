@@ -2,6 +2,7 @@ package com.github.hiiyl.mmuhub;
 
 
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import com.gc.materialdesign.views.ButtonRectangle;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
+import com.github.hiiyl.mmuhub.data.MMUProvider;
 import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
@@ -147,7 +149,9 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putBoolean("notifications_enabled", true);
                 editor.apply();
 
-                MMUSyncAdapter.syncImmediately(LoginActivity.this);
+//                MMUSyncAdapter.syncImmediately(LoginActivity.this);
+                ContentResolver.setSyncAutomatically(MMUSyncAdapter.
+                        getSyncAccount(LoginActivity.this), MMUProvider.getAuthority(), true);
                 Intent intent = new Intent(mContext, MMLSActivity.class);
                 startActivity(intent);
                 finish();
