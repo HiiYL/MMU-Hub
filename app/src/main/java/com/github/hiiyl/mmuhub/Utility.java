@@ -29,6 +29,7 @@ import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.AttendanceCompleteEvent;
 import com.github.hiiyl.mmuhub.helper.RefreshTokenEvent;
+import com.github.hiiyl.mmuhub.helper.StartPreviousActivityEvent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -342,7 +343,7 @@ public class Utility {
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                EventBus.getDefault().post(new StartPreviousActivityEvent());
             }
         });
         builder.show();

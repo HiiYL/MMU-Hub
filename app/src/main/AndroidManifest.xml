@@ -42,10 +42,10 @@
             android:theme="@style/MMLSTheme" >
 
             <!-- android:label="@string/title_activity_mmls" > -->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".AnnouncementDetailActivity"
@@ -120,10 +120,6 @@
             android:name=".StudentCenterActivity"
             android:theme="@style/MMLSTheme"
             android:label="@string/title_activity_student_center" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -165,38 +166,43 @@ public class BulletinActivity extends BaseActivity {
                 mSwipeRefreshLayout.setRefreshing(true);
                 StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
                     @Override
-                    public void onResponse(String response) {
-                        try {
-                            Log.d("RECEIVE", "RECEIVED");
-                            JSONArray bulletin_array = new JSONArray(response);
-                            for (int i = 0; i < bulletin_array.length(); i++) {
-                                Log.d("BULLETIN", "BULLETIN RECEIVED");
-                                JSONObject bulletin_obj = bulletin_array.getJSONObject(i);
-                                String bulletin_title = bulletin_obj.getString("title");
-                                String bulletin_posted_date = bulletin_obj.getString("posted_date");
-                                String bulletin_author = bulletin_obj.getString("author");
-                                String bulletin_contents = bulletin_obj.getString("contents");
+                    public void onResponse(final String response) {
+                        AsyncTask.execute(new Runnable() {
+                            public void run() {
+                                try {
+                                    Log.d("RECEIVE", "RECEIVED");
+                                    JSONArray bulletin_array = new JSONArray(response);
+                                    for (int i = 0; i < bulletin_array.length(); i++) {
+                                        Log.d("BULLETIN", "BULLETIN RECEIVED");
+                                        JSONObject bulletin_obj = bulletin_array.getJSONObject(i);
+                                        String bulletin_title = bulletin_obj.getString("title");
+                                        String bulletin_posted_date = bulletin_obj.getString("posted_date");
+                                        String bulletin_author = bulletin_obj.getString("author");
+                                        String bulletin_contents = bulletin_obj.getString("contents");
 
 
-                                Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME,
-                                        null, MMUContract.BulletinEntry.COLUMN_TITLE + " = ? AND " + MMUContract.BulletinEntry.COLUMN_POSTED_DATE + " = ? "
-                                        , new String[]{bulletin_title, bulletin_posted_date}, null, null, null);
-                                if (!cursor.moveToFirst()) {
-                                    ContentValues bulletinValues = new ContentValues();
-                                    bulletinValues.put(MMUContract.BulletinEntry.COLUMN_TITLE, bulletin_title);
-                                    bulletinValues.put(MMUContract.BulletinEntry.COLUMN_POSTED_DATE, bulletin_posted_date);
-                                    bulletinValues.put(MMUContract.BulletinEntry.COLUMN_CONTENTS, bulletin_contents);
-                                    bulletinValues.put(MMUContract.BulletinEntry.COLUMN_AUTHOR, bulletin_author);
-                                    MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.BulletinEntry.TABLE_NAME, null, bulletinValues);
+                                        Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME,
+                                                null, MMUContract.BulletinEntry.COLUMN_TITLE + " = ? AND " + MMUContract.BulletinEntry.COLUMN_POSTED_DATE + " = ? "
+                                                , new String[]{bulletin_title, bulletin_posted_date}, null, null, null);
+                                        if (!cursor.moveToFirst()) {
+                                            ContentValues bulletinValues = new ContentValues();
+                                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_TITLE, bulletin_title);
+                                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_POSTED_DATE, bulletin_posted_date);
+                                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_CONTENTS, bulletin_contents);
+                                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_AUTHOR, bulletin_author);
+                                            MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.BulletinEntry.TABLE_NAME, null, bulletinValues);
+                                        }
+                                    }
+                                    mSwipeRefreshLayout.setRefreshing(false);
+                                    EventBus.getDefault().post(new DownloadCompleteEvent(BULLETIN_SYNC_COMPLETE));
+
+
+                                } catch (JSONException exception) {
+                                    exception.printStackTrace();
                                 }
                             }
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            EventBus.getDefault().post(new DownloadCompleteEvent(BULLETIN_SYNC_COMPLETE));
+                        });
 
-
-                        } catch (JSONException exception) {
-
-                        }
                     }
                 }, new Response.ErrorListener() {
                     String json = null;
@@ -248,7 +254,7 @@ public class BulletinActivity extends BaseActivity {
                     0,
                     0,
                     0));
-                MySingleton.getInstance(getActivity()).addToRequestQueue(sr);
+            MySingleton.getInstance(getActivity()).addToRequestQueue(sr);
         }
     }
 }

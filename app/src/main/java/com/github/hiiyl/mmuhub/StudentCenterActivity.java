@@ -16,6 +16,7 @@ import android.widget.ListView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.AttendanceCompleteEvent;
+import com.github.hiiyl.mmuhub.helper.StartPreviousActivityEvent;
 
 import java.util.Locale;
 
@@ -60,6 +61,21 @@ public class StudentCenterActivity extends BaseActivity  {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+    public void onEventMainThread(StartPreviousActivityEvent event) {
+        finish();
     }
 
 

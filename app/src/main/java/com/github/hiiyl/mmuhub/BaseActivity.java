@@ -1,6 +1,5 @@
 package com.github.hiiyl.mmuhub;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -20,8 +19,6 @@ import android.widget.TextView;
 
 import com.gc.materialdesign.views.ButtonFlat;
 import com.gc.materialdesign.widgets.SnackBar;
-import com.github.hiiyl.mmuhub.data.MMUProvider;
-import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
 
 
 public class BaseActivity extends AppCompatActivity
@@ -136,9 +133,6 @@ public class BaseActivity extends AppCompatActivity
                                 editor.putBoolean("logged_in", false);
                                 editor.apply();
 
-
-                                ContentResolver.setSyncAutomatically(MMUSyncAdapter.
-                                        getSyncAccount(BaseActivity.this), MMUProvider.getAuthority(), false);
                                 intent = new Intent(BaseActivity.this, LoginActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 mPendingRunnable = new Runnable() {
