@@ -29,9 +29,9 @@
         </activity>
         <activity
             android:name=".LoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:excludeFromRecents="true"
             android:label="@string/title_activity_login"
-            android:configChanges="keyboardHidden|orientation|screenSize"
             android:noHistory="true"
             android:theme="@style/LoginActivityTheme" >
         </activity>
@@ -42,17 +42,16 @@
             android:theme="@style/MMLSTheme" >
 
             <!-- android:label="@string/title_activity_mmls" > -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
         <activity
             android:name=".AnnouncementDetailActivity"
             android:label="@string/title_activity_announcement_detail"
-            android:theme="@style/AnnouncementDetailTheme"
-            android:parentActivityName=".MMLSActivity" >
+            android:parentActivityName=".MMLSActivity"
+            android:theme="@style/AnnouncementDetailTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.github.hiiyl.mmuhub.MMLSActivity" />
@@ -115,7 +114,16 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/LoginActivityTheme">
+            android:theme="@style/LoginActivityTheme" >
+        </activity>
+        <activity
+            android:name=".StudentCenterActivity"
+            android:theme="@style/MMLSTheme"
+            android:label="@string/title_activity_student_center" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

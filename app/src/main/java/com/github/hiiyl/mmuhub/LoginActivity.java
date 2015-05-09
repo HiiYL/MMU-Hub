@@ -152,6 +152,7 @@ public class LoginActivity extends AppCompatActivity {
 //                MMUSyncAdapter.syncImmediately(LoginActivity.this);
                 ContentResolver.setSyncAutomatically(MMUSyncAdapter.
                         getSyncAccount(LoginActivity.this), MMUProvider.getAuthority(), true);
+                MMUSyncAdapter.syncImmediately(LoginActivity.this);
                 Intent intent = new Intent(mContext, MMLSActivity.class);
                 startActivity(intent);
                 finish();

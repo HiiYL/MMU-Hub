@@ -38,8 +38,8 @@ public class BaseActivity extends AppCompatActivity
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
 
-    String TITLES[] = {"MMLS","Bulletin", "Settings"};
-    int ICONS[] = {R.drawable.ic_mmls,R.drawable.ic_bulletin, R.drawable.ic_settings};
+    String TITLES[] = {"MMLS","Bulletin", "Student Center", "Settings"};
+    int ICONS[] = {R.drawable.ic_mmls,R.drawable.ic_bulletin, R.drawable.ic_group_black_36dp, R.drawable.ic_settings};
 
     //Similarly we Create a String Resource for the name and email in the header view
     //And we also create a int resource for profile picture in the header view
@@ -170,6 +170,9 @@ public class BaseActivity extends AppCompatActivity
                 intent = new Intent(this, BulletinActivity.class);
                 break;
             case 3:
+                intent = new Intent(this, StudentCenterActivity.class);
+                break;
+            case 4:
                 intent = new Intent(this, SettingsActivity.class);
                 break;
             default:

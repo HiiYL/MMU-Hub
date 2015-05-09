@@ -14,7 +14,7 @@ import com.github.hiiyl.mmuhub.data.MMUContract.BulletinEntry;
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -26,7 +26,9 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_SUBJECT_TABLE = "CREATE TABLE " + SubjectEntry.TABLE_NAME + " (" +
                 SubjectEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 SubjectEntry.COLUMN_NAME + " TEXT UNIQUE NOT NULL, " +
-                SubjectEntry.COLUMN_URL + " TEXT NOT NULL" +
+                SubjectEntry.COLUMN_URL + " TEXT NOT NULL," +
+                SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL,"+
+                SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL" +
                 " );";
         final String SQL_CREATE_WEEK_TABLE = "CREATE TABLE " + WeekEntry.TABLE_NAME + " (" +
                 WeekEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -86,12 +88,14 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         // It does NOT depend on the version number for your application.
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeekEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AnnouncementEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FilesEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + BulletinEntry.TABLE_NAME);
-        onCreate(sqLiteDatabase);
+        if(oldVersion < 14) {
+            final String SQL_ADD_COLUMN_ATTENDANCE_LECTURE = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
+            final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
+        }
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView android:id="@+id/section_label"
+        android:text="MPU3413 Taekwando"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="san-serif"
+        android:textStyle="bold"
+        android:padding="10dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.github.lzyzsd.circleprogress.ArcProgress
+            android:id="@+id/arc_attendence_lecture"
+            android:padding="1dp"
+            android:background="@color/background_material_light"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            custom:arc_unfinished_color = "#FFF"
+            android:visibility="invisible"
+            custom:arc_finished_color = "#33b5e5"
+            custom:arc_bottom_text="Lecture"/>
+        <com.github.lzyzsd.circleprogress.ArcProgress
+            android:id="@+id/arc_attendence_tutorial"
+            android:layout_marginLeft="20dp"
+            android:background="@color/background_material_light"
+            android:padding="1dp"
+            android:visibility="invisible"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            custom:arc_unfinished_color = "#FFF"
+            custom:arc_finished_color = "#33b5e5"
+            custom:arc_bottom_text="Tutorial"/>
+    </LinearLayout>
+
+</LinearLayout>
