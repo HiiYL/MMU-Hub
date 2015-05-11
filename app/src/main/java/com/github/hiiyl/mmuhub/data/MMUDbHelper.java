@@ -3,12 +3,13 @@ package com.github.hiiyl.mmuhub.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.github.hiiyl.mmuhub.data.MMUContract.AnnouncementEntry;
+import com.github.hiiyl.mmuhub.data.MMUContract.BulletinEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.FilesEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.SubjectEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.WeekEntry;
-import com.github.hiiyl.mmuhub.data.MMUContract.BulletinEntry;
 /**
  * Created by Hii on 4/19/15.
  */
@@ -88,14 +89,25 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         // It does NOT depend on the version number for your application.
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
-        if(oldVersion < 14) {
-            final String SQL_ADD_COLUMN_ATTENDANCE_LECTURE = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
-                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
-            final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
-                    " ADD COLUMMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
-            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
-            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
+        Log.d("DATABASE ON UPGRADE", "HELL OTHERE");
+        Log.d("OLD VERSION", String.valueOf(oldVersion));
+        if(oldVersion < 14 ) {
+            Log.d("DATABASE ON UPGRADE", "LESS THAN 14");
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeekEntry.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AnnouncementEntry.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FilesEntry.TABLE_NAME);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + BulletinEntry.TABLE_NAME);
+            onCreate(sqLiteDatabase);
         }
+//        if(oldVersion < 14) {
+//            final String SQL_ADD_COLUMN_ATTENDANCE_LECTURE = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+//                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
+//            final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+//                    " ADD COLUMMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
+//            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
+//            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
+//        }
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);
