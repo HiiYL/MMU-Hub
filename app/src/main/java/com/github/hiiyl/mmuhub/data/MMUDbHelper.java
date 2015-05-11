@@ -15,7 +15,7 @@ import com.github.hiiyl.mmuhub.data.MMUContract.WeekEntry;
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 15;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -91,13 +91,16 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         // should be your top priority before modifying this method.
         Log.d("DATABASE ON UPGRADE", "HELL OTHERE");
         Log.d("OLD VERSION", String.valueOf(oldVersion));
-        if(oldVersion < 14) {
+        if(oldVersion < 15) {
             Log.d("DATABASE", "ADDING COLUMN");
-            final String SQL_ADD_COLUMN_ATTENDANCE_LECTURE = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
-                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
+            if(oldVersion < 14) {
+                final String SQL_ADD_COLUMN_ATTENDANCE_LECTURE = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                        " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
+                sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
+            }
             final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
                     " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
-            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
+
             sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
         }
     }
