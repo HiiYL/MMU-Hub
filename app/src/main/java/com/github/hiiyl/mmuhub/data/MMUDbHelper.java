@@ -91,23 +91,15 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         // should be your top priority before modifying this method.
         Log.d("DATABASE ON UPGRADE", "HELL OTHERE");
         Log.d("OLD VERSION", String.valueOf(oldVersion));
-        if(oldVersion < 14 ) {
-            Log.d("DATABASE ON UPGRADE", "LESS THAN 14");
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeekEntry.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AnnouncementEntry.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FilesEntry.TABLE_NAME);
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + BulletinEntry.TABLE_NAME);
-            onCreate(sqLiteDatabase);
+        if(oldVersion < 14) {
+            Log.d("DATABASE", "ADDING COLUMN");
+            final String SQL_ADD_COLUMN_ATTENDANCE_LECTURE = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
+            final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
         }
-//        if(oldVersion < 14) {
-//            final String SQL_ADD_COLUMN_ATTENDANCE_LECTURE = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
-//                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
-//            final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
-//                    " ADD COLUMMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
-//            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
-//            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
-//        }
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);
