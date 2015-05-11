@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -20,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -158,7 +156,6 @@ public class BulletinActivity extends BaseActivity {
         public void updateBulletin(final Context context) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             Log.d("UPDATE Bulletin", "UPDATING BULLETIN");
-            final String subject_url, subject_name;
             final Context mContext = context;
             final MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
             Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME, null, null, null, null, null, null);
@@ -167,13 +164,10 @@ public class BulletinActivity extends BaseActivity {
                 StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
                     @Override
                     public void onResponse(final String response) {
-                        AsyncTask.execute(new Runnable() {
-                            public void run() {
                                 try {
                                     Log.d("RECEIVE", "RECEIVED");
                                     JSONArray bulletin_array = new JSONArray(response);
                                     for (int i = 0; i < bulletin_array.length(); i++) {
-                                        Log.d("BULLETIN", "BULLETIN RECEIVED");
                                         JSONObject bulletin_obj = bulletin_array.getJSONObject(i);
                                         String bulletin_title = bulletin_obj.getString("title");
                                         String bulletin_posted_date = bulletin_obj.getString("posted_date");
@@ -196,49 +190,15 @@ public class BulletinActivity extends BaseActivity {
                                     mSwipeRefreshLayout.setRefreshing(false);
                                     EventBus.getDefault().post(new DownloadCompleteEvent(BULLETIN_SYNC_COMPLETE));
 
-
                                 } catch (JSONException exception) {
                                     exception.printStackTrace();
                                 }
-                            }
-                        });
-
                     }
                 }, new Response.ErrorListener() {
                     String json = null;
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("WOW", "ITS DEAD JIM");
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        NetworkResponse networkResponse = error.networkResponse;
-                        if (networkResponse != null && networkResponse.data != null) {
-                            switch (networkResponse.statusCode) {
-                                case 400:
-                                    SnackBar snackbar = new SnackBar(getActivity(), "Wrong Username or Password");
-                                    snackbar.show();
-
-                                    break;
-                                default:
-                                    SnackBar new_snackbar = new SnackBar(getActivity(), "Internal Server Error",
-                                            "Retry", new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            updateBulletin(context);
-                                        }
-                                    });
-                                    new_snackbar.show();
-                            }
-                            //Additional cases
-                        } else {
-                            SnackBar snackbar = new SnackBar(getActivity(), "No Internet Connection",
-                                    "Retry", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    updateBulletin(context);
-                                }
-                            });
-                            snackbar.show();
-                        }
+                        Log.d("Attendance Update", "ITS DEAD JIM");
                     }
                 }) {
                     @Override
@@ -246,7 +206,6 @@ public class BulletinActivity extends BaseActivity {
                         Map<String, String> params = new HashMap<String, String>();
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                         params.put("cookie", prefs.getString("cookie", ""));
-//                        params.put("last_sync", Utility.getLastSyncDate(context));
                         return params;
                     }
                 };
