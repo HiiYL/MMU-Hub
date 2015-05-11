@@ -112,7 +112,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         /*
          * Finally, let's do a sync to get things started
          */
-        syncImmediately(context);
+//        syncImmediately(context);
     }
     public static void syncImmediately(Context context) {
         Bundle bundle = new Bundle();
