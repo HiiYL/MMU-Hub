@@ -96,6 +96,7 @@ public class Utility {
     public static void refreshToken(Context context) {
         EventBus.getDefault().postSticky(new RefreshTokenEvent(REFRESH_TOKEN_STARTING));
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = prefs.edit();
 
         RequestQueue queue = Volley.newRequestQueue(context);
         String url = "https://mmu-api.co/refresh_token";
@@ -103,7 +104,6 @@ public class Utility {
             @Override
             public void onResponse(String response) {
                 EventBus.getDefault().postSticky(new RefreshTokenEvent(REFRESH_TOKEN_COMPLETE));
-                SharedPreferences.Editor editor = prefs.edit();
                 String cookie = Utility.trimMessage(response, "cookie");
                 String token = Utility.trimMessage(response, "token");
                 editor.putString("cookie", cookie);
@@ -225,11 +225,13 @@ public class Utility {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                final SharedPreferences.Editor editor = prefs.edit();
                 final String camsys_password = input.getText().toString();
                 final String TAG = "camsysAuthenticate";
                 RequestQueue queue = MySingleton.getInstance(context).
                         getRequestQueue();
-                String url = "https://mmu-api.co/login_camsys";
+                String url = "https://mmu-api.co/login_camsys_v2";
                 final ProgressDialog mProgressDialog = new ProgressDialog(context);
 
                 mProgressDialog.setTitle("Signing you in...");
@@ -242,49 +244,103 @@ public class Utility {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            JSONArray jArray = new JSONArray(response);
-                            for(int i = 0; i < jArray.length(); i++) {
-                                JSONObject attendanceObj = jArray.getJSONObject(i);
-                                String subject_area = attendanceObj.getString("Subject Area");
-                                String subject_number = attendanceObj.getString("Subject/Catalogue#");
-                                String subject_descrption = attendanceObj.getString("Course Description");
-                                String current_attendance = attendanceObj.getString("Current Attendance %");
-                                String course_component = attendanceObj.getString("Course Component");
-                                String subject_name = subject_area + subject_number + " - " + subject_descrption;
-                                Cursor cursor = MySingleton.getInstance(context).getDatabase().query(
-                                        MMUContract.SubjectEntry.TABLE_NAME,
-                                        new String[]{MMUContract.SubjectEntry._ID},
-                                        MMUContract.SubjectEntry.COLUMN_NAME + " = ? ", new String[]{subject_name}, null, null, null
-                                );
+                            JSONObject jObj = new JSONObject(response);
+                            try {
+                                JSONArray jArray = jObj.getJSONArray("subjects_attendance");
+                                for (int i = 0; i < jArray.length(); i++) {
+                                    JSONObject attendanceObj = jArray.getJSONObject(i);
+                                    String subject_area = attendanceObj.getString("Subject Area");
+                                    String subject_number = attendanceObj.getString("Subject/Catalogue#");
+                                    String subject_descrption = attendanceObj.getString("Course Description");
+                                    String current_attendance = attendanceObj.getString("Current Attendance %");
+                                    String course_component = attendanceObj.getString("Course Component");
+                                    String subject_name = subject_area + subject_number + " - " + subject_descrption;
+                                    Cursor cursor = MySingleton.getInstance(context).getDatabase().query(
+                                            MMUContract.SubjectEntry.TABLE_NAME,
+                                            new String[]{MMUContract.SubjectEntry._ID},
+                                            MMUContract.SubjectEntry.COLUMN_NAME + " = ? ", new String[]{subject_name}, null, null, null
+                                    );
 
-                                Log.d("SUBJECT_NAME", subject_name);
-                                Log.d("REQUEST", subject_name);
-                                if(cursor.moveToFirst()) {
-                                    String subject_id = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID));
-                                    Log.d("SUBJECT_ID", cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID)));
+                                    Log.d("SUBJECT_NAME", subject_name);
+                                    Log.d("REQUEST", subject_name);
+                                    if (cursor.moveToFirst()) {
+                                        String subject_id = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID));
+                                        Log.d("SUBJECT_ID", cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID)));
 
-                                    ContentValues attendanceValues = new ContentValues();
-                                    if(course_component.equals("Lecture")) {
-                                        attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LECTURE, current_attendance);
-                                    }else if(course_component.equals("Tutorial")) {
-                                        attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL, current_attendance);
+                                        ContentValues attendanceValues = new ContentValues();
+                                        if (course_component.equals("Lecture")) {
+                                            attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LECTURE, current_attendance);
+                                        } else if (course_component.equals("Tutorial")) {
+                                            attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL, current_attendance);
+                                        }
+                                        MySingleton.getInstance(context).getDatabase().update(MMUContract.SubjectEntry.TABLE_NAME,
+                                                attendanceValues, MMUContract.SubjectEntry._ID + " = ? ", new String[]{subject_id});
+                                    } else {
+                                        Log.d("SUBJECT", "SUBJECT NOT FOUND");
                                     }
-                                    MySingleton.getInstance(context).getDatabase().update(MMUContract.SubjectEntry.TABLE_NAME,
-                                            attendanceValues, MMUContract.SubjectEntry._ID + " = ? ", new String[] {subject_id});
-                                }else {
-                                    Log.d("SUBJECT", "SUBJECT NOT FOUND");
                                 }
+                            }catch (JSONException e) {
+                                Log.d("NO ATTENDANCE", "FINANCIALLY BARRED?");
 
                             }
+                            try {
+                                String feesDue = jObj.getString("amount_due");
+                                editor.putString("fees_due", feesDue);
+                                editor.apply();
+                            }catch (JSONException e) {
+                                Log.d("NO FEES DUE", "ALL PAID?");
+                                editor.remove("fees_due");
+                                editor.apply();
+                            }
+                            try {
+                                JSONArray examTimetableArray = jObj.getJSONArray("exam_timetable");
+                                for(int i = 0; i < examTimetableArray.length(); i++) {
+                                    JSONObject examTimetableObj = examTimetableArray.getJSONObject(i);
+                                    String subject_code = examTimetableObj.getString("Catalog Nbr");
+                                    String subject_name = examTimetableObj.getString("Description");
+                                    String exam_date = examTimetableObj.getString("Exam Date");
+                                    String exam_start_time = examTimetableObj.getString("Exam Start Time");
+                                    String exam_end_time = examTimetableObj.getString("Exam End Time");
+                                    String full_subject_name = subject_code + " - " + subject_name;
+                                    Cursor cursor = MySingleton.getInstance(context).getDatabase().query(
+                                            MMUContract.SubjectEntry.TABLE_NAME,
+                                            new String[]{MMUContract.SubjectEntry._ID},
+                                            MMUContract.SubjectEntry.COLUMN_NAME + " = ? ",
+                                            new String[] {full_subject_name},
+                                            null,
+                                            null,
+                                            null
+                                    );
+                                    if(cursor.moveToFirst()) {
+                                        String full_start_time = exam_date + " " + exam_start_time;
+                                        String full_end_time = exam_date + " " + exam_end_time;
+                                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy h:mma");
+                                        Date date_start_time = format.parse(full_start_time);
+                                        Date date_end_time = format.parse(full_end_time);
+
+                                        ContentValues examTimetableValues = new ContentValues();
+                                        examTimetableValues.put(MMUContract.SubjectEntry.COLUMN_FINALS_START_DATETIME, date_start_time.getTime());
+                                        examTimetableValues.put(MMUContract.SubjectEntry.COLUMN_FINALS_END_DATETIME, date_end_time.getTime());
+                                        MySingleton.getInstance(context).getDatabase().update(
+                                                MMUContract.SubjectEntry.TABLE_NAME,
+                                                examTimetableValues,
+                                                MMUContract.SubjectEntry._ID + " = ? ",
+                                                new String[]{cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID))}
+                                        );
+
+                                    }
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                         mProgressDialog.dismiss();
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-                        SharedPreferences.Editor editor = prefs.edit();
                         editor.putString("camsys_password", camsys_password);
                         editor.apply();
-                        EventBus.getDefault().post(new AttendanceCompleteEvent());
+                        EventBus.getDefault().post(new AttendanceCompleteEvent("first_sync"));
                     }
                 }, new Response.ErrorListener() {
 
@@ -350,55 +406,112 @@ public class Utility {
         return true;
     }
     public static void refreshAttendance(final Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = prefs.edit();
         if(prefs.contains("camsys_password")) {
             final String camsys_password = prefs.getString("camsys_password", "");
             final String TAG = "AttendanceSync";
             RequestQueue queue = MySingleton.getInstance(context).
                     getRequestQueue();
-            String url = "https://mmu-api.co/login_camsys";
+            String url = "https://mmu-api.co/login_camsys_v2";
             StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
-                        JSONArray jArray = new JSONArray(response);
-                        for (int i = 0; i < jArray.length(); i++) {
-                            JSONObject attendanceObj = jArray.getJSONObject(i);
-                            String subject_area = attendanceObj.getString("Subject Area");
-                            String subject_number = attendanceObj.getString("Subject/Catalogue#");
-                            String subject_descrption = attendanceObj.getString("Course Description");
-                            String current_attendance = attendanceObj.getString("Current Attendance %");
-                            String course_component = attendanceObj.getString("Course Component");
-                            String subject_name = subject_area + subject_number + " - " + subject_descrption;
-                            Cursor cursor = MySingleton.getInstance(context).getDatabase().query(
-                                    MMUContract.SubjectEntry.TABLE_NAME,
-                                    new String[]{MMUContract.SubjectEntry._ID},
-                                    MMUContract.SubjectEntry.COLUMN_NAME + " = ? ", new String[]{subject_name}, null, null, null
-                            );
+                        JSONObject jObj = new JSONObject(response);
+                        try {
+                            JSONArray jArray = jObj.getJSONArray("subjects_attendance");
+                            for (int i = 0; i < jArray.length(); i++) {
+                                JSONObject attendanceObj = jArray.getJSONObject(i);
+                                String subject_area = attendanceObj.getString("Subject Area");
+                                String subject_number = attendanceObj.getString("Subject/Catalogue#");
+                                String subject_descrption = attendanceObj.getString("Course Description");
+                                String current_attendance = attendanceObj.getString("Current Attendance %");
+                                String course_component = attendanceObj.getString("Course Component");
+                                String subject_name = subject_area + subject_number + " - " + subject_descrption;
+                                Cursor cursor = MySingleton.getInstance(context).getDatabase().query(
+                                        MMUContract.SubjectEntry.TABLE_NAME,
+                                        new String[]{MMUContract.SubjectEntry._ID},
+                                        MMUContract.SubjectEntry.COLUMN_NAME + " = ? ", new String[]{subject_name}, null, null, null
+                                );
 
-                            Log.d("SUBJECT_NAME", subject_name);
-                            Log.d("REQUEST", subject_name);
-                            if (cursor.moveToFirst()) {
-                                String subject_id = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID));
-                                Log.d("SUBJECT_ID", cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID)));
+                                Log.d("SUBJECT_NAME", subject_name);
+                                Log.d("REQUEST", subject_name);
+                                if (cursor.moveToFirst()) {
+                                    String subject_id = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID));
+                                    Log.d("SUBJECT_ID", cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID)));
 
-                                ContentValues attendanceValues = new ContentValues();
-                                if (course_component.equals("Lecture")) {
-                                    attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LECTURE, current_attendance);
-                                } else if (course_component.equals("Tutorial")) {
-                                    attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL, current_attendance);
+                                    ContentValues attendanceValues = new ContentValues();
+                                    if (course_component.equals("Lecture")) {
+                                        attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LECTURE, current_attendance);
+                                    } else if (course_component.equals("Tutorial")) {
+                                        attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL, current_attendance);
+                                    }
+                                    MySingleton.getInstance(context).getDatabase().update(MMUContract.SubjectEntry.TABLE_NAME,
+                                            attendanceValues, MMUContract.SubjectEntry._ID + " = ? ", new String[]{subject_id});
+                                } else {
+                                    Log.d("SUBJECT", "SUBJECT NOT FOUND");
                                 }
-                                MySingleton.getInstance(context).getDatabase().update(MMUContract.SubjectEntry.TABLE_NAME,
-                                        attendanceValues, MMUContract.SubjectEntry._ID + " = ? ", new String[]{subject_id});
-                            } else {
-                                Log.d("SUBJECT", "SUBJECT NOT FOUND");
                             }
+                        }catch (JSONException e) {
+                            Log.d("NO ATTENDANCE", "FINANCIALLY BARRED?");
 
                         }
+                        try {
+                            String feesDue = jObj.getString("amount_due");
+                            editor.putString("fees_due", feesDue);
+                            editor.apply();
+                        }catch (JSONException e) {
+                            Log.d("NO FEES DUE", "ALL PAID?");
+                            editor.remove("fees_due");
+                            editor.apply();
+                        }
+                        try {
+                            JSONArray examTimetableArray = jObj.getJSONArray("exam_timetable");
+                            for(int i = 0; i < examTimetableArray.length(); i++) {
+                                JSONObject examTimetableObj = examTimetableArray.getJSONObject(i);
+                                String subject_code = examTimetableObj.getString("Catalog Nbr");
+                                String subject_name = examTimetableObj.getString("Description");
+                                String exam_date = examTimetableObj.getString("Exam Date");
+                                String exam_start_time = examTimetableObj.getString("Exam Start Time");
+                                String exam_end_time = examTimetableObj.getString("Exam End Time");
+                                String full_subject_name = subject_code + " - " + subject_name;
+                                Cursor cursor = MySingleton.getInstance(context).getDatabase().query(
+                                        MMUContract.SubjectEntry.TABLE_NAME,
+                                        new String[]{MMUContract.SubjectEntry._ID},
+                                        MMUContract.SubjectEntry.COLUMN_NAME + " = ? ",
+                                        new String[] {full_subject_name},
+                                        null,
+                                        null,
+                                        null
+                                );
+                                if(cursor.moveToFirst()) {
+                                    String full_start_time = exam_date + " " + exam_start_time;
+                                    String full_end_time = exam_date + " " + exam_end_time;
+                                    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy h:mma");
+                                    Date date_start_time = format.parse(full_start_time);
+                                    Date date_end_time = format.parse(full_end_time);
+
+                                    ContentValues examTimetableValues = new ContentValues();
+                                    examTimetableValues.put(MMUContract.SubjectEntry.COLUMN_FINALS_START_DATETIME, date_start_time.getTime());
+                                    examTimetableValues.put(MMUContract.SubjectEntry.COLUMN_FINALS_END_DATETIME, date_end_time.getTime());
+                                    MySingleton.getInstance(context).getDatabase().update(
+                                            MMUContract.SubjectEntry.TABLE_NAME,
+                                            examTimetableValues,
+                                            MMUContract.SubjectEntry._ID + " = ? ",
+                                            new String[]{cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID))}
+                                    );
+
+                                }
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    EventBus.getDefault().post(new AttendanceCompleteEvent());
+                    EventBus.getDefault().post(new AttendanceCompleteEvent(""));
                 }
             }, new Response.ErrorListener() {
 

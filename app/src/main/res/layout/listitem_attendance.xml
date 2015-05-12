@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:ProgressWheel="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -14,28 +15,54 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:dividerPadding="20dp"
         android:orientation="horizontal">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:id="@+id/rel_layout_attendence_lecture">
         <com.github.lzyzsd.circleprogress.ArcProgress
             android:id="@+id/arc_attendence_lecture"
-            android:padding="1dp"
             android:background="@color/background_material_light"
             android:layout_width="100dp"
             android:layout_height="100dp"
             custom:arc_unfinished_color = "#FFF"
+            custom:arc_finished_color = "#33b5e5"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:layout_alignParentBottom="true"
+                android:text="Lecture"
+                android:textColor="#33b5e5"
+                android:layout_centerHorizontal="true"/>
+        </RelativeLayout>
+        <View
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="invisible"
-            custom:arc_finished_color = "#33b5e5"
-            custom:arc_bottom_text="Lecture"/>
-        <com.github.lzyzsd.circleprogress.ArcProgress
-            android:id="@+id/arc_attendence_tutorial"
-            android:layout_marginLeft="20dp"
-            android:background="@color/background_material_light"
-            android:padding="1dp"
-            android:visibility="invisible"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            custom:arc_unfinished_color = "#FFF"
-            custom:arc_finished_color = "#33b5e5"
-            custom:arc_bottom_text="Tutorial"/>
+            android:id="@+id/rel_layout_attendence_tutorial">
+            <com.github.lzyzsd.circleprogress.ArcProgress
+                android:id="@+id/arc_attendence_tutorial"
+                android:background="@color/background_material_light"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                custom:arc_unfinished_color = "#FFF"
+                custom:arc_finished_color = "#33b5e5"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:layout_alignParentBottom="true"
+                android:text="Tutorial"
+                android:textColor="#33b5e5"
+                android:layout_centerHorizontal="true"/>
+        </RelativeLayout>
     </LinearLayout>
 
 </LinearLayout>

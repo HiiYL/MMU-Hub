@@ -15,7 +15,7 @@ import com.github.hiiyl.mmuhub.data.MMUContract.WeekEntry;
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 16;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -29,7 +29,9 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                 SubjectEntry.COLUMN_NAME + " TEXT UNIQUE NOT NULL, " +
                 SubjectEntry.COLUMN_URL + " TEXT NOT NULL," +
                 SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL,"+
-                SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL" +
+                SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL," +
+                SubjectEntry.COLUMN_FINALS_START_DATETIME + " INTEGER," +
+                SubjectEntry.COLUMN_FINALS_END_DATETIME + " INTEGER" +
                 " );";
         final String SQL_CREATE_WEEK_TABLE = "CREATE TABLE " + WeekEntry.TABLE_NAME + " (" +
                 WeekEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -100,8 +102,16 @@ public class MMUDbHelper extends SQLiteOpenHelper {
             }
             final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
                     " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
-
             sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
+        }
+        if(oldVersion < 16) {
+            Log.d("DATABASE", "ADDING FINALS COLUMN");
+            final String SQL_ADD_COLUMN_FINALS_START_DATETIME = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMN " + SubjectEntry.COLUMN_FINALS_START_DATETIME + " INTEGER;";
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_FINALS_START_DATETIME);
+            final String SQL_ADD_COLUMN_FINALS_END_DATETIME = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMN " + SubjectEntry.COLUMN_FINALS_END_DATETIME + " INTEGER;";
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_FINALS_START_DATETIME);
         }
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {

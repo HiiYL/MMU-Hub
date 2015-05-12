@@ -30,6 +30,9 @@ public class MMUContract {
 
         public static final String COLUMN_ATTENDANCE_LECTURE = "attendance_lecture";
         public static final String COLUMN_ATTENDANCE_TUTORIAL = "attendance_tutorial";
+        public static final String COLUMN_FINALS_START_DATETIME = "finals_start_datetime";
+        public static final String COLUMN_FINALS_END_DATETIME = "finals_end_datetime";
+
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_SUBJECT;

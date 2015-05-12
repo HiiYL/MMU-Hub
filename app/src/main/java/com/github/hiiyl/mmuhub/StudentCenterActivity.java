@@ -60,6 +60,7 @@ public class StudentCenterActivity extends BaseActivity  {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(3);
 
     }
 
@@ -73,6 +74,9 @@ public class StudentCenterActivity extends BaseActivity  {
     public void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
+    }
+    public void onEventMainThread(AttendanceCompleteEvent event) {
+        mSectionsPagerAdapter.notifyDataSetChanged();
     }
     public void onEventMainThread(StartPreviousActivityEvent event) {
         finish();
@@ -112,12 +116,21 @@ public class StudentCenterActivity extends BaseActivity  {
             super(fm);
         }
 
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if(position == 0) {
-                return PlaceholderFragment.newInstance(position + 1);
+            switch(position) {
+                case 0:
+                    return PlaceholderFragment.newInstance(position + 1);
+                case 1:
+                    return FeesDueFragment.newInstance(position +1);
+                case 2:
+                    return ExamTimetableFragment.newInstance(position + 1);
             }
             return null;
         }
@@ -125,7 +138,7 @@ public class StudentCenterActivity extends BaseActivity  {
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 1;
+            return 3;
         }
 
         @Override
@@ -135,9 +148,9 @@ public class StudentCenterActivity extends BaseActivity  {
                 case 0:
                     return "ATTENDANCE";
                 case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
+                    return "FEES DUE";
                 case 2:
-                    return getString(R.string.title_section3).toUpperCase(l);
+                    return "EXAM TIMETABLE";
             }
             return null;
         }
@@ -169,31 +182,32 @@ public class StudentCenterActivity extends BaseActivity  {
 
         public PlaceholderFragment() {
         }
-        @Override
-        public void onStart() {
-            super.onStart();
-            EventBus.getDefault().register(this);
-        }
+//        @Override
+//        public void onStart() {
+//            super.onStart();
+//            EventBus.getDefault().register(this);
+//        }
+//
+//        @Override
+//        public void onStop() {
+//            EventBus.getDefault().unregister(this);
+//            super.onStop();
+//        }
 
-        @Override
-        public void onStop() {
-            EventBus.getDefault().unregister(this);
-            super.onStop();
-        }
-
-        public void onEventMainThread(AttendanceCompleteEvent event) {
-            Cursor newCursor = MySingleton.getInstance(getActivity()).getDatabase().query(
-                    MMUContract.SubjectEntry.TABLE_NAME, null ,
-                    null, null, null, null, null
-            );
-            mAdapter.changeCursor(newCursor);
-        }
+//        public void onEventMainThread(AttendanceCompleteEvent event) {
+//            Cursor newCursor = MySingleton.getInstance(getActivity()).getDatabase().query(
+//                    MMUContract.SubjectEntry.TABLE_NAME, null ,
+//                    null, null, null, null, null
+//            );
+//            mAdapter.changeCursor(newCursor);
+//        }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_student_center, container, false);
             mAttendanceListView = (ListView)rootView.findViewById(R.id.listview_attendance);
+//            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
             Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(
                     MMUContract.SubjectEntry.TABLE_NAME, null ,
