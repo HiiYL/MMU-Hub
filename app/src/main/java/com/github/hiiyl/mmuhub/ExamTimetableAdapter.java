@@ -41,7 +41,7 @@ public class ExamTimetableAdapter extends CursorAdapter {
         Log.d("STORED VALUE", String.valueOf(start));
         final Date start_date = new Date(start);
         Date end_date = new Date(end);
-        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mma");
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd");
         final String exam_subject = cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
         String exam_time = timeFormat.format(start_date) + " - " + timeFormat.format(end_date);

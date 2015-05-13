@@ -111,7 +111,7 @@ public class MMUDbHelper extends SQLiteOpenHelper {
             sqLiteDatabase.execSQL(SQL_ADD_COLUMN_FINALS_START_DATETIME);
             final String SQL_ADD_COLUMN_FINALS_END_DATETIME = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
                     " ADD COLUMN " + SubjectEntry.COLUMN_FINALS_END_DATETIME + " INTEGER;";
-            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_FINALS_START_DATETIME);
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_FINALS_END_DATETIME);
         }
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {
