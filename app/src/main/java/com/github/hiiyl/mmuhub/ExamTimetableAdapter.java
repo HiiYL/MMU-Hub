@@ -47,19 +47,27 @@ public class ExamTimetableAdapter extends CursorAdapter {
         String exam_time = timeFormat.format(start_date) + " - " + timeFormat.format(end_date);
         String exam_date = dateFormat.format(start_date);
 
-        add_to_calendar_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_EDIT);
-                intent.setType("vnd.android.cursor.item/event");
-                intent.putExtra("beginTime", start);
+        final String exam_calendar_event_name = exam_subject + " Finals";
+
+        if(Utility.isExamInCal(context, exam_subject)) {
+            add_to_calendar_btn.setEnabled(false);
+            add_to_calendar_btn.setText("Added");
+
+        }else {
+            add_to_calendar_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_EDIT);
+                    intent.setType("vnd.android.cursor.item/event");
+                    intent.putExtra("beginTime", start);
 //                intent.putExtra("allDay", true);
 //                intent.putExtra("rrule", "FREQ=YEARLY");
-                intent.putExtra("endTime", end);
-                intent.putExtra("title", exam_subject + " Finals");
-                context.startActivity(intent);
-            }
-        });
+                    intent.putExtra("endTime", end);
+                    intent.putExtra("title", exam_calendar_event_name);
+                    context.startActivity(intent);
+                }
+            });
+        }
 
         subject_name.setText(exam_subject);
         subject_time.setText(exam_time);

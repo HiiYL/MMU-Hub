@@ -1,8 +1,10 @@
 package com.github.hiiyl.mmuhub;
 
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.AttendanceCompleteEvent;
@@ -207,15 +210,20 @@ public class StudentCenterActivity extends BaseActivity  {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_student_center, container, false);
             mAttendanceListView = (ListView)rootView.findViewById(R.id.listview_attendance);
-//            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            TextView barredTextview = (TextView) rootView.findViewById(R.id.attendance_barred_notice);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
             Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(
                     MMUContract.SubjectEntry.TABLE_NAME, null ,
                     null, null, null, null, null
             );
-
-            mAdapter = new AttendanceAdapter(getActivity(), cursor, 0);
-            mAttendanceListView.setAdapter(mAdapter);
+            if(!cursor.moveToFirst() && prefs.contains("fees_due")) {
+                mAttendanceListView.setVisibility(View.GONE);
+                barredTextview.setVisibility(View.VISIBLE);
+            } else {
+                mAdapter = new AttendanceAdapter(getActivity(), cursor, 0);
+                mAttendanceListView.setAdapter(mAdapter);
+            }
 
             return rootView;
         }

@@ -28,12 +28,10 @@ android {
 }
 repositories {
     jcenter()
-    maven { url "https://jitpack.io" }
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 //    compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.github.Todd-Davies:ProgressWheel:1.0'
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.rengwuxian.materialedittext:library:2.1.3'
     compile 'com.github.navasmdc:MaterialDesign:1.+@aar'

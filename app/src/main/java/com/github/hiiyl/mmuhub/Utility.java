@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.util.Log;
@@ -562,5 +563,40 @@ public class Utility {
                     0));
             queue.add(sr);
         }
+    }
+    public static boolean isExamInCal(Context context, String subject_name) {
+        Cursor exam_cursor = MySingleton.getInstance(context).getDatabase().query(
+                MMUContract.SubjectEntry.TABLE_NAME,
+                new String[] {MMUContract.SubjectEntry.COLUMN_FINALS_START_DATETIME,
+                        MMUContract.SubjectEntry.COLUMN_FINALS_END_DATETIME},
+                MMUContract.SubjectEntry.COLUMN_NAME + " = ? ",
+                new String[] {subject_name},
+                null,
+                null,
+                null
+        );
+        if(exam_cursor.moveToFirst()) {
+            Log.d("EXAM CURSOR", "EXISTS");
+            long begin = exam_cursor.getLong(exam_cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_FINALS_START_DATETIME));
+            long end = exam_cursor.getLong(exam_cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_FINALS_END_DATETIME));
+            String subject_exam = subject_name + " Finals";
+            String[] proj =
+                    new String[]{
+                            CalendarContract.Instances._ID,
+                            CalendarContract.Instances.BEGIN,
+                            CalendarContract.Instances.END,
+                            CalendarContract.Instances.EVENT_ID};
+            Cursor cursor =
+                    CalendarContract.Instances.query(context.getContentResolver(), null, begin, end);
+            if (cursor.getCount() > 0) {
+                Log.d("INSTANCE", "EXIST");
+                return true;
+            }else {
+                Log.d("INSTANCE", "DOES NOT EXISTS");
+                return false;
+            }
+        }
+        Log.d("EXAM CURSOR", "DOES NOT EXISTS");
+        return false;
     }
 }

@@ -9,6 +9,12 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     tools:context="com.github.hiiyl.mmuhub.StudentCenterActivity$PlaceholderFragment">
+    <TextView
+        android:id="@+id/attendance_barred_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You have been barred by Finance Department from seeing your attendance due to outstanding fees"
+        android:visibility="gone"/>
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
