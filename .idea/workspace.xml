@@ -31,20 +31,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b422d8bb-7188-41d6-94e0-547c6237ff4f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/cardview_v7_21_0_3.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/expandable_recyclerview_1_0_1.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fees_due_header.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/ExamTimetableAdapter.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/ExamTimetableAdapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/FeesDueFragment.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/FeesDueFragment.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSAdapter.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSAdapter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSFragment.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSFragment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/StudentCenterActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/StudentCenterActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/app.iml" afterPath="$PROJECT_DIR$/app/app.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUContract.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUContract.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUProvider.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUProvider.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/sync/MMUSyncAdapter.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/sync/MMUSyncAdapter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build.gradle" afterPath="$PROJECT_DIR$/app/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_fees_due.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_fees_due.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_mml.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_mml.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_student_center.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_student_center.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/listitem_announcement_mmls.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/listitem_announcement_mmls.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/listitem_final_exam_timetable.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/listitem_final_exam_timetable.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="MMU Hub.iws" />
@@ -99,81 +91,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="StudentCenterActivity.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/StudentCenterActivity.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="216" column="0" selection-start-line="216" selection-start-column="0" selection-end-line="216" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#2720#2721#0" expanded="false" />
-                <element signature="e#2744#2745#0" expanded="false" />
-                <element signature="e#3750#3751#0" expanded="false" />
-                <element signature="e#3783#3784#0" expanded="false" />
-                <element signature="e#3836#3837#0" expanded="false" />
-                <element signature="e#3880#3881#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="fragment_mml.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_mml.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="15" column="31" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
-              <folding />
-            </state>
-          </provider>
-          <provider editor-type-id="android-designer">
-            <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MMLSAdapter.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSAdapter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="listitem_attendance.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/listitem_attendance.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="40" column="13" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-          <provider editor-type-id="android-designer">
-            <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="WIP.png" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/Desktop/WIP.png">
-          <provider selected="true" editor-type-id="images">
-            <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="device-2015-05-14-014016.png" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/Desktop/device-2015-05-14-014016.png">
-          <provider selected="true" editor-type-id="images">
-            <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="listitem_announcement_mmls.xml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="listitem_announcement_mmls.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/listitem_announcement_mmls.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.42307693">
-              <caret line="33" column="48" selection-start-line="33" selection-start-column="48" selection-end-line="33" selection-end-column="48" />
+            <state vertical-scroll-proportion="-0.0">
+              <caret line="0" column="18" selection-start-line="0" selection-start-column="18" selection-end-line="0" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -182,51 +104,39 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="listgroup_announcement_mmls.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/listgroup_announcement_mmls.xml">
+      <file leaf-file-name="MMUProvider.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUProvider.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="9" column="38" selection-start-line="9" selection-start-column="38" selection-end-line="9" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-          <provider editor-type-id="android-designer">
-            <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MMLSFragment.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSFragment.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="174" column="49" selection-start-line="174" selection-start-column="49" selection-end-line="174" selection-end-column="49" />
+              <caret line="155" column="18" selection-start-line="155" selection-start-column="18" selection-end-line="155" selection-end-column="18" />
               <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#4315#4486#0" expanded="false" />
-                <element signature="e#4485#4486#0" expanded="false" />
-                <element signature="e#5796#6035#0" expanded="false" />
-                <element signature="e#6034#6035#0" expanded="false" />
-                <element signature="e#10220#12669#0" expanded="false" />
-                <element signature="e#12668#12669#0" expanded="false" />
-                <element signature="e#37869#37885#0" expanded="false" />
-                <element signature="e#38348#38364#0" expanded="false" />
-                <element signature="e#40289#40305#0" expanded="false" />
-                <element signature="e#40665#40681#0" expanded="false" />
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="fragment_student_center.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_student_center.xml">
+      <file leaf-file-name="MMUSyncAdapter.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/sync/MMUSyncAdapter.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="12" column="44" selection-start-line="12" selection-start-column="44" selection-end-line="12" selection-end-column="44" />
+              <caret line="370" column="29" selection-start-line="370" selection-start-column="29" selection-end-line="370" selection-end-column="29" />
               <folding />
             </state>
           </provider>
-          <provider editor-type-id="android-designer">
-            <state />
+        </entry>
+      </file>
+      <file leaf-file-name="MMLSFragment.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSFragment.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.4245283">
+              <caret line="115" column="0" selection-start-line="115" selection-start-column="0" selection-end-line="115" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#4038#4209#0" expanded="true" />
+                <element signature="e#4208#4209#0" expanded="true" />
+              </folding>
+            </state>
           </provider>
         </entry>
       </file>
@@ -818,7 +728,7 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="4290067365000" />
+        <entry key="$PROJECT_DIR$" value="4290100813000" />
       </map>
     </option>
     <option name="projectBuildClasspath">
@@ -1132,9 +1042,7 @@
         <option value="$PROJECT_DIR$/app/src/main/res/layout/activity_student_center.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/BaseActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/LoginActivity.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/sync/MMUSyncAdapter.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/sync/FeesDueFragment.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUContract.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/PagerAdapter.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/ExamtTimetableFragment.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/fragment_exam_timetable.xml" />
@@ -1155,11 +1063,15 @@
         <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MyAdapter.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/BulletinActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/fragment_bulletin.xml" />
-        <option value="$PROJECT_DIR$/app/build.gradle" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/listgroup_announcement_mmls.xml" />
+        <option value="$PROJECT_DIR$/app/build.gradle" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSAdapter.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/fragment_mml.xml" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSFragment.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/listitem_announcement_mmls.xml" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUContract.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUProvider.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/sync/MMUSyncAdapter.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSFragment.java" />
       </list>
     </option>
   </component>
@@ -1174,9 +1086,8 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
     <option name="width" value="1280" />
-    <option name="height" value="709" />
+    <option name="height" value="800" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -1226,6 +1137,58 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MMU Hub" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="External Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="support-annotations-22.1.1" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="support-annotations-22.1.1.jar" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MMU Hub" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="External Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="library-2.4.0" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MMU Hub" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="External Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MMU Hub" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="AndroidView">
         <subPane>
           <PATH>
@@ -1342,7 +1305,7 @@
               <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="helper" />
+              <option name="myItemId" value="data" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1355,9 +1318,15 @@
               <option name="myItemId" value="app" />
               <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="manifests" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidManifestsGroupNode" />
+            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="PackagesPane">
         <subPane>
           <PATH>
@@ -1368,60 +1337,6 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="app" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
-      <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="MMU Hub" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="support-annotations-22.1.1" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="support-annotations-22.1.1.jar" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="MMU Hub" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="library-2.4.0" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="MMU Hub" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="MMU Hub" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -1440,7 +1355,7 @@
     <property name="android.project.structure.last.selected" value="app" />
     <property name="android.project.structure.proportion" value="0.15" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/app/src/main/java" />
-    <property name="FullScreen" value="false" />
+    <property name="FullScreen" value="true" />
     <property name="ANDROID_EXTENDED_DEVICE_CHOOSER_SERIALS" value="BX902X81GW" />
     <property name="ANDROID_EXTENDED_DEVICE_CHOOSER_AVD" value="10_1_WXGA_Tablet_API_21" />
     <property name="OverrideImplement.combined" value="true" />
@@ -1457,11 +1372,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data" />
       <recent name="$PROJECT_DIR$/app/src/main/res/drawable-hdpi" />
       <recent name="$PROJECT_DIR$/app/src/main/res/drawable-mdpi" />
       <recent name="$PROJECT_DIR$/app/src/main/res/drawable-xhdpi" />
       <recent name="$PROJECT_DIR$/app/src/main/res/drawable-xxhdpi" />
-      <recent name="$PROJECT_DIR$/app/src/main/res/drawable-xxxhdpi" />
     </key>
     <key name="ExtractSuperBase.RECENT_KEYS">
       <recent name="com.github.hiiyl.mmuhub" />
@@ -1470,13 +1385,13 @@
       <recent name="com.github.hiiyl.mmuhub" />
       <recent name="com.github.hiiyl.mmuhub.sync" />
     </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.github.hiiyl.mmuhub" />
+    </key>
     <key name="android.template.parentActivityClass">
       <recent name="" />
       <recent name="com.github.hiiyl.mmuhub.MMLSActivity" />
       <recent name="com.github.hiiyl.mmuhub.MainActivity" />
-    </key>
-    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
-      <recent name="com.github.hiiyl.mmuhub" />
     </key>
   </component>
   <component name="RunManager" selected="Android Application.app">
@@ -1772,7 +1687,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1280" height="709" extended-state="6" />
+    <frame x="0" y="0" width="1280" height="800" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1786,15 +1701,15 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3286119" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24232633" sideWeight="0.50992066" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39518413" sideWeight="0.6736672" order="9" side_tool="true" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32152975" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24620573" sideWeight="0.37560582" order="14" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3186969" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20679887" sideWeight="0.37560582" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3286119" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32956383" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959612" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24232633" sideWeight="0.49007937" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3237774" sideWeight="0.4256866" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32152975" sideWeight="0.4256866" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3286119" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959612" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
@@ -1831,28 +1746,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_group_black_36dp.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/drawable-xxhdpi/ic_settings.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_settings.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="35" selection-start-line="11" selection-start-column="35" selection-end-line="11" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_student_center.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-3.413793">
@@ -1911,20 +1804,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MySingleton.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="32" column="9" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUContract.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/LoginActivity.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1950,14 +1829,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="43" column="47" selection-start-line="43" selection-start-column="47" selection-end-line="43" selection-end-column="47" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/AttendanceAdapter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1976,18 +1847,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="588" column="27" selection-start-line="588" selection-start-column="27" selection-end-line="588" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUDbHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="93" column="24" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#742#743#0" expanded="false" />
-            <element signature="e#811#812#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -2023,13 +1882,6 @@
       </provider>
       <provider editor-type-id="android-designer">
         <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="188" column="20" selection-start-line="188" selection-start-column="20" selection-end-line="188" selection-end-column="20" />
-        </state>
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/Desktop/device-2015-05-13-180210.png">
@@ -2129,20 +1981,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="43" column="56" selection-start-line="43" selection-start-column="56" selection-end-line="43" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/sync/MMUSyncAdapter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="128" column="11" selection-start-line="128" selection-start-column="11" selection-end-line="128" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/listgroup_announcement_mmls.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -2169,15 +2007,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="216" column="0" selection-start-line="216" selection-start-column="0" selection-end-line="216" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#2720#2721#0" expanded="false" />
-            <element signature="e#2744#2745#0" expanded="false" />
-            <element signature="e#3750#3751#0" expanded="false" />
-            <element signature="e#3783#3784#0" expanded="false" />
-            <element signature="e#3836#3837#0" expanded="false" />
-            <element signature="e#3880#3881#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2202,10 +2032,42 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_mml.xml">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSActivity.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="15" column="31" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
+          <caret line="188" column="20" selection-start-line="188" selection-start-column="20" selection-end-line="188" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUDbHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="34" column="22" selection-start-line="34" selection-start-column="22" selection-end-line="34" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="44" column="58" selection-start-line="44" selection-start-column="58" selection-end-line="44" selection-end-column="58" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_mml.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-9.827586">
+          <caret line="19" column="30" selection-start-line="19" selection-start-column="30" selection-end-line="19" selection-end-column="30" />
           <folding />
         </state>
       </provider>
@@ -2213,45 +2075,82 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSAdapter.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUContract.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
+          <caret line="97" column="48" selection-start-line="97" selection-start-column="48" selection-end-line="97" selection-end-column="48" />
           <folding>
-            <element signature="imports" expanded="false" />
+            <element signature="e#4468#4469#0" expanded="true" />
+            <element signature="e#4527#4528#0" expanded="true" />
+            <element signature="e#4582#4583#0" expanded="true" />
+            <element signature="e#4641#4642#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSFragment.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSAdapter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="174" column="49" selection-start-line="174" selection-start-column="49" selection-end-line="174" selection-end-column="49" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#4315#4486#0" expanded="false" />
-            <element signature="e#4485#4486#0" expanded="false" />
-            <element signature="e#5796#6035#0" expanded="false" />
-            <element signature="e#6034#6035#0" expanded="false" />
-            <element signature="e#10220#12669#0" expanded="false" />
-            <element signature="e#12668#12669#0" expanded="false" />
-            <element signature="e#37869#37885#0" expanded="false" />
-            <element signature="e#38348#38364#0" expanded="false" />
-            <element signature="e#40289#40305#0" expanded="false" />
-            <element signature="e#40665#40681#0" expanded="false" />
-          </folding>
+        <state vertical-scroll-proportion="0.19924812">
+          <caret line="82" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MySingleton.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.64849627">
+          <caret line="32" column="9" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/SettingsActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.31954888">
+          <caret line="34" column="122" selection-start-line="34" selection-start-column="122" selection-end-line="34" selection-end-column="122" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/listitem_announcement_mmls.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.42307693">
-          <caret line="33" column="48" selection-start-line="33" selection-start-column="48" selection-end-line="33" selection-end-column="48" />
+        <state vertical-scroll-proportion="-0.0">
+          <caret line="0" column="18" selection-start-line="0" selection-start-column="18" selection-end-line="0" selection-end-column="18" />
           <folding />
         </state>
       </provider>
       <provider editor-type-id="android-designer">
         <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/data/MMUProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="155" column="18" selection-start-line="155" selection-start-column="18" selection-end-line="155" selection-end-column="18" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/sync/MMUSyncAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="370" column="29" selection-start-line="370" selection-start-column="29" selection-end-line="370" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/github/hiiyl/mmuhub/MMLSFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4245283">
+          <caret line="115" column="0" selection-start-line="115" selection-start-column="0" selection-end-line="115" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#4038#4209#0" expanded="true" />
+            <element signature="e#4208#4209#0" expanded="true" />
+          </folding>
+        </state>
       </provider>
     </entry>
   </component>

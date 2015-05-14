@@ -28,6 +28,7 @@ android {
 }
 repositories {
     jcenter()
+    mavenCentral()
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -41,7 +42,7 @@ dependencies {
     compile 'com.levelupstudio:expandable-recyclerview:1.0.1'
     compile 'com.github.lzyzsd:circleprogress:1.1.0@aar'
     compile 'com.android.support:cardview-v7:21.0.+'
-    compile 'com.android.support:recyclerview-v7:21.0.+'
+//    compile 'com.android.support:recyclerview-v7:21.0.+'
     //    // Support Libraries
 
     //    compile 'com.android.support:cardview-v7:21.0.3'

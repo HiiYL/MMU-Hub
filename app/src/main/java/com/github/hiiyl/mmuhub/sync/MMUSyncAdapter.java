@@ -358,6 +358,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
 
                                     }
                                 }
+                                getContext().getContentResolver().notifyChange(MMUContract.WeekEntry.CONTENT_URI, null);
 
                             } catch (JSONException | ParseException e) {
                                 e.printStackTrace();

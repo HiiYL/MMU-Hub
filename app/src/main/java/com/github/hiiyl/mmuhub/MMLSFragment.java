@@ -1,8 +1,5 @@
 package com.github.hiiyl.mmuhub;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,6 +13,9 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -23,7 +23,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -69,13 +68,14 @@ import de.greenrobot.event.EventBus;
 /**
  * Created by Hii on 4/23/15.
  */
-public class MMLSFragment extends Fragment {
+public class MMLSFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>{
     private static final String DOWNLOAD_TAG = "download";
     private ExpandableListView mExListView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private MMLSAdapter mAdapter;
     private Cursor cursor;
     private MMUDbHelper mOpenHelper;
+    private static final int ANNOUNCEMENT_LOADER = 0;
     private RequestQueue requestQueue;
     private ProgressBar mProgressBar;
     private TextView mInteractionPromptText;
@@ -119,11 +119,6 @@ public class MMLSFragment extends Fragment {
         if(event.message.equals(Utility.SYNC_FINISHED)) {
             Log.d("SYNC COMPLETE", "COMPLETE");
             mSwipeRefreshLayout.setRefreshing(false);
-            cursor = MySingleton.getInstance(getActivity()).getDatabase().
-                    query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
-            mAdapter.changeCursor(cursor);
-            mExListView.expandGroup(0);
-            EventBus.getDefault().removeStickyEvent(event);
         }else if(event.message.equals(Utility.SYNC_BEGIN)) {
             Log.d("SYNC STARTING", "NOTIFICATINO RECEIVED");
             mSwipeRefreshLayout.post(new Runnable() {
@@ -154,8 +149,10 @@ public class MMLSFragment extends Fragment {
         int slide = getArguments().getInt(ARG_SECTION_NUMBER, 0);
         slide_str = Integer.toString(slide);
         mExListView = (ExpandableListView) rootView.findViewById(R.id.listview_expandable_mmls);
-        cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
-        mAdapter = new MMLSAdapter(cursor, getActivity());
+//        cursor = getActivity().getContentResolver().query(
+//                MMUContract.WeekEntry.CONTENT_URI,
+//                null, "subject_id = ? ", new String[] {slide_str}, null);
+        mAdapter = new MMLSAdapter(null, getActivity());
         mExListView.setAdapter(mAdapter);
         mExListView.expandGroup(0);
 
@@ -283,6 +280,64 @@ public class MMLSFragment extends Fragment {
         }
         return rootView;
     }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(ANNOUNCEMENT_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        cursor = getActivity().getContentResolver().query(
+//                MMUContract.WeekEntry.CONTENT_URI,
+//                null, "subject_id = ? ", new String[] {slide_str}, null);
+        Log.d("HELLO THERE", slide_str);
+        return new CursorLoader(getActivity(),
+                MMUContract.WeekEntry.CONTENT_URI,
+                null,
+                "subject_id = ? ",
+                new String[] {slide_str},
+                null
+                );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.changeCursor(data);
+        mExListView.expandGroup(0);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.changeCursor(null);
+
+    }
+
+//    @Override
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        return new CursorLoader(getActivity(),
+//                MMUContract.AnnouncementEntry.CONTENT_URI,
+//                null,
+//                null,
+//                null,
+//                null
+//                );
+//    }
+//
+//    @Override
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+//        mAdapter.changeCursor(data);
+//        mExListView.expandGroup(0);
+//
+//    }
+//
+//    @Override
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//        mAdapter.changeCursor(null);
+//
+//    }
 
     private class DownloadTask extends AsyncTask<String, Integer, String> {
 

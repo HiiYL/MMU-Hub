@@ -91,6 +91,12 @@ public class MMUContract {
         public static Uri buildAnnouncementWithWeekUri(String week) {
             return CONTENT_URI.buildUpon().appendPath(week).build();
         }
+        public static String getSubjectFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+        public static String getWeekFromUri(Uri uri) {
+            return uri.getPathSegments().get(2);
+        }
     }
     public static class BulletinEntry implements  BaseColumns {
         public static final Uri CONTENT_URI =
