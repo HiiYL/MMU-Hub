@@ -59,6 +59,7 @@ public class StudentCenterActivity extends BaseActivity  {
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter.notifyDataSetChanged();
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -210,11 +211,25 @@ public class StudentCenterActivity extends BaseActivity  {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_student_center, container, false);
             mAttendanceListView = (ListView)rootView.findViewById(R.id.listview_attendance);
-            TextView barredTextview = (TextView) rootView.findViewById(R.id.attendance_barred_notice);
+
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+
+//            if(prefs.contains("fees_due")) {
+//                View headerView = inflater.inflate(R.layout.fees_due_header, mAttendanceListView, false);
+//                TextView amount_due = (TextView) headerView.findViewById(R.id.fragment_fees_due_textview);
+//                amount_due.setText(prefs.getString("fees_due", ""));
+//                mAttendanceListView.addHeaderView(headerView);
+//            }else {
+//                View headerView = inflater.inflate(R.layout.fees_due_header, mAttendanceListView, false);
+//                TextView amount_due = (TextView) headerView.findViewById(R.id.fragment_fees_due_textview);
+//                amount_due.setText(prefs.getString("fees_due", ""));
+//                mAttendanceListView.addHeaderView(headerView);
+//
+//            }
+            TextView barredTextview = (TextView) rootView.findViewById(R.id.attendance_barred_notice);
             Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(
-                    MMUContract.SubjectEntry.TABLE_NAME, null ,
+                    MMUContract.SubjectEntry.TABLE_NAME, null,
                     null, null, null, null, null
             );
             if(!cursor.moveToFirst() && prefs.contains("fees_due")) {

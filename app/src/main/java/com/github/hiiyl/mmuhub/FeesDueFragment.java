@@ -8,10 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.github.hiiyl.mmuhub.helper.AttendanceCompleteEvent;
-
-import de.greenrobot.event.EventBus;
-
 
 public class FeesDueFragment extends android.support.v4.app.Fragment {
     /**
@@ -36,35 +32,24 @@ public class FeesDueFragment extends android.support.v4.app.Fragment {
 
     public FeesDueFragment() {
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onStop() {
-        EventBus.getDefault().unregister(this);
-        super.onStop();
-    }
-
-    public void onEventMainThread(AttendanceCompleteEvent event) {
-        if(mPrefs.contains("fees_due")) {
-            mFeesDue.setText(mPrefs.getString("fees_due", ""));
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_fees_due, container, false);
+        TextView mYouowe = (TextView) rootView.findViewById(R.id.you_owe_textview);
         mFeesDue = (TextView) rootView.findViewById(R.id.fragment_fees_due_textview);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         if(mPrefs.contains("fees_due")) {
-            mFeesDue.setText("FEES DUE: $" + mPrefs.getString("fees_due", ""));
+            mFeesDue.setText("RM " + mPrefs.getString("fees_due", ""));
         }else {
+            mYouowe.setVisibility(View.GONE);
             mFeesDue.setText("You have no outstanding charges at this time.");
+
         }
+//        else {
+//            mFeesDue.setText("You have no outstanding charges at this time.");
+//        }
         return rootView;
     }
 }

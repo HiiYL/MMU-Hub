@@ -8,8 +8,8 @@ android {
         applicationId "com.github.hiiyl.mmuhub"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 16
-        versionName "1.5.0"
+        versionCode 17
+        versionName "1.5.1"
     }
     signingConfigs {
         release {
@@ -38,7 +38,10 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.1.1'
     compile 'com.nineoldandroids:library:2.4.+'
     compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'com.levelupstudio:expandable-recyclerview:1.0.1'
     compile 'com.github.lzyzsd:circleprogress:1.1.0@aar'
+    compile 'com.android.support:cardview-v7:21.0.+'
+    compile 'com.android.support:recyclerview-v7:21.0.+'
     //    // Support Libraries
 
     //    compile 'com.android.support:cardview-v7:21.0.3'

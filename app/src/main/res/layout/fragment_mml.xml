@@ -13,7 +13,7 @@
         android:id = "@+id/listview_expandable_mmls"
         android:divider="@android:color/transparent"
         android:groupIndicator="@drawable/settings_selector"
-        android:dividerHeight="2.0sp"
+        android:dividerHeight="0sp"
         >
         </ExpandableListView>
 

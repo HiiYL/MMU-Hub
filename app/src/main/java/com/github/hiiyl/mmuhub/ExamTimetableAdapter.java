@@ -7,10 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.gc.materialdesign.views.ButtonRectangle;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 
 import java.text.SimpleDateFormat;
@@ -35,7 +35,7 @@ public class ExamTimetableAdapter extends CursorAdapter {
         TextView subject_time = (TextView) view.findViewById(R.id.exam_timetable_subject_time_textview);
         TextView subject_date = (TextView) view.findViewById(R.id.exam_timetable_subject_date_textview);
 
-        Button add_to_calendar_btn = (Button) view.findViewById(R.id.exam_timetable_add_to_calendar_btn);
+        ButtonRectangle add_to_calendar_btn = (ButtonRectangle) view.findViewById(R.id.exam_timetable_add_to_calendar_btn);
         final long start = cursor.getLong(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_FINALS_START_DATETIME));
         final long end = cursor.getLong(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_FINALS_END_DATETIME));
         Log.d("STORED VALUE", String.valueOf(start));
