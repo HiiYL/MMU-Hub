@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.gc.materialdesign.views.ButtonFlat;
 import com.gc.materialdesign.widgets.SnackBar;
 
+import de.greenrobot.event.EventBus;
+
 
 public class BaseActivity extends AppCompatActivity
 {
@@ -132,6 +134,7 @@ public class BaseActivity extends AppCompatActivity
                                 SharedPreferences.Editor editor = prefs.edit();
                                 editor.putBoolean("logged_in", false);
                                 editor.apply();
+                                EventBus.getDefault().removeAllStickyEvents();
 
                                 intent = new Intent(BaseActivity.this, LoginActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

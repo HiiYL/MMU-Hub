@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.AttendanceCompleteEvent;
 import com.github.hiiyl.mmuhub.helper.StartPreviousActivityEvent;
@@ -64,6 +65,9 @@ public class StudentCenterActivity extends BaseActivity  {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        tabs.setViewPager(mViewPager);
         mViewPager.setOffscreenPageLimit(3);
 
     }

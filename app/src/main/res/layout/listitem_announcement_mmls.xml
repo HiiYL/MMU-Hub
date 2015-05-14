@@ -25,16 +25,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
+
         android:orientation="vertical">
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#0D47A1"
+            android:textColor="#FFF"
             android:text="Announcement Title Placeholder"
-            android:textSize="16sp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:textSize="18sp"
             android:id="@+id/listitem_mmls_title"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -87,6 +98,7 @@
                         android:id="@+id/list_item_mmls_posted_at"
                         android:text="POSTED AT"/>
             </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
     </android.support.v7.widget.CardView>
 </RelativeLayout>

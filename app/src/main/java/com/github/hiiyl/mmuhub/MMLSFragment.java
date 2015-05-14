@@ -36,6 +36,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.diegocarloslima.fgelv.lib.FloatingGroupExpandableListView;
+import com.diegocarloslima.fgelv.lib.WrapperExpandableListAdapter;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
@@ -70,7 +72,7 @@ import de.greenrobot.event.EventBus;
  */
 public class MMLSFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>{
     private static final String DOWNLOAD_TAG = "download";
-    private ExpandableListView mExListView;
+    private FloatingGroupExpandableListView mExListView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private MMLSAdapter mAdapter;
     private Cursor cursor;
@@ -148,12 +150,13 @@ public class MMLSFragment extends Fragment  implements LoaderManager.LoaderCallb
         mOpenHelper = new MMUDbHelper(getActivity());
         int slide = getArguments().getInt(ARG_SECTION_NUMBER, 0);
         slide_str = Integer.toString(slide);
-        mExListView = (ExpandableListView) rootView.findViewById(R.id.listview_expandable_mmls);
+        mExListView = (FloatingGroupExpandableListView) rootView.findViewById(R.id.listview_expandable_mmls);
 //        cursor = getActivity().getContentResolver().query(
 //                MMUContract.WeekEntry.CONTENT_URI,
 //                null, "subject_id = ? ", new String[] {slide_str}, null);
         mAdapter = new MMLSAdapter(null, getActivity());
-        mExListView.setAdapter(mAdapter);
+        WrapperExpandableListAdapter wrapperAdapter = new WrapperExpandableListAdapter(mAdapter);
+        mExListView.setAdapter(wrapperAdapter);
         mExListView.expandGroup(0);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.MMLS_activity_swipe_refresh);

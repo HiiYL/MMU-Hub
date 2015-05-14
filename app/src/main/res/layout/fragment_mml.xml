@@ -7,15 +7,15 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:id="@+id/MMLS_activity_swipe_refresh">
-    <ExpandableListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id = "@+id/listview_expandable_mmls"
-        android:divider="@android:color/transparent"
-        android:groupIndicator="@drawable/settings_selector"
-        android:dividerHeight="0sp"
-        >
-        </ExpandableListView>
+        <com.diegocarloslima.fgelv.lib.FloatingGroupExpandableListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id = "@+id/listview_expandable_mmls"
+            android:divider="@android:color/transparent"
+            android:groupIndicator="@drawable/settings_selector"
+            android:dividerHeight="0sp"
+            >
+        </com.diegocarloslima.fgelv.lib.FloatingGroupExpandableListView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

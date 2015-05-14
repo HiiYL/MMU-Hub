@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
@@ -45,8 +46,13 @@ public class MMLSActivity extends BaseActivity{
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+
+        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        tabs.setViewPager(mViewPager);
+
         mViewPager.setOffscreenPageLimit(4);
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
