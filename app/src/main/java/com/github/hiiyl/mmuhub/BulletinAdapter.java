@@ -2,11 +2,11 @@ package com.github.hiiyl.mmuhub;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.hiiyl.mmuhub.data.MMUContract;
@@ -29,12 +29,14 @@ public class BulletinAdapter extends CursorAdapter {
         TextView bulletin_title = (TextView) view.findViewById(R.id.bulletin_title);
         TextView bulletin_posted = (TextView) view.findViewById(R.id.bulletin_posted_date);
         TextView bulletin_author = (TextView) view.findViewById(R.id.bulletin_author);
-        ImageView ivHasSeen = (ImageView) view.findViewById(R.id.imageview_has_seen);
+        CardView cardView = (CardView) view.findViewById(R.id.card_view);
+//        ImageView ivHasSeen = (ImageView) view.findViewById(R.id.imageview_has_seen);
 
         if(cursor.getInt(cursor.getColumnIndex(MMUContract.BulletinEntry.COLUMN_HAS_SEEN)) == 0) {
-            ivHasSeen.setVisibility(View.VISIBLE);
+//            ivHasSeen.setVisibility(View.VISIBLE);
+            cardView.setCardBackgroundColor(context.getResources().getColor(R.color.white));
         }else {
-            ivHasSeen.setVisibility(View.INVISIBLE);
+            cardView.setCardBackgroundColor(context.getResources().getColor(R.color.background_material_light));
         }
 
 

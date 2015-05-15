@@ -100,9 +100,13 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                         " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
                 sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
             }
-            final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
-                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
-            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
+            try {
+                final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                        " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
+                sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
+            }catch(Exception e) {
+                Log.d("COLUMN EXISTS", "COLUMN EXISTS");
+            }
         }
         if(oldVersion < 16) {
             Log.d("DATABASE", "ADDING FINALS COLUMN");

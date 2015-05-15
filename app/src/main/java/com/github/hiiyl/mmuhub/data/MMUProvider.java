@@ -62,6 +62,7 @@ public class MMUProvider extends ContentProvider {
                         "." + MMUContract.AnnouncementEntry.COLUMN_WEEK_KEY +
                         " = " + MMUContract.WeekEntry.TABLE_NAME +
                         "." + MMUContract.WeekEntry._ID);
+        sAnnouncementByWeekQueryBuilder.setDistinct(true);
 
 
 
@@ -144,9 +145,8 @@ public class MMUProvider extends ContentProvider {
             }
             case WEEK:
             {
-                Log.d("WEEK", "QUERY");
-                retCursor = mDatabase.query(
-                        MMUContract.WeekEntry.TABLE_NAME,
+                retCursor = sAnnouncementByWeekQueryBuilder.query(
+                        mDatabase,
                         projection,
                         selection,
                         selectionArgs,

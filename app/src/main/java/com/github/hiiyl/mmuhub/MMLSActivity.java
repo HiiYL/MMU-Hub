@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -95,8 +96,10 @@ public class MMLSActivity extends BaseActivity{
             @Override
             public void run() {
                 if(subjectHasFiles(mViewPager.getCurrentItem())) {
+                    Log.d("DOWNLOAD BUTTON", "SHOW");
                     mDownloadButton.show();
                 }else {
+                    Log.d("DOWNLOAD BUTTON", "HIDE");
                     mDownloadButton.hide();
                 }
 
@@ -111,6 +114,7 @@ public class MMLSActivity extends BaseActivity{
                 new String[] {pos}, null, null, null);
         hasFiles = cursor.moveToFirst();
         cursor.close();
+        Log.d("HAS FILES", String.valueOf(hasFiles));
         return hasFiles;
 
     }

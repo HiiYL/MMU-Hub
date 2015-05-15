@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:visibility="invisible"
-        android:id="@+id/imageview_has_seen"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:elevation="5sp"
-        android:src="@drawable/ic_not_seen"/>
+
+
+
+
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view"
@@ -19,13 +15,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         card_view:cardUseCompatPadding="true"
-        card_view:cardElevation="4dp"
-        card_view:cardCornerRadius="4dp">
+        card_view:cardElevation="4dp">
+
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:orientation="vertical">
         <TextView
             android:layout_width="match_parent"
@@ -39,6 +36,7 @@
             android:paddingRight="15dp"
             android:textSize="18sp"
             android:id="@+id/listitem_mmls_title"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -100,5 +98,17 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+
     </android.support.v7.widget.CardView>
+    <ImageView
+        android:elevation="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageview_has_seen"
+        android:src="@drawable/ic_not_seen"/>
+
+
 </RelativeLayout>
