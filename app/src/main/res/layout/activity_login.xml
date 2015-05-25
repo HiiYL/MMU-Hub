@@ -29,7 +29,6 @@
             android:gravity="center"
             android:singleLine="true"
             android:imeOptions="actionNext"
-            android:inputType="number"
             android:hint="Student ID"/>
         <!--<TextView-->
         <!--android:layout_width="wrap_content"-->

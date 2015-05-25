@@ -19,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -34,6 +33,9 @@ import com.github.hiiyl.mmuhub.helper.ViewEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 
@@ -154,7 +156,6 @@ public class BulletinActivity extends BaseActivity {
         public void updateBulletin(final Context context) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             Log.d("UPDATE Bulletin", "UPDATING BULLETIN");
-            final String subject_url, subject_name;
             final Context mContext = context;
             final MMUDbHelper mOpenHelper = new MMUDbHelper(mContext);
             Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME, null, null, null, null, null, null);
@@ -162,80 +163,57 @@ public class BulletinActivity extends BaseActivity {
                 mSwipeRefreshLayout.setRefreshing(true);
                 StringRequest sr = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
                     @Override
-                    public void onResponse(String response) {
-                        try {
-                            Log.d("RECEIVE", "RECEIVED");
-                            JSONArray bulletin_array = new JSONArray(response);
-                            for (int i = 0; i < bulletin_array.length(); i++) {
-                                JSONObject bulletin_obj = bulletin_array.getJSONObject(i);
-                                String bulletin_title = bulletin_obj.getString("title");
-                                String bulletin_posted_date = bulletin_obj.getString("posted_date");
-                                String bulletin_author = bulletin_obj.getString("author");
-                                String bulletin_contents = bulletin_obj.getString("contents");
+                    public void onResponse(final String response) {
+                                try {
+                                    Log.d("RECEIVE", "RECEIVED");
+                                    JSONArray bulletin_array = new JSONArray(response);
+                                    for (int i = 0; i < bulletin_array.length(); i++) {
+                                        JSONObject bulletin_obj = bulletin_array.getJSONObject(i);
+                                        String bulletin_title = bulletin_obj.getString("title");
+                                        String bulletin_posted_date = bulletin_obj.getString("posted_date");
+                                        String bulletin_author = bulletin_obj.getString("author");
+                                        String bulletin_contents = bulletin_obj.getString("contents");
 
 
-                                Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME,
-                                        null, MMUContract.BulletinEntry.COLUMN_TITLE + " = ? AND " + MMUContract.BulletinEntry.COLUMN_POSTED_DATE + " = ? "
-                                        , new String[]{bulletin_title, bulletin_posted_date}, null, null, null);
-                                if (!cursor.moveToFirst()) {
-                                    ContentValues bulletinValues = new ContentValues();
-                                    bulletinValues.put(MMUContract.BulletinEntry.COLUMN_TITLE, bulletin_title);
-                                    bulletinValues.put(MMUContract.BulletinEntry.COLUMN_POSTED_DATE, bulletin_posted_date);
-                                    bulletinValues.put(MMUContract.BulletinEntry.COLUMN_CONTENTS, bulletin_contents);
-                                    bulletinValues.put(MMUContract.BulletinEntry.COLUMN_AUTHOR, bulletin_author);
-                                    MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.BulletinEntry.TABLE_NAME, null, bulletinValues);
+                                        Cursor cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.BulletinEntry.TABLE_NAME,
+                                                null, MMUContract.BulletinEntry.COLUMN_TITLE + " = ? AND " + MMUContract.BulletinEntry.COLUMN_POSTED_DATE + " = ? "
+                                                , new String[]{bulletin_title, bulletin_posted_date}, null, null, null);
+                                        if (!cursor.moveToFirst()) {
+                                            ContentValues bulletinValues = new ContentValues();
+                                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_TITLE, bulletin_title);
+                                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_POSTED_DATE, bulletin_posted_date);
+                                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_CONTENTS, bulletin_contents);
+                                            bulletinValues.put(MMUContract.BulletinEntry.COLUMN_AUTHOR, bulletin_author);
+                                            MySingleton.getInstance(getActivity()).getDatabase().insert(MMUContract.BulletinEntry.TABLE_NAME, null, bulletinValues);
+                                        }
+                                    }
+                                    mSwipeRefreshLayout.setRefreshing(false);
+                                    EventBus.getDefault().post(new DownloadCompleteEvent(BULLETIN_SYNC_COMPLETE));
+
+                                } catch (JSONException exception) {
+                                    exception.printStackTrace();
                                 }
-                            }
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            EventBus.getDefault().post(new DownloadCompleteEvent(BULLETIN_SYNC_COMPLETE));
-
-
-                        } catch (JSONException exception) {
-
-                        }
                     }
                 }, new Response.ErrorListener() {
                     String json = null;
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("WOW", "ITS DEAD JIM");
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        NetworkResponse networkResponse = error.networkResponse;
-                        if (networkResponse != null && networkResponse.data != null) {
-                            switch (networkResponse.statusCode) {
-                                case 400:
-                                    SnackBar snackbar = new SnackBar(getActivity(), "Wrong Username or Password");
-                                    snackbar.show();
-
-                                    break;
-                                default:
-                                    SnackBar new_snackbar = new SnackBar(getActivity(), "Internal Server Error",
-                                            "Retry", new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            updateBulletin(context);
-                                        }
-                                    });
-                                    new_snackbar.show();
-                            }
-                            //Additional cases
-                        } else {
-                            SnackBar snackbar = new SnackBar(getActivity(), "No Internet Connection",
-                                    "Retry", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    updateBulletin(context);
-                                }
-                            });
-                            snackbar.show();
-                        }
+                        Log.d("Attendance Update", "ITS DEAD JIM");
                     }
-                });
-                sr.setRetryPolicy(new DefaultRetryPolicy(
-                        30000,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                MySingleton.getInstance(getActivity()).addToRequestQueue(sr);
+                }) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<String, String>();
+                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+                        params.put("cookie", prefs.getString("cookie", ""));
+                        return params;
+                    }
+                };
+            sr.setRetryPolicy(new DefaultRetryPolicy(
+                    0,
+                    0,
+                    0));
+            MySingleton.getInstance(getActivity()).addToRequestQueue(sr);
         }
     }
 }

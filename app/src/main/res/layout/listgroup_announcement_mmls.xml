@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/announcement_group_layout"
     android:layout_height="match_parent">
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/listgroup_week_textview"
         android:textSize="20sp"
+        android:fontFamily="san-serif"
+        android:background="@color/background_floating_material_light"
         android:textStyle="bold"
         android:padding="10dp"
         />
-</LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listgroup_week_textview"
+        android:id="@+id/no_announcement_textview"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="No Announcement for This Week"/>
+</RelativeLayout>

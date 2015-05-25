@@ -3,18 +3,19 @@ package com.github.hiiyl.mmuhub.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.github.hiiyl.mmuhub.data.MMUContract.AnnouncementEntry;
+import com.github.hiiyl.mmuhub.data.MMUContract.BulletinEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.FilesEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.SubjectEntry;
 import com.github.hiiyl.mmuhub.data.MMUContract.WeekEntry;
-import com.github.hiiyl.mmuhub.data.MMUContract.BulletinEntry;
 /**
  * Created by Hii on 4/19/15.
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 16;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -26,7 +27,11 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_SUBJECT_TABLE = "CREATE TABLE " + SubjectEntry.TABLE_NAME + " (" +
                 SubjectEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 SubjectEntry.COLUMN_NAME + " TEXT UNIQUE NOT NULL, " +
-                SubjectEntry.COLUMN_URL + " TEXT NOT NULL" +
+                SubjectEntry.COLUMN_URL + " TEXT NOT NULL," +
+                SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL,"+
+                SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL," +
+                SubjectEntry.COLUMN_FINALS_START_DATETIME + " INTEGER," +
+                SubjectEntry.COLUMN_FINALS_END_DATETIME + " INTEGER" +
                 " );";
         final String SQL_CREATE_WEEK_TABLE = "CREATE TABLE " + WeekEntry.TABLE_NAME + " (" +
                 WeekEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -86,12 +91,32 @@ public class MMUDbHelper extends SQLiteOpenHelper {
         // It does NOT depend on the version number for your application.
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeekEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + AnnouncementEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FilesEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + BulletinEntry.TABLE_NAME);
-        onCreate(sqLiteDatabase);
+        Log.d("DATABASE ON UPGRADE", "HELL OTHERE");
+        Log.d("OLD VERSION", String.valueOf(oldVersion));
+        if(oldVersion < 15) {
+            Log.d("DATABASE", "ADDING COLUMN");
+            if(oldVersion < 14) {
+                final String SQL_ADD_COLUMN_ATTENDANCE_LECTURE = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                        " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL;";
+                sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LECTURE);
+            }
+            try {
+                final String SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                        " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL;";
+                sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_TUTORIAL);
+            }catch(Exception e) {
+                Log.d("COLUMN EXISTS", "COLUMN EXISTS");
+            }
+        }
+        if(oldVersion < 16) {
+            Log.d("DATABASE", "ADDING FINALS COLUMN");
+            final String SQL_ADD_COLUMN_FINALS_START_DATETIME = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMN " + SubjectEntry.COLUMN_FINALS_START_DATETIME + " INTEGER;";
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_FINALS_START_DATETIME);
+            final String SQL_ADD_COLUMN_FINALS_END_DATETIME = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMN " + SubjectEntry.COLUMN_FINALS_END_DATETIME + " INTEGER;";
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_FINALS_END_DATETIME);
+        }
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SubjectEntry.TABLE_NAME);

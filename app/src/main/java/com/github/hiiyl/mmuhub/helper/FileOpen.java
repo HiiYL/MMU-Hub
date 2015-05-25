@@ -1,8 +1,12 @@
 package com.github.hiiyl.mmuhub.helper;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+
+import com.gc.materialdesign.widgets.SnackBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +38,7 @@ public class FileOpen {
             intent.setDataAndType(uri, "application/vnd.ms-excel");
         } else if(url.toString().contains(".zip") || url.toString().contains(".rar")) {
             // WAV audio file
-            intent.setDataAndType(uri, "application/x-wav");
+            intent.setDataAndType(uri, "application/zip");
         } else if(url.toString().contains(".rtf")) {
             // RTF file
             intent.setDataAndType(uri, "application/rtf");
@@ -53,7 +57,7 @@ public class FileOpen {
         } else if(url.toString().contains(".3gp") || url.toString().contains(".mpg") || url.toString().contains(".mpeg") || url.toString().contains(".mpe") || url.toString().contains(".mp4") || url.toString().contains(".avi")) {
             // Video files
             intent.setDataAndType(uri, "video/*");
-        } else {
+        }else {
             //if you want you can also define the intent type for any other file
 
             //additionally use else clause below, to manage other unknown extensions
@@ -61,8 +65,12 @@ public class FileOpen {
             //so you can choose which application to use
             intent.setDataAndType(uri, "*/*");
         }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        try {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }catch(ActivityNotFoundException e) {
+            SnackBar snackBar = new SnackBar((Activity) context, "No application installed to handle this file type");
+            snackBar.show();
+        }
     }
 }

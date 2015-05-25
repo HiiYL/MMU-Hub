@@ -19,6 +19,7 @@ public class MMUContract {
     // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
     // the content provider.
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
     public static class SubjectEntry implements BaseColumns {
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_SUBJECT).build();
@@ -27,6 +28,12 @@ public class MMUContract {
         public static final String COLUMN_NAME = "name";
 
         public static final String COLUMN_URL = "url";
+
+        public static final String COLUMN_ATTENDANCE_LECTURE = "attendance_lecture";
+        public static final String COLUMN_ATTENDANCE_TUTORIAL = "attendance_tutorial";
+        public static final String COLUMN_FINALS_START_DATETIME = "finals_start_datetime";
+        public static final String COLUMN_FINALS_END_DATETIME = "finals_end_datetime";
+
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_SUBJECT;
@@ -84,6 +91,12 @@ public class MMUContract {
         }
         public static Uri buildAnnouncementWithWeekUri(String week) {
             return CONTENT_URI.buildUpon().appendPath(week).build();
+        }
+        public static String getSubjectFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+        public static String getWeekFromUri(Uri uri) {
+            return uri.getPathSegments().get(2);
         }
     }
     public static class BulletinEntry implements  BaseColumns {

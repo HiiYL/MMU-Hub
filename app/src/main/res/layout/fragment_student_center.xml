@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:orientation="vertical"
+    tools:context="com.github.hiiyl.mmuhub.StudentCenterActivity$PlaceholderFragment">
+    <TextView
+        android:id="@+id/attendance_barred_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You have been barred by Finance Department from seeing your attendance due to outstanding fees"
+        android:visibility="gone"/>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:listSelector="@android:color/transparent"
+        android:id="@+id/listview_attendance"
+        >
+    </ListView>
+</RelativeLayout>

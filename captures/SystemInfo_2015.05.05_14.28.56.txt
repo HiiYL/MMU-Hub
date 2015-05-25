@@ -1,0 +1,41 @@
+Applications Memory Usage (kB):
+Uptime: 155998067 Realtime: 243189842
+
+** MEMINFO in pid 24986 [com.github.hiiyl.mmuhub] **
+                   Pss  Private  Private  Swapped     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------
+  Native Heap     6682     6628        0      832     9736     9480      255
+  Dalvik Heap     5539     5408        0     2644     9905     7980     1925
+ Dalvik Other      296      296        0        0                           
+        Stack      180      180        0        0                           
+       Cursor       88       88        0        0                           
+      Gfx dev     2884     2884        0        0                           
+    Other dev        5        0        4        0                           
+     .so mmap     1563      232      464     1260                           
+    .apk mmap      236        0       64        0                           
+    .ttf mmap       48        0       48        0                           
+    .dex mmap     1792        0     1792        0                           
+    .oat mmap     3794        0     1972        0                           
+    .art mmap     1814      812      360      132                           
+   Other mmap       56        4        8        0                           
+   EGL mtrack     9420     9420        0        0                           
+    GL mtrack     5108     5108        0        0                           
+      Unknown      114      112        0       48                           
+        TOTAL    39619    31172     4712     4916    19641    17460     2180
+ 
+ Objects
+               Views:      455         ViewRootImpl:        3
+         AppContexts:        6           Activities:        4
+              Assets:        2        AssetManagers:        2
+       Local Binders:       13        Proxy Binders:       22
+       Parcel memory:        3         Parcel count:       14
+    Death Recipients:        0      OpenSSL Sockets:        0
+ 
+ SQL
+         MEMORY_USED:      182
+  PAGECACHE_OVERFLOW:       78          MALLOC_SIZE:       62
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b)          cache  Dbname
+         4       80            235     5259/32/18  /data/data/com.github.hiiyl.mmuhub/databases/mmuhub.db

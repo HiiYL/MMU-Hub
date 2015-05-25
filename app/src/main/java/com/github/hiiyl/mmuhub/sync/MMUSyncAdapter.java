@@ -69,6 +69,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
     private int mNumberOfSubjects = Utility.getSubjectCount(getContext());
     private int mSubjectSyncCount = 0;
 
+    private String mLastSyncTime;
+
     private SQLiteDatabase database;
     private RequestQueue sync_queue;
     MMUDbHelper helper;
@@ -82,6 +84,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.d("FIRST SYNC", "FIRST SYNC");
             EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_BEGIN));
         }
+        mLastSyncTime = Utility.getLastSyncDate(getContext());
         sync_queue = MySingleton.getInstance(getContext()).
                 getRequestQueue();
         Log.d(LOG_TAG, "onPerformSync Called.");
@@ -109,7 +112,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
         /*
          * Finally, let's do a sync to get things started
          */
-        syncImmediately(context);
+//        syncImmediately(context);
     }
     public static void syncImmediately(Context context) {
         Bundle bundle = new Bundle();
@@ -119,6 +122,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                 context.getString(R.string.content_authority), bundle);
     }
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
+        Log.d("CONFIGURED", "PERIODC SYNC CONFIGURED");
         Account account = getSyncAccount(context);
         String authority = context.getString(R.string.content_authority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -354,6 +358,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
 
                                     }
                                 }
+                                getContext().getContentResolver().notifyChange(MMUContract.WeekEntry.CONTENT_URI, null);
 
                             } catch (JSONException | ParseException e) {
                                 e.printStackTrace();
@@ -362,6 +367,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                             if (mSubjectSyncCount == mNumberOfSubjects) {
                                 EventBus.getDefault().postSticky(new SyncEvent(Utility.SYNC_FINISHED));
                                 mSubjectSyncCount = 0;
+                                Utility.updateLastSyncDate(context);
                             }
                             // database insert here
                         }
@@ -393,6 +399,8 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                     params.put("cookie", prefs.getString("cookie", ""));
                     params.put("subject_url", subject_url);
+                    params.put("last_sync", mLastSyncTime);
+                    Log.d("LAST SYNC SENT", mLastSyncTime);
                     return params;
                 }
 
@@ -404,7 +412,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             };
             sr.setRetryPolicy(new DefaultRetryPolicy(
-                    30000,
+                    0,
                     0,
                     0));
             sr.setTag(SYNC_TAG);
@@ -452,7 +460,7 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         };
         sr.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
+                0,
                 0,
                 0));
         sync_queue.add(sr);
@@ -496,11 +504,19 @@ public class MMUSyncAdapter extends AbstractThreadedSyncAdapter {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
-        });
+        }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("last_sync", mLastSyncTime);
+                Log.d("LAST SYNC SENT", mLastSyncTime);
+                return params;
+            }
+        };
         sr.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                0,
+                0,
+                0));
         MySingleton.getInstance(context).addToRequestQueue(sr);
     }
 

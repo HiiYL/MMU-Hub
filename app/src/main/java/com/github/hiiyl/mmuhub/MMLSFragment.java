@@ -1,5 +1,6 @@
 package com.github.hiiyl.mmuhub;
 
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,11 +9,15 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -20,9 +25,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -65,13 +72,14 @@ import de.greenrobot.event.EventBus;
 /**
  * Created by Hii on 4/23/15.
  */
-public class MMLSFragment extends Fragment {
+public class MMLSFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>{
     private static final String DOWNLOAD_TAG = "download";
     private ExpandableListView mExListView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private MMLSAdapter mAdapter;
     private Cursor cursor;
     private MMUDbHelper mOpenHelper;
+    private static final int ANNOUNCEMENT_LOADER = 0;
     private RequestQueue requestQueue;
     private ProgressBar mProgressBar;
     private TextView mInteractionPromptText;
@@ -115,11 +123,6 @@ public class MMLSFragment extends Fragment {
         if(event.message.equals(Utility.SYNC_FINISHED)) {
             Log.d("SYNC COMPLETE", "COMPLETE");
             mSwipeRefreshLayout.setRefreshing(false);
-            cursor = MySingleton.getInstance(getActivity()).getDatabase().
-                    query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
-            mAdapter.changeCursor(cursor);
-            mExListView.expandGroup(0);
-            EventBus.getDefault().removeStickyEvent(event);
         }else if(event.message.equals(Utility.SYNC_BEGIN)) {
             Log.d("SYNC STARTING", "NOTIFICATINO RECEIVED");
             mSwipeRefreshLayout.post(new Runnable() {
@@ -146,12 +149,18 @@ public class MMLSFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_mml, container, false);
 
+        ScrollView emptyView = (ScrollView) rootView.findViewById(R.id.empty_list_layout);
+
         mOpenHelper = new MMUDbHelper(getActivity());
         int slide = getArguments().getInt(ARG_SECTION_NUMBER, 0);
         slide_str = Integer.toString(slide);
         mExListView = (ExpandableListView) rootView.findViewById(R.id.listview_expandable_mmls);
-        cursor = MySingleton.getInstance(getActivity()).getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?", new String[]{slide_str}, null, null, null);
-        mAdapter = new MMLSAdapter(cursor, getActivity());
+        mExListView.setEmptyView(emptyView);
+//        cursor = getActivity().getContentResolver().query(
+//                MMUContract.WeekEntry.CONTENT_URI,
+//                null, "subject_id = ? ", new String[] {slide_str}, null);
+        mAdapter = new MMLSAdapter(null, getActivity());
+//        WrapperExpandableListAdapter wrapperAdapter = new WrapperExpandableListAdapter(mAdapter);
         mExListView.setAdapter(mAdapter);
         mExListView.expandGroup(0);
 
@@ -162,12 +171,29 @@ public class MMLSFragment extends Fragment {
                 refreshContent(getActivity(), Integer.toString(MMLSActivity.mViewPager.getCurrentItem() + 1));
             }
         });
+        mExListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int topRowVerticalPosition = (mExListView == null || mExListView.getChildCount() == 0) ?
+                        0 : mExListView.getChildAt(0).getTop();
+                mSwipeRefreshLayout.setEnabled((topRowVerticalPosition >= 0));
+            }
+        });
+
         mExListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                TextView snippet =  (TextView)v.findViewById(R.id.listitem_mmls_snippet);
-                LinearLayout layout = (LinearLayout)v.findViewById(R.id.announcement_detail_download_layout);
-                if(snippet.getLineCount() == 1) {
+//                v.setHasTransientState(true);
+                android.support.v4.view.ViewCompat.setHasTransientState(v, true);
+                TextView snippet = (TextView) v.findViewById(R.id.listitem_mmls_snippet);
+                LinearLayout layout = (LinearLayout) v.findViewById(R.id.announcement_detail_download_layout);
+                if (snippet.getLineCount() == 1) {
                     snippet.setSingleLine(false);
                     snippet.setEllipsize(null);
                     Cursor has_seen_cursor = mAdapter.getChild(
@@ -183,7 +209,7 @@ public class MMLSFragment extends Fragment {
                                     has_seen_cursor.getLong(has_seen_cursor.getColumnIndex(MMUContract.AnnouncementEntry._ID));
                     final Cursor new_cursor = MySingleton.getInstance(getActivity()).getDatabase().rawQuery(attachment_file_query, null);
                     has_seen_cursor.close();
-                    if(new_cursor.moveToFirst()) {
+                    if (new_cursor.moveToFirst()) {
                         TextView attachment_view = (TextView) v.findViewById(R.id.announcement_detail_attachment_name);
                         mInteractionPromptText = (TextView) v.findViewById(R.id.announcement_detail_attachment_interaction_prompt);
                         mProgressBar = (ProgressBar) v.findViewById(R.id.announcement_detail_attachment_progressbar);
@@ -203,11 +229,11 @@ public class MMLSFragment extends Fragment {
                         subject_cursor.moveToFirst();
                         String mSubjectName = subject_cursor.getString(subject_cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME));
                         final String file_path = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + Utility.ANNOUNCEMENT_ATTACHMENT_FOLDER + "/" + file_name;
-                        final String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/"  + Utility.ANNOUNCEMENT_ATTACHMENT_FOLDER + "/";
+                        final String file_directory = Environment.getExternalStorageDirectory().getPath() + "/" + Utility.DOWNLOAD_FOLDER + "/" + mSubjectName + "/" + Utility.ANNOUNCEMENT_ATTACHMENT_FOLDER + "/";
                         File file = new File(file_path);
-                        if(file.exists()) {
+                        if (file.exists()) {
                             mInteractionPromptText.setText("Tap to View");
-                        }else {
+                        } else {
                             mInteractionPromptText.setText("Tap to Download");
                         }
 
@@ -217,15 +243,14 @@ public class MMLSFragment extends Fragment {
                                 Log.d("FILE NAME", file_name);
                                 Log.d("FILE PATH", file_path);
                                 File file = new File(file_path);
-                                if(file.exists()) {
+                                if (file.exists()) {
                                     try {
                                         FileOpen.openFile(getActivity(), file);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
-                                }
-                                else {
-                                    if(Utility.isNetworksAvailable(getActivity())) {
+                                } else {
+                                    if (Utility.isNetworksAvailable(getActivity())) {
                                         mProgressBar.setVisibility(View.VISIBLE);
                                         File temp = new File(file_directory);
                                         temp.mkdirs();
@@ -248,9 +273,8 @@ public class MMLSFragment extends Fragment {
                             }
                         });
                     }
-                    new_cursor.close();
-                mAdapter.notifyDataSetChanged();
-                }else {
+                    mAdapter.notifyDataSetChanged();
+                } else {
                     layout.setVisibility(View.GONE);
                     snippet.setSingleLine(true);
                     snippet.setEllipsize(TextUtils.TruncateAt.END);
@@ -279,6 +303,70 @@ public class MMLSFragment extends Fragment {
         }
         return rootView;
     }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(ANNOUNCEMENT_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        cursor = getActivity().getContentResolver().query(
+//                MMUContract.WeekEntry.CONTENT_URI,
+//                new String[] {MMUContract.WeekEntry.TABLE_NAME + "." + MMUContract.WeekEntry.COLUMN_TITLE,
+//                        MMUContract.WeekEntry.TABLE_NAME + "." + MMUContract.WeekEntry._ID},
+//                MMUContract.WeekEntry.TABLE_NAME + "." + MMUContract.WeekEntry.COLUMN_SUBJECT_KEY + " = ? AND " +
+//                        MMUContract.AnnouncementEntry.TABLE_NAME + "." + MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY + " = ? ",
+//                 new String[] {slide_str,slide_str},
+//                null);
+        return new CursorLoader(getActivity(),
+                MMUContract.WeekEntry.CONTENT_URI,
+                new String[] {MMUContract.WeekEntry.TABLE_NAME + "." + MMUContract.WeekEntry.COLUMN_TITLE,
+                        MMUContract.WeekEntry.TABLE_NAME + "." + MMUContract.WeekEntry._ID},
+                MMUContract.WeekEntry.TABLE_NAME + "." + MMUContract.WeekEntry.COLUMN_SUBJECT_KEY + " = ? AND " +
+                        MMUContract.AnnouncementEntry.TABLE_NAME + "." + MMUContract.AnnouncementEntry.COLUMN_SUBJECT_KEY + " = ? ",
+                new String[] {slide_str, slide_str},
+                null
+                );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.changeCursor(data);
+        mExListView.expandGroup(0);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.changeCursor(null);
+
+    }
+
+//    @Override
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        return new CursorLoader(getActivity(),
+//                MMUContract.AnnouncementEntry.CONTENT_URI,
+//                null,
+//                null,
+//                null,
+//                null
+//                );
+//    }
+//
+//    @Override
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+//        mAdapter.changeCursor(data);
+//        mExListView.expandGroup(0);
+//
+//    }
+//
+//    @Override
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//        mAdapter.changeCursor(null);
+//
+//    }
 
     private class DownloadTask extends AsyncTask<String, Integer, String> {
 
@@ -604,10 +692,7 @@ public class MMLSFragment extends Fragment {
 
                             }
                         }
-                        Cursor new_cursor = MySingleton.getInstance(getActivity()).
-                                getDatabase().query(MMUContract.WeekEntry.TABLE_NAME, null, "subject_id = ?",
-                                new String[]{slide_str}, null, null, null);
-                        mAdapter.changeCursor(new_cursor);
+                        getActivity().getContentResolver().notifyChange(MMUContract.WeekEntry.CONTENT_URI, null);
                         mSwipeRefreshLayout.setRefreshing(false);
 
                     } catch (JSONException e) {
@@ -675,9 +760,9 @@ public class MMLSFragment extends Fragment {
                 }
             };
             sr.setRetryPolicy(new DefaultRetryPolicy(
-                    30000,
                     0,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                    0,
+                    0));
             sr.setTag(DOWNLOAD_TAG);
             requestQueue.add(sr);
         }
@@ -719,19 +804,17 @@ public class MMLSFragment extends Fragment {
                 params.put("password", prefs.getString("mmls_password",""));
                 return params;
             }
-
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String,String> headers = new HashMap<String, String>();
-                headers.put("Content-Type","application/x-www-form-urlencoded");
-                headers.put("abc", "value");
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded");
                 return headers;
             }
         };
         sr.setRetryPolicy(new DefaultRetryPolicy(
-                30000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                0,
+                0,
+                0));
         requestQueue.add(sr);
     }
 }

@@ -9,10 +9,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.gc.materialdesign.views.ButtonFloat;
 import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
@@ -45,8 +47,13 @@ public class MMLSActivity extends BaseActivity{
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+
+        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        tabs.setViewPager(mViewPager);
+
         mViewPager.setOffscreenPageLimit(4);
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -89,8 +96,10 @@ public class MMLSActivity extends BaseActivity{
             @Override
             public void run() {
                 if(subjectHasFiles(mViewPager.getCurrentItem())) {
+                    Log.d("DOWNLOAD BUTTON", "SHOW");
                     mDownloadButton.show();
                 }else {
+                    Log.d("DOWNLOAD BUTTON", "HIDE");
                     mDownloadButton.hide();
                 }
 
@@ -105,6 +114,7 @@ public class MMLSActivity extends BaseActivity{
                 new String[] {pos}, null, null, null);
         hasFiles = cursor.moveToFirst();
         cursor.close();
+        Log.d("HAS FILES", String.valueOf(hasFiles));
         return hasFiles;
 
     }

@@ -448,7 +448,6 @@ public class DownloadActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.d("HELLO THERE", Boolean.toString(isVisible));
             if(isVisible) {
                 mProgressBar = (ProgressBar) view.findViewById(R.id.listitem_download_mmls_progress_bar);
                 mProgressBar.setVisibility(View.VISIBLE);

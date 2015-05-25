@@ -25,8 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/bulletin_listview"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="0.5sp"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0sp"
             />
         <!--</LinearLayout>-->
 
