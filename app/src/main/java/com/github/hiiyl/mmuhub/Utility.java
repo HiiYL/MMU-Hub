@@ -269,13 +269,28 @@ public class Utility {
                                         Log.d("SUBJECT_ID", cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry._ID)));
 
                                         ContentValues attendanceValues = new ContentValues();
-                                        if (course_component.equals("Lecture")) {
-                                            attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LECTURE, current_attendance);
-                                        } else if (course_component.equals("Tutorial")) {
-                                            attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL, current_attendance);
+                                        boolean attendance_type_exists = true;
+                                        switch (course_component) {
+                                            case "Lecture":
+                                                attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LECTURE, current_attendance);
+
+                                                break;
+                                            case "Tutorial":
+                                                attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL, current_attendance);
+                                                break;
+                                            case "Laboratory":
+                                                attendanceValues.put(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LABORATORY, current_attendance);
+                                                break;
+                                            default:
+                                                attendance_type_exists = false;
+                                                break;
                                         }
-                                        MySingleton.getInstance(context).getDatabase().update(MMUContract.SubjectEntry.TABLE_NAME,
-                                                attendanceValues, MMUContract.SubjectEntry._ID + " = ? ", new String[]{subject_id});
+                                        if(attendance_type_exists) {
+                                            MySingleton.getInstance(context).getDatabase().update(MMUContract.SubjectEntry.TABLE_NAME,
+                                                    attendanceValues, MMUContract.SubjectEntry._ID + " = ? ", new String[]{subject_id});
+                                        }
+
+
                                     } else {
                                         Log.d("SUBJECT", "SUBJECT NOT FOUND");
                                     }

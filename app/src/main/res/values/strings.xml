@@ -58,4 +58,6 @@
     <string name="sync_interval">sync interval</string>
     <string name="notifications_category">Notifications</string>
     <string name="title_activity_student_center">StudentCenterActivity</string>
+
+    <string name="facebook_app_id">1586406014977971</string>
 </resources>

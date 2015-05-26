@@ -15,7 +15,7 @@ import com.github.hiiyl.mmuhub.data.MMUContract.WeekEntry;
  */
 public class MMUDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 17;
 
     static final String DATABASE_NAME = "mmuhub.db";
 
@@ -30,6 +30,7 @@ public class MMUDbHelper extends SQLiteOpenHelper {
                 SubjectEntry.COLUMN_URL + " TEXT NOT NULL," +
                 SubjectEntry.COLUMN_ATTENDANCE_LECTURE + " REAL,"+
                 SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL + " REAL," +
+                SubjectEntry.COLUMN_ATTENDANCE_LABORATORY + " REAL, " +
                 SubjectEntry.COLUMN_FINALS_START_DATETIME + " INTEGER," +
                 SubjectEntry.COLUMN_FINALS_END_DATETIME + " INTEGER" +
                 " );";
@@ -116,6 +117,12 @@ public class MMUDbHelper extends SQLiteOpenHelper {
             final String SQL_ADD_COLUMN_FINALS_END_DATETIME = " ALTER TABLE " + SubjectEntry.TABLE_NAME +
                     " ADD COLUMN " + SubjectEntry.COLUMN_FINALS_END_DATETIME + " INTEGER;";
             sqLiteDatabase.execSQL(SQL_ADD_COLUMN_FINALS_END_DATETIME);
+        }
+        if(oldVersion < 17) {
+            final String SQL_ADD_COLUMN_ATTENDANCE_LABORATORY = "ALTER TABLE " + SubjectEntry.TABLE_NAME +
+                    " ADD COLUMN " + SubjectEntry.COLUMN_ATTENDANCE_LABORATORY + " REAL";
+            sqLiteDatabase.execSQL(SQL_ADD_COLUMN_ATTENDANCE_LABORATORY);
+
         }
     }
     public void onLogout(SQLiteDatabase sqLiteDatabase) {

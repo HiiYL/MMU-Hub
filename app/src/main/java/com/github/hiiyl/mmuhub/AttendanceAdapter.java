@@ -33,8 +33,10 @@ public class AttendanceAdapter extends CursorAdapter {
         TextView subject_textview = (TextView) view.findViewById(R.id.section_label);
         RelativeLayout attendance_lecture_layout = (RelativeLayout) view.findViewById(R.id.rel_layout_attendence_lecture);
         RelativeLayout attendance_tutorial_layout = (RelativeLayout) view.findViewById(R.id.rel_layout_attendence_tutorial);
+        RelativeLayout attendance_laboratory_layout = (RelativeLayout) view.findViewById(R.id.rel_layout_attendence_laboratory);
         ArcProgress attendance_lecture = (ArcProgress) view.findViewById(R.id.arc_attendence_lecture);
         ArcProgress attendance_tutorial = (ArcProgress) view.findViewById(R.id.arc_attendence_tutorial);
+        ArcProgress attendance_laboratory = (ArcProgress) view.findViewById(R.id.arc_attendence_laboratory);
         subject_textview.setText(cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_NAME)));
         if(!cursor.isNull(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LECTURE))) {
             attendance_lecture_layout.setVisibility(View.VISIBLE);
@@ -43,6 +45,10 @@ public class AttendanceAdapter extends CursorAdapter {
         if(!cursor.isNull(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL))) {
             attendance_tutorial_layout.setVisibility(View.VISIBLE);
             attendance_tutorial.setProgress((int) Float.parseFloat(cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_TUTORIAL))));
+        }
+        if(!cursor.isNull(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LABORATORY))) {
+            attendance_laboratory_layout.setVisibility(View.VISIBLE);
+            attendance_laboratory.setProgress((int) Float.parseFloat(cursor.getString(cursor.getColumnIndex(MMUContract.SubjectEntry.COLUMN_ATTENDANCE_LABORATORY))));
         }
     }
 }

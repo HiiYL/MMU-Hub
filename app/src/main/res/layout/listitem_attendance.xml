@@ -34,7 +34,7 @@
             android:id="@+id/rel_layout_attendence_lecture">
         <com.github.lzyzsd.circleprogress.ArcProgress
             android:id="@+id/arc_attendence_lecture"
-            android:background="#FFF"
+            android:background="@color/cardview_light_background"
             android:layout_width="100dp"
             android:layout_height="100dp"
             custom:arc_unfinished_color = "@color/background_material_light"
@@ -59,7 +59,7 @@
             android:id="@+id/rel_layout_attendence_tutorial">
             <com.github.lzyzsd.circleprogress.ArcProgress
                 android:id="@+id/arc_attendence_tutorial"
-                android:background="#FFF"
+                android:background="@color/cardview_light_background"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 custom:arc_unfinished_color = "@color/background_material_light"
@@ -70,6 +70,27 @@
                 android:textSize="10sp"
                 android:layout_alignParentBottom="true"
                 android:text="Tutorial"
+                android:textColor="#33b5e5"
+                android:layout_centerHorizontal="true"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:id="@+id/rel_layout_attendence_laboratory">
+            <com.github.lzyzsd.circleprogress.ArcProgress
+                android:id="@+id/arc_attendence_laboratory"
+                android:background="@color/cardview_light_background"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                custom:arc_unfinished_color = "@color/background_material_light"
+                custom:arc_finished_color = "#33b5e5"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:layout_alignParentBottom="true"
+                android:text="Laboratory"
                 android:textColor="#33b5e5"
                 android:layout_centerHorizontal="true"/>
         </RelativeLayout>

@@ -2,8 +2,8 @@
   "name": "__MSG_extName__",
   "default_locale": "en",
   "manifest_version": 2,
-  "version": "0.20",
-  "version_name": "1.6",
+  "version": "0.21",
+  "version_name": "1.7",
   "offline_enabled": true,
   "app": {
     "background": {
@@ -37,7 +37,7 @@
   
   "arc_metadata": {
     "apkList": [
-      "app-releasev1.6.apk"
+      "app-releasev1.7.apk"
     ],
     "enableExternalDirectory": false,
     "formFactor": "phone",
