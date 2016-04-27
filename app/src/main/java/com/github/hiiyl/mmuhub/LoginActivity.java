@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -25,8 +26,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
-import com.gc.materialdesign.views.ButtonRectangle;
-import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.sync.MMUSyncAdapter;
@@ -45,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
 //    private EditText camsys_password;
     private MaterialEditText mmls_password;
 //    private EditText icems_password;
-    private ButtonRectangle login_btn;
+    private Button login_btn;
     private Context mContext;
     private String TAG = LoginActivity.class.getSimpleName();
 
@@ -90,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
 //        camsys_password = (EditText) findViewById(R.id.camsys_pass_field);
         mmls_password = (MaterialEditText) findViewById(R.id.mmls_pass_field);
 //        icems_password = (EditText) findViewById(R.id.icems_pass_field);
-        login_btn = (ButtonRectangle) findViewById(R.id.loginBtn);
+        login_btn = (Button) findViewById(R.id.loginBtn);
 
     }
     public void requestAuthentication() {
@@ -162,34 +161,34 @@ public class LoginActivity extends AppCompatActivity {
                 if(networkResponse != null && networkResponse.data != null){
                     switch(networkResponse.statusCode){
                         case 400:
-                            SnackBar snackbar = new SnackBar(LoginActivity.this, "Wrong Username or Password");
-                            snackbar.show();
+//                            SnackBar snackbar = new SnackBar(LoginActivity.this, "Wrong Username or Password");
+//                            snackbar.show();
 
                             break;
                         default:
-                            SnackBar new_snackbar = new SnackBar(LoginActivity.this, "MMLS server did not respond in time",
-                                    "Retry", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    requestAuthentication();
-                                    finish();
-                                }
-                            });
-                            new_snackbar.show();
+//                            SnackBar new_snackbar = new SnackBar(LoginActivity.this, "MMLS server did not respond in time",
+//                                    "Retry", new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    requestAuthentication();
+//                                    finish();
+//                                }
+//                            });
+//                            new_snackbar.show();
                     }
                     //Additional cases
                 }
                 else
                 {
-                    SnackBar snackbar = new SnackBar(LoginActivity.this, "No Internet Connection",
-                            "Retry", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            requestAuthentication();
-                            finish();
-                        }
-                    });
-                    snackbar.show();
+//                    SnackBar snackbar = new SnackBar(LoginActivity.this, "No Internet Connection",
+//                            "Retry", new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            requestAuthentication();
+//                            finish();
+//                        }
+//                    });
+//                    snackbar.show();
                 }
                 login_btn.setText("Submit");
                 login_btn.setEnabled(true);

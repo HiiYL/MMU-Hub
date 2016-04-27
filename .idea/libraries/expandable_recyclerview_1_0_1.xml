@@ -1,10 +1,12 @@
 <component name="libraryTable">
   <library name="expandable-recyclerview-1.0.1">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.levelupstudio/expandable-recyclerview/1.0.1/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.levelupstudio/expandable-recyclerview/1.0.1/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.levelupstudio/expandable-recyclerview/1.0.1/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.levelupstudio/expandable-recyclerview/1.0.1/ffa739e7715015fb3dc7d9a056838cbcf8bd255e/expandable-recyclerview-1.0.1-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

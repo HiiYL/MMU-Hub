@@ -30,7 +30,7 @@
             android:layout_alignParentBottom="true"
             android:background="@color/background_material_light">
 
-            <com.gc.materialdesign.views.ButtonFlat
+            <Button
                 android:id="@+id/logout_button"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"

@@ -14,12 +14,9 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.gc.materialdesign.views.ButtonFlat;
-import com.gc.materialdesign.widgets.SnackBar;
-
 import de.greenrobot.event.EventBus;
 
 
@@ -30,7 +27,7 @@ public class BaseActivity extends AppCompatActivity
     private Handler mHandler;
     private Runnable mPendingRunnable;
 
-    private ButtonFlat mLogOutButton;
+    private Button mLogOutButton;
 //    private ButtonFlat mTimetableButton;
 //    private ButtonFlat mCamsysButton;
 
@@ -58,7 +55,7 @@ public class BaseActivity extends AppCompatActivity
         TextView student_id = (TextView) headerView.findViewById(R.id.student_id);
         TextView faculty = (TextView) headerView.findViewById(R.id.faculty_text);
 
-        mLogOutButton = (ButtonFlat) findViewById(R.id.logout_button);
+        mLogOutButton = (Button) findViewById(R.id.logout_button);
 
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -124,31 +121,31 @@ public class BaseActivity extends AppCompatActivity
             Intent intent;
             @Override
             public void onClick(View v) {
-                SnackBar log_out_confirm = new SnackBar(BaseActivity.this, "Confirm log out?", "Yes",
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mDrawerLayout.closeDrawer(Gravity.START);
-                                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                                getSupportActionBar().setHomeButtonEnabled(true);
-                                SharedPreferences.Editor editor = prefs.edit();
-                                editor.putBoolean("logged_in", false);
-                                editor.apply();
-                                EventBus.getDefault().removeAllStickyEvents();
-
-                                intent = new Intent(BaseActivity.this, LoginActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                mPendingRunnable = new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                };
-
-                            }
-                        });
-                log_out_confirm.show();
+//                SnackBar log_out_confirm = new SnackBar(BaseActivity.this, "Confirm log out?", "Yes",
+//                        new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                mDrawerLayout.closeDrawer(Gravity.START);
+//                                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//                                getSupportActionBar().setHomeButtonEnabled(true);
+//                                SharedPreferences.Editor editor = prefs.edit();
+//                                editor.putBoolean("logged_in", false);
+//                                editor.apply();
+//                                EventBus.getDefault().removeAllStickyEvents();
+//
+//                                intent = new Intent(BaseActivity.this, LoginActivity.class);
+//                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                                mPendingRunnable = new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        startActivity(intent);
+//                                        finish();
+//                                    }
+//                                };
+//
+//                            }
+//                        });
+//                log_out_confirm.show();
             }
         });
 

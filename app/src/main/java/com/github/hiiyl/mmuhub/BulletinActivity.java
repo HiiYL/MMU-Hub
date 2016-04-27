@@ -24,7 +24,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.DownloadCompleteEvent;
@@ -107,8 +106,8 @@ public class BulletinActivity extends BaseActivity {
         }
         public void onEventMainThread(DownloadCompleteEvent event) {
             if(event.message.equals(BULLETIN_SYNC_COMPLETE)) {
-                SnackBar new_snackbar = new SnackBar(getActivity(), event.message);
-                new_snackbar.show();
+//                SnackBar new_snackbar = new SnackBar(getActivity(), event.message);
+//                new_snackbar.show();
                 Cursor newCursor = MySingleton.getInstance(getActivity()).getDatabase().query(
                         MMUContract.BulletinEntry.TABLE_NAME, null, null, null, null, null, null);
                 mAdapter.changeCursor(newCursor);

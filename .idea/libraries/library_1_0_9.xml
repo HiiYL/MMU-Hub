@@ -1,10 +1,12 @@
 <component name="libraryTable">
   <library name="library-1.0.9">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.jpardogo.materialtabstrip/library/1.0.9/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.jpardogo.materialtabstrip/library/1.0.9/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.jpardogo.materialtabstrip/library/1.0.9/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jpardogo.materialtabstrip/library/1.0.9/6d0397996c9b2da2030d1747d0122c16387fc4c7/library-1.0.9-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

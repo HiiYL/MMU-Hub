@@ -26,7 +26,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.AttendanceCompleteEvent;
 import com.github.hiiyl.mmuhub.helper.RefreshTokenEvent;
@@ -155,8 +154,8 @@ public class Utility {
             }
         }
         Log.e("isNetworkAvailable", "NO INTERNET");
-        SnackBar snackBar = new SnackBar((android.app.Activity) context, "No Internet Connection");
-        snackBar.show();
+//        SnackBar snackBar = new SnackBar((android.app.Activity) context, "No Internet Connection");
+//        snackBar.show();
         return false;
     }
     public static boolean getNotificationsEnabled(Context context) {
@@ -369,18 +368,18 @@ public class Utility {
                         if (networkResponse != null && networkResponse.data != null) {
                             switch (networkResponse.statusCode) {
                                 case 400:
-                                    SnackBar snackbar = new SnackBar((Activity) context, "Wrong Username or Password");
-                                    snackbar.show();
+//                                    SnackBar snackbar = new SnackBar((Activity) context, "Wrong Username or Password");
+//                                    snackbar.show();
 
                                     break;
                                 default:
-                                    SnackBar new_snackbar = new SnackBar((Activity) context, "Camsys server did not respond in time");
-                                    new_snackbar.show();
+//                                    SnackBar new_snackbar = new SnackBar((Activity) context, "Camsys server did not respond in time");
+//                                    new_snackbar.show();
                             }
                             //Additional cases
                         } else {
-                            SnackBar snackbar = new SnackBar((Activity) context, "No Internet Connection");
-                            snackbar.show();
+//                            SnackBar snackbar = new SnackBar((Activity) context, "No Internet Connection");
+//                            snackbar.show();
                         }
                         VolleyLog.d(TAG, "Error: " + error.getMessage());
                         Log.d(TAG, "" + error.getMessage() + "," + error.toString());
@@ -539,17 +538,17 @@ public class Utility {
                     if (networkResponse != null && networkResponse.data != null) {
                         switch (networkResponse.statusCode) {
                             case 400:
-                                SnackBar snackbar = new SnackBar((Activity) context, "Wrong Username or Password");
-                                snackbar.show();
+//                                SnackBar snackbar = new SnackBar((Activity) context, "Wrong Username or Password");
+//                                snackbar.show();
                                 break;
                             default:
-                                SnackBar new_snackbar = new SnackBar((Activity) context, "Camsys server did not respond in time");
-                                new_snackbar.show();
+//                                SnackBar new_snackbar = new SnackBar((Activity) context, "Camsys server did not respond in time");
+//                                new_snackbar.show();
                         }
                         //Additional cases
                     } else {
-                        SnackBar snackbar = new SnackBar((Activity) context, "No Internet Connection");
-                        snackbar.show();
+//                        SnackBar snackbar = new SnackBar((Activity) context, "No Internet Connection");
+//                        snackbar.show();
                     }
                     VolleyLog.d(TAG, "Error: " + error.getMessage());
                     Log.d(TAG, "" + error.getMessage() + "," + error.toString());

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,10 +14,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.gc.materialdesign.views.ButtonFloat;
-import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.helper.SyncEvent;
 
@@ -28,7 +28,7 @@ import de.greenrobot.event.EventBus;
 public class MMLSActivity extends BaseActivity{
     SectionsPagerAdapter mSectionsPagerAdapter;
     public static final String LOGGED_IN_PREF_TAG = "logged_in";
-    private static ButtonFloat mDownloadButton;
+    private static FloatingActionButton mDownloadButton;
     private static int mIntentSubjectPage;
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -41,7 +41,7 @@ public class MMLSActivity extends BaseActivity{
         setContentView(R.layout.activity_mmls);
         super.onCreateDrawer();
 
-        mDownloadButton = (ButtonFloat)findViewById(R.id.lecture_notes_download);
+        mDownloadButton = (FloatingActionButton) findViewById(R.id.lecture_notes_download);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -134,13 +134,13 @@ public class MMLSActivity extends BaseActivity{
     public void onEventMainThread(SyncEvent event){
         if(event.message.equals(Utility.SYNC_FINISHED)) {
             if(Utility.isFirstSync(this)) {
-                SnackBar sync_notify = new SnackBar(this, "Sync Complete");
-                sync_notify.show();
+//                SnackBar sync_notify = new SnackBar(this, "Sync Complete");
+//                sync_notify.show();
                 Utility.setFirstSync(this, false);
             }
         }else if(event.message.equals(Utility.SYNC_BEGIN)) {
-            SnackBar sync_notify = new SnackBar(this, "Syncing ...");
-            sync_notify.show();
+//            SnackBar sync_notify = new SnackBar(this, "Syncing ...");
+//            sync_notify.show();
         }
     }
 

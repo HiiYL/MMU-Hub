@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-import com.gc.materialdesign.widgets.SnackBar;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -69,8 +67,8 @@ public class FileOpen {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }catch(ActivityNotFoundException e) {
-            SnackBar snackBar = new SnackBar((Activity) context, "No application installed to handle this file type");
-            snackBar.show();
+//            SnackBar snackBar = new SnackBar((Activity) context, "No application installed to handle this file type");
+//            snackBar.show();
         }
     }
 }

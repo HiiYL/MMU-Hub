@@ -14,7 +14,7 @@
         android:textSize="20sp"/>
 
 
-    <com.gc.materialdesign.views.ButtonFlat
+    <Button
         android:id="@+id/download_all_button"
         android:layout_width="match_parent"
         android:layout_height="50dp"

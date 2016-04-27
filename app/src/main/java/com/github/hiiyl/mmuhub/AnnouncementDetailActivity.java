@@ -24,7 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.FileOpen;
@@ -111,8 +110,8 @@ public class AnnouncementDetailActivity extends ActionBarActivity {
             super.onStop();
         }
         public void onEventMainThread(RefreshTokenEvent event) {
-            SnackBar new_snackbar = new SnackBar(getActivity(), event.status);
-            new_snackbar.show();
+//            SnackBar new_snackbar = new SnackBar(getActivity(), event.status);
+//            new_snackbar.show();
             if(event.status.equals(Utility.REFRESH_TOKEN_COMPLETE)) {
                 EventBus.getDefault().removeStickyEvent(event);
             }

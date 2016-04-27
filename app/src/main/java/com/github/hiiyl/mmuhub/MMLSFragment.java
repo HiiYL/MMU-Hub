@@ -40,7 +40,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.gc.materialdesign.widgets.SnackBar;
 import com.github.hiiyl.mmuhub.data.MMUContract;
 import com.github.hiiyl.mmuhub.data.MMUDbHelper;
 import com.github.hiiyl.mmuhub.helper.FileOpen;
@@ -710,36 +709,36 @@ public class MMLSFragment extends Fragment  implements LoaderManager.LoaderCallb
                         switch (networkResponse.statusCode) {
                             case 400:
                                 requestQueue.cancelAll(DOWNLOAD_TAG);
-                                SnackBar snackbar = new SnackBar(getActivity(), "Your session cookie has expired.",
-                                        "Refresh and Retry", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        refreshTokenAndRetry(getActivity(), subject_id);
-                                    }
-                                });
-                                snackbar.show();
+//                                SnackBar snackbar = new SnackBar(getActivity(), "Your session cookie has expired.",
+//                                        "Refresh and Retry", new View.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(View v) {
+//                                        refreshTokenAndRetry(getActivity(), subject_id);
+//                                    }
+//                                });
+//                                snackbar.show();
                                 break;
                             default:
-                                SnackBar new_snackbar = new SnackBar(getActivity(), "Internal Server Error",
-                                        "Retry", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        updateSubject(getActivity(), subject_id);
-                                    }
-                                });
-                                new_snackbar.show();
+//                                SnackBar new_snackbar = new SnackBar(getActivity(), "Internal Server Error",
+//                                        "Retry", new View.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(View v) {
+//                                        updateSubject(getActivity(), subject_id);
+//                                    }
+//                                });
+//                                new_snackbar.show();
                         }
                         //Additional cases
                     }
                     else {
-                        SnackBar new_snackbar = new SnackBar(getActivity(), "No Internet Connection",
-                                "Retry", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                updateSubject(getActivity(), subject_id);
-                            }
-                        });
-                        new_snackbar.show();
+//                        SnackBar new_snackbar = new SnackBar(getActivity(), "No Internet Connection",
+//                                "Retry", new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                updateSubject(getActivity(), subject_id);
+//                            }
+//                        });
+//                        new_snackbar.show();
                     }
                 }
             }) {

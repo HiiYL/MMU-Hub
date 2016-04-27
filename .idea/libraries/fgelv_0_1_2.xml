@@ -1,10 +1,12 @@
 <component name="libraryTable">
   <library name="fgelv-0.1.2">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.diegocarloslima/fgelv/0.1.2/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.diegocarloslima/fgelv/0.1.2/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.diegocarloslima/fgelv/0.1.2/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.diegocarloslima/fgelv/0.1.2/bbd6e3e4532bcb0029087e83ba29de9a226535e6/fgelv-0.1.2-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>
