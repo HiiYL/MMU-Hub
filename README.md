@@ -4,6 +4,10 @@ An all in one MMU app built natively for Android using Android Studio
 Now available on Google Play Store ! </br>
 [Download Link](https://play.google.com/store/apps/details?id=com.github.hiiyl.mmuhub&hl=en)
 
+
+### Demo
+[<img src="https://user-images.githubusercontent.com/7908951/28114269-b3b3dcf2-6732-11e7-96cb-7e351339cfe3.png">](https://youtu.be/_Hc2-FdBMtQ)
+
 ### Features
 - A new quick and easy way to read MMLS, simply swipe left and right to view announcements of different subjects
 - Native performance and animations
